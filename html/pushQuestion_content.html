@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<section>
+				<div class="fb-box">
+					<ul class="fb-list">
+						<input class="fb-input fb-input1" type="text" id="questionTitle" placeholder="添加问题标题" />
+						<li ></li>
+						<li class="select" id="type3">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="type3Value"></span></span>行业
+						</li>
+						<li class="list-box" id="type3Box" style="display:none"></li>
+						<li ></li>
+						<li class="select" id="type1">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="type1Value"></span></span>应用
+						</li>
+						<li class="list-box" id="type1Box" style="display:none"></li>
+						<li class="select" id="model">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="modelValue"></span></span>模块
+						</li>
+						<li class="list-box" id="modelBox" style="display:none"></li>
+						<li ></li>
+						<input class="fb-input fb-input1" type="number" id="questionAmount" placeholder="悬赏维币" />
+						<li ></li>
+						<li class="select" id="type5">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="type5Value">aaa</span>问题支撑类型
+						</li>
+						<li class="list-box" id="type5Box" style="display:none"></li>
+						<li ></li>
+						<li class="select" id="type6">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="type6Value"></span>问题类型
+						</li>
+						<li class="list-box" id="type6Box" style="display:none"></li>
+						<li ></li>
+						<li class="select" id="type7">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="type7Value"></span>问题等级
+						</li>
+						<li class="list-box" id="type7Box" style="display:none"></li>
+						<li ></li>
+						<li class="select" id="questionExpectProcessDate">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="questionExpectProcessDateValue"></span>期望时间
+						</li>
+						<li ></li>
+						<li class="select" id="waibu" >
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="waibuValue">aa</span>选择顾问
+						</li>
+						<li>
+							<textarea  class="fb-input fb-input2" id="content" placeholder="请输入问题描述" ></textarea>
+						</li>
+					</ul>
+					<ul class="fb-pic c" id="imgLists">
+						<li class="last"><img src="../images/fb-add-icon.png" />
+						</li>
+					</ul>
+					<div class="fb-yy" id="voices">
+						<span class="fb-yy-icon fl"></span>
+						<p class="date fl">
+							<span id="ax">语言</span>
+							<span class="f14" id="voiceLength"></span>
+						</p>
+					</div>
+				</div>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script>
+				var token = "";
+				var imgList = [];
+				var UIMediaScanner;
+				var type3 = [];
+				var type5 = [];
+				var type6 = [];
+				var type7 = [];
+				var type3Value = [];
+				var type5Value = [];
+				var type6Value = [];
+				var type7Value = [];
+				var setTimeoutCurrent;
+				var currentMic = 0;
+				var voiceLength = "";
+				var path = "";
+				var pageParam;
+				var parame1 = {};
+				var parameName = [];
+				var parameValue = [];
+				var skillArray = [];
+				var skillArrayValue = [];
+				apiready = function() {
+					pageParam = api.pageParam;
+					$("#voices").bind("touchstart", function() {
+						startVoice();
+						$("#ax").html("放手结束");
+					})
+					$("#voices").bind("touchend", function() {
+						endVoice();
+						$("#ax").html("语音");
+					})
+					UIMediaScanner = api.require('UIMediaScanner');
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						token = ret.value;
+					});
+					$(".last").click(function() {
+						initClick();
+					});
+					//获取配置信息
+					doAjax(LISTQUESTIONCONFIG, "post", {}, function(data) {
+						var html = "<p>";
+						for (var i = 0; i < data.type3.length; i++) {
+							html = html + "<a class='type3Box' name='" + data.type3[i].dictionaryName + "' value='" + data.type3[i].dictionaryId + "'> " + data.type3[i].dictionaryName + "</a>";
+						}
+						html = html + "</p>"
+						$("#type3Box").html(html);
+						$("#type3").click(function() {
+							$("#type3Box").show();
+							$(".type3Box").click(function() {
+								var name = $(this).attr("name");
+								var value = $(this).attr("value");
+								$("#type3Value").html(name);
+								$("#type3Value").attr("realValue", value);
+								$("#type3Box").hide();
+							});
+						});
+						var html = "<p>";
+						var skills = data.type1;
+						for (var i = 0; i < skills.length; i++) {
+							html = html + "<a class='type1Box' dictionaries='" + JSON.stringify(skills[i].dictionaries) + "'  name='" + skills[i].dictionaryName + "' value='" + skills[i].dictionaryId + "'> " + skills[i].dictionaryName + "</a>";
+						}
+						html = html + "</p>"
+						$("#type1Box").html(html);
+						$("#type1").click(function() {
+							$("#type1Box").show();
+							$(".type1Box").click(function() {
+								var name = $(this).attr("name");
+								var value = $(this).attr("value");
+								$("#type1Value").html(name);
+								$("#type1Value").attr("realValue", value);
+								$("#type1Box").hide();
+								var dictionaries = $(this).attr("dictionaries");
+								var json = JSON.parse(dictionaries);
+								length = Math.floor(json.length / 5);
+								var html = "";
+								for (var i = 0; i < length; i++) {
+									html = html + "<P>";
+									for (var j = 0; j < 5; j++) {
+										html = html + "<a   class='modelBox' name='" + json[i * 5 + j].dictionaryName + "' rowid ='" + json[i * 5 + j].dictionaryId + "'>" + json[i * 5 + j].dictionaryName + "</a>";
+									}
+									html = html + "</P>";
+								}
+								var model = json.length % 5;
+								html = html + "<P>";
+								for (var i = 0; i < model; i++) {
+									html = html + "<a    name='" + json[length * 5 + i].dictionaryName + "'   class='modelBox' rowid ='" + json[length * 5 + i].dictionaryId + "'>" + json[length * 5 + i].dictionaryName + "</a>";
+								}
+								html = html + "</p>";
+								$("#modelBox").html(html);
+								$("#model").click(function() {
+									$("#modelBox").show("fast");
+									$(".modelBox").click(function() {
+										var rowid = $(this).attr("rowid");
+										var name = $(this).attr("name");
+										$("#modelValue").html(name);
+										$("#modelValue").attr("realValue", rowid);
+										$("#modelBox").hide();
+									});
+								});
+							});
+						});
+						html = "<p>"
+						for (var i = 0; i < data.type5.length; i++) {
+							html = html + "<a class='type5Box' name='" + data.type5[i].dictionaryName + "' value='" + data.type5[i].dictionaryId + "'> " + data.type5[i].dictionaryName + "</a>";
+						}
+						html = html + "</p>"
+						$("#type5Box").html(html);
+						$("#type5").click(function() {
+							$("#type5Box").show();
+							$(".type5Box").click(function() {
+								var name = $(this).attr("name");
+								var value = $(this).attr("value");
+								$("#type5Value").html(name);
+								$("#type5Value").attr("realValue", value);
+								$("#type5Box").hide();
+							});
+						});
+						html = "<p>"
+						for (var i = 0; i < data.type6.length; i++) {
+							html = html + "<a class='type6Box' name='" + data.type6[i].dictionaryName + "' value='" + data.type6[i].dictionaryId + "'> " + data.type6[i].dictionaryName + "</a>";
+						}
+						html = html + "</p>"
+						$("#type6Box").html(html);
+						$("#type6").click(function() {
+							$("#type6Box").show();
+							$(".type6Box").click(function() {
+								var name = $(this).attr("name");
+								var value = $(this).attr("value");
+								$("#type6Value").html(name);
+								$("#type6Value").attr("realValue", value);
+								$("#type6Box").hide();
+							});
+						});
+						html = "<p>"
+						for (var i = 0; i < data.type7.length; i++) {
+							html = html + "<a class='type7Box' name='" + data.type7[i].dictionaryName + "' value='" + data.type7[i].dictionaryId + "'> " + data.type7[i].dictionaryName + "</a>";
+						}
+						html = html + "</p>"
+						$("#type7Box").html(html);
+						$("#type7").click(function() {
+							$("#type7Box").show();
+							$(".type7Box").click(function() {
+								var name = $(this).attr("name");
+								var value = $(this).attr("value");
+								$("#type7Value").html(name);
+								$("#type7Value").attr("realValue", value);
+								$("#type7Box").hide();
+							});
+						});
+					}, function() {
+					})
+					$("#waibu").click(function() {
+						//选择内部用户顾问
+						openWindow("selectUsersAndGroups_window", "selectUsersAndGroups_window.html", {})
+					});
+					$("#questionExpectProcessDate").click(function() {
+						api.openPicker({
+							type : 'date_time',
+							title : '选择时间'
+						}, function(ret, err) {
+							var year = ret.year;
+							var month = ret.month;
+							var day = ret.day;
+							var hour = ret.hour;
+							var minute = ret.minute;
+							$("#questionExpectProcessDateValue").html(year + "-" + month + "-" + day + " " + hour + ":" + minute + ":00");
+						});
+					});
+					$("#questionDueDatetime").click(function() {
+						api.openPicker({
+							type : 'date_time',
+							title : '选择时间'
+						}, function(ret, err) {
+							var year = ret.year;
+							var month = ret.month;
+							var day = ret.day;
+							var hour = ret.hour;
+							var minute = ret.minute;
+							$("#questionDueDatetimeValue").html(year + "-" + month + "-" + day + " " + hour + ":" + minute + ":00");
+						});
+					});
+				}
+				function initClick() {
+					UIMediaScanner.open({
+						column : 4,
+						classify : true,
+						max : 4,
+						type : "picture",
+						count : 6,
+						sort : {
+							key : 'time',
+							order : 'desc'
+						},
+						texts : {
+							stateText : '已选择*项',
+							cancelText : '取消',
+							finishText : '完成'
+						},
+						styles : {
+							bg : '#fff',
+							mark : {
+								icon : '',
+								position : 'bottom_left',
+								size : 20
+							},
+							nav : {
+								bg : '#eee',
+								stateColor : '#000',
+								stateSize : 18,
+								cancelBg : 'rgba(0,0,0,0)',
+								cancelColor : '#000',
+								cancelSize : 18,
+								finishBg : 'rgba(0,0,0,0)',
+								finishColor : '#000',
+								finishSize : 18
+							}
+						}
+					}, function(ret) {
+						if (ret) {
+							var html = "";
+							imgList = [];
+							for (var i = 0; i < ret.list.length; i++) {
+								imgList.push(ret.list[i].thumbPath);
+								html = html + " <li class='select'><img src='" + ret.list[i].thumbPath + "' /><span class='delete-icon' index='" + ret.list[i].thumbPath + "'></span></li>";
+							}
+							html = html + "<li class='last'><img src='../images/fb-add-icon.png' /></li>";
+							$("#imgLists").html(html);
+							$(".last").click(function() {
+								initClick();
+							});
+							$(".delete-icon").click(function() {
+								$(this).parent().hide();
+								var index = $(this).attr("index");
+								imgList = delArray(imgList, index);
+							});
+						}
+					});
+				}
+
+				function save() {
+					imgList.push(path);
+					var parame = {
+						values : {
+							token : token,
+							title : $("#questionTitle").val(),
+							questionContent1 : $("#content").val(),
+							questionActualProcessDate : $("#questionActualProcessDateValue").html(),
+							questionAmount : $("#questionAmount").val(),
+							questionIndustry : $("#type3Value").attr("realValue"),
+							questionLevel : $("#type7Value").attr("realValue"),
+							questionType : $("#type6Value").attr("realValue"),
+							questionMoudle : $("#type5Value").attr("realValue"), //支撑类型
+							questionDegree : $("#type3Value").attr("realValue"),
+							questionExpectProcessDate : $("#questionExpectProcessDateValue").html(),
+							parame1 : pageParam.type,
+							selectUsers : $api.getStorage("selectUsersByQuestion"),
+							selectGroups : $api.getStorage("userGroup")
+						},
+						files : {
+							img1 : imgList
+						}
+					}
+					doAjax(SAVEUSERQUESTION, "post", parame, function(data) {
+						if (data.flag == "true") {
+							api.alert({
+								"title" : "提示",
+								"msg" : "发表成功"
+							}, function(ret, err) {
+								api.closeWin({
+								});
+							});
+						}
+					}, function(data) {
+					});
+				}
+
+				var start = false;
+				function startVoice() {
+					setTimeoutCurrent = setTimeout("toast()", 1000);
+					api.startRecord({
+					});
+				}
+
+				function toast() {
+					currentMic = currentMic + 1;
+					api.toast({
+						msg : '正在录音' + currentMic + "秒",
+						duration : 1000,
+						location : 'middle'
+					});
+					setTimeoutCurrent = setTimeout("toast()", 1000)
+				}
+
+				function endVoice() {
+					api.stopRecord(function(ret, err) {
+						if (ret) {
+							path = ret.path;
+							$("#voices").attr("style", "");
+							$("#ax").append(ret.duration + "秒");
+							voiceLength = ret.duration;
+						}
+					});
+					currentMic = 0;
+					clearTimeout(setTimeoutCurrent);
+				}
+
+				function initUsersByToken() {
+					var selectUsersByQuestion = $api.getStorage("selectUsersByQuestion");
+					var userGroup = $api.getStorage("userGroup");
+					if (selectUsersByQuestion != "" && selectUsersByQuestion != null) {
+						$("#waibuValue").html("选择了" + selectUsersByQuestion.split(",").length + "顾问");
+					} else {
+						$("#waibuValue").html("选择了" + userGroup.split(",").length + "群组");
+					}
+				}
+			</script>
+</html>

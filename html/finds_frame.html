@@ -1,0 +1,89 @@
+<html ng-app="ionicApp" xmlns="http://www.w3.org/1999/xhtml">
+	<head lang="en">
+		<meta charset="UTF-8">
+		<meta name="data-spm" content="5176"/>
+		<meta content="yes" name="apple-mobile-web-app-capable"/>
+		<meta content="yes" name="apple-touch-fullscreen"/>
+		<meta content="telephone=no,email=no" name="format-detection"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
+		<title></title>
+		<link rel="stylesheet" href="../css/find.css"/>
+		<link rel="stylesheet" href="../css/icon.css"/>
+		<link rel="stylesheet" href="../css/scooch.css"/>
+		<link rel="stylesheet" href="../css/h5index.css"/>
+		<script src="../script/jquery-1.9.1.min.js"></script>
+		<script src="../script/api.js"></script>
+		<script src="../script/app.js"></script>
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+	</head>
+	<body data-spm="100090">
+		<div class="section-product" >
+			<ul class="product-wrap clearfix" id="list"></ul>
+		</div>
+		<section>
+			<nav>
+				<ul>
+					<li >
+						<P class="nav-icon nav-icon1"></P>
+						<P>
+							首页
+						</P>
+					</li>
+					<li class="footUrl" url="bbs_window.html">
+						<P class="nav-icon nav-icon2"></P>
+						<P>
+							社区
+						</P>
+					</li>
+					<li class="menuCenter footUrl" url="finds_window.html">
+						<a>
+						<P class="guide-icon"><img src="../images/dh-icon.png"  />
+						</P>
+						<P>
+							发现
+						</P> </a>
+					</li>
+					<li class="footUrl">
+						<p class="nav-icon nav-icon3"></p>
+						<p>
+							消息<span class="info-tips">12</span>
+						</p>
+					</li>
+					<li class="footUrl" url="mInfo_window.html">
+						<P class="nav-icon nav-icon4"></P>
+						<P>
+							我的
+						</P>
+					</li>
+				</ul>
+			</nav>
+		</section>
+	</body>
+	<script>
+        apiready = function() {
+            api.getPrefs({
+                key : 'token'
+            }, function(ret, err) {
+                token = ret.value;
+                var parames = {
+                    values : {
+                        "token" : token
+                    }
+                }
+                doAjax(GETBARHOME, "post", parames, function(data) {
+                    var indexConfs = data.indexConfs;
+                    var html = "";
+                    for (var i = 0; i < indexConfs.length; i++) {
+                        html = html + "<li class='listAbout' keys='" + indexConfs[i].indexkeys + "'><a href='#'> <span class='product-icon' style='border-radius:50%;background-image:url(" + IMGURL + indexConfs[i].iocn + ")'></span> <span class='product-name'>" + indexConfs[i].name + "</span> <span class='product-nickname'>" + indexConfs[i].namedesc + "</span> </a></li>";
+                    }
+                    $("#list").html(html);
+                    $(".listAbout").click(function() {
+                        var keys = $(this).attr("keys");
+                        openWindow(keys, keys, null);
+                    });
+                }, function() {
+                });
+            });
+        }
+	</script>
+</html>

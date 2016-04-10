@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-base.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-box.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-color.css" />
+		<link rel="stylesheet" type="text/css" href="../css/appcan.control.css" />
+	</head>
+	<style>
+        body {
+        }
+        div#select {
+            width: 98%;
+            height: 290px;
+            border-radius: .3em;
+            background-color: gray;
+        }
+        div#select ul li {
+            width: 70%;
+            margin: 0 auto;
+            height: 3em;
+            line-height: 3em;
+            clear: both;
+        }
+        div#select ul li span {
+            color: #FFF;
+        }
+        div#select ul li span.left {
+            float: left;
+            font-size: 1.5em;
+        }
+        div#select ul li span.right {
+            float: right;
+        }
+        div#button {
+            width: 60%;
+            margin: 0 auto;
+            height: 60px;
+        }
+        div#button button {
+            width: 100%;
+            background-color: rgb(255,210,55);
+            height: 40px;
+            border-radius: 3em;
+        }
+         .bc-btn {
+            background-color: rgb(255,210,55);
+            width: 80%;
+            margin: 2em auto;
+            border-radius: 2em;
+        }
+	</style>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<body >
+		<div id="select">
+			<ul>
+				<li class="list" ty="info">
+					<span class="left"> 查看群信息</span>
+				</li>
+				<div style="height:1px;background-color:white"></div>
+				<li class="list" ty="cy">
+					<span class="left"> 查看群成员</span>
+				</li>
+				<div style="height:1px;background-color:white"></div>
+				<li class="list" ty="wz">
+					<span class="left">只看群位置 </span>
+				</li>
+				<div style="height:1px;background-color:white"></div>
+				<li class="list" ty="tc">
+					<span class="left">退出群 </span>
+				</li>
+				<div style="height:1px;background-color:white"></div>
+			</ul>
+			<div class="btn ub ub-ac bc-text-head ub-pc bc-btn"  id="btn">
+			确定
+		</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+        apiready = function() {
+            var pageParame = api.pageParam;
+            var targetId = pageParame.targetId;
+            
+            $("#button button,#btn").click(function() {
+                setPrefs("parame", $("input:checked").val());
+                api.closeFrame({
+                    name : 'filters'
+                });
+            });
+            $(".list").click(function() {
+                var ty = $(this).attr("ty");
+                if (ty == "cy") {
+                    api.openWin({
+                        name : 'groupUsers_window',
+                        url : './groupUsers_window.html',
+                        pageParam : {
+                            targetId : targetId
+                        },
+                        bounces : false,
+                        slidBackEnabled :false
+                    });
+                }
+                if (ty == "wz") {
+                    api.openWin({
+                        name : 'lbswz_window',
+                        url : './lbswz_window.html',
+                        pageParam : {
+                            targetId : targetId
+                        },
+                        bounces : false
+                    });
+                } if (ty == "info") {
+                    api.openWin({
+                        name : 'groupInfo_window',
+                        url : './groupInfo_window.html',
+                        pageParam : {
+                            targetId : targetId
+                        },
+                        bounces : false,
+                        slidBackEnabled :false
+                    });
+                }
+                if (ty == "tc") {
+                    api.confirm({
+                        title : "提示",
+                        msg : "确认退出群吗",
+                        buttons : ['确定', '取消']
+                    }, function(ret, err) {
+                        if (ret.buttonIndex == 1) {
+                            api.getPrefs({
+                                key : 'token'
+                            }, function(ret, err) {
+                                var value = ret.value;
+                                api.ajax({
+                                    url : GroupUserDelete,
+                                    timeout : 30,
+                                    dataType : 'json',
+                                    method : 'post',
+                                    returnAll : false,
+                                    data : {
+                                        values : {
+                                            "token" : value,
+                                            "rowid" : targetId
+                                        }
+                                    }
+                                }, function(ret, err) {
+                                    api.alert({
+                                        "title" : "提示",
+                                        "msg" : "退出成功"
+                                    }, function(ret, err) {
+                                    	api.closeToWin({
+	                                        name: 'root'
+                                        });
+                                    });
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        }
+	</script>
+</html>

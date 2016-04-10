@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<article>
+			<ul class="newslist" id="list">
+				 
+			</ul>
+		</article>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+            apiready = function() {
+                api.getPrefs({
+                    key : 'token'
+                }, function(ret, err) {
+                    var value = ret.value;
+                    api.ajax({
+                        url : listFirendAndQroup,
+                        timeout : 30,
+                        dataType : 'json',
+                        method : 'post',
+                        returnAll : false,
+                        data : {
+                            values : {
+                                "token" : value
+                            }
+                        }
+                    }, function(ret, err) {
+                        var html = "";
+                        for (var i = 0; i < ret.usergroups.length; i++) {
+                        	if($api.getStorage("token") ==ret.usergroups[i].userid ){
+                        	
+                            html = html + "<li name= '" + ret.usergroups[i].groupname + "' rowid='" + ret.usergroups[i].rowid + "'  class='c groupList'><dl><dt><a class='head-box' style='#style'> </a></dt><dd><P class='title'><span class='name'>" + ret.usergroups[i].groupname + "&nbsp;&nbsp;&nbsp;</span></P</dd></dl></li>";
+                            html = html.replaceAll("#style", "background:url(" + ret.usergroups[i].imgsrc + ");background-size:100%")
+                            }
+                        }
+                        $("#list").html(html);
+                        $(".groupList").click(function() {
+                            var rowid = $(this).attr("rowid");
+                            var name = $(this).attr("name");
+                            //创建群组活动设置群组信息
+                            api.execScript({
+                                name : 'createActive_window.html',
+                                frameName : "createActive_content",
+                                script : 'setGroupName("'+rowid+'","'+name+'")'
+                            });
+                            
+                            api.closeWin();
+                        });
+                    });
+                });
+            }
+		</script>
+	</body>
+</html>

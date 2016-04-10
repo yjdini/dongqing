@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/aui-win.min.css" rel="stylesheet" type="text/css">
+		<style>
+			.aui-bar .aui-title {
+				font-size: 25px;
+				font-family: "kaiti"
+			}
+		</style>
+		<body>
+			<header id="header" class="aui-bar aui-bar-nav aui-bar-blue" >
+				<a class="aui-pull-left"> <span class="aui-iconfont aui-icon-left">返回</span></a>
+				<div class="aui-title">
+					登录
+				</div>
+			</header>
+		</body>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			apiready = function() {
+				var $header = $api.dom('header');
+				$api.fixIos7Bar($header);
+				var strDM = api.systemType;
+				var pageParam = api.pageParam;
+				var header_h = ($api.offset($header).h);
+				if (api.systemType == "android") {
+					$("#header").css("padding-top", "20px");
+					header_h = header_h + 20;
+				}
+				api.openFrame({
+					name : 'login',
+					url : 'login.html',
+					rect : {
+						x : 0,
+						y : header_h,
+						w : 'auto',
+						h : "auto"
+					},
+					pageParam : pageParam
+				});
+				//二维码扫描
+				$(".aui-pull-left").click(function() {
+					api.closeWin({
+					});
+				});
+			}
+		</script>
+</html>

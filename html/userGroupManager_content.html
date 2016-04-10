@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<link href="../css/selectUser.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="ub ub-ver">
+			<!--分步骤-->
+			<section>
+				<div class="fb-box">
+					<ul class="fb-list">
+						<input class="fb-input fb-input1" type="text" id="userGroupName" placeholder="群组名称" />
+						<li ></li>
+						<input class="fb-input fb-input1" type="text" id="userGroupDesc" placeholder="群组描述" />
+						<li ></li>
+						<input class="fb-input fb-input1" type="text" id="groupUerList" placeholder="选择顾问" />
+						<li ></li>
+						<li class="select" id="groupType">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="groupTypeValue"></span></span>群组类型
+						</li>
+						<li class="list-box" id="groupTypeBox" style="display:none">
+							<P>
+								<a class='groupTypeBox' value="1" name="内部群组">内部群组</a><a class='groupTypeBox' value="2" name="外部群组">外部群组</a>
+							</P>
+						</li>
+						<li ></li>
+					</ul>
+				</div>
+		</div>
+		<ul class="fri-list" id="fri-list"></ul>
+		</section> <script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script >
+			var rowid;
+			var userList;
+			apiready = function() {
+				rowid = api.pageParam.rowid;
+				if (rowid != "" &&  rowid != null ) {
+					//获取详细信息
+					var url = listMyUserGroupId;
+					var param = {
+						values : {
+							"rowid" : rowid
+						}
+					}
+					doAjax(url, "post", param, function(data) {
+						var group = data.group;
+						$("#userGroupName").val(group.userGroupName);
+						$("#userGroupDesc").val(group.userGroupDesc);
+						var tabUser01s = data.tabUser01s;
+						var html = "";
+						for (var i = 0; i < tabUser01s.length; i++) {
+							html = html + "<li><dl class='c'><dt><img src='" + tabUser01s[i].userImgurl + "' /></dt><dd>" + tabUser01s[i].nickName + "</dd></dl></li>";
+						}
+						$("#fri-list").html(html);
+					}, function(data) {
+					})
+				} else {
+				}
+				$("#groupUerList").click(function() {
+					openWindow("selectUsers_window.html", "selectUsers_window.html", {})
+				});
+				
+				$("#groupType").click(function() {
+					$("#groupTypeBox").show();
+					$(".groupTypeBox").click(function() {
+						var value = $(this).attr("value");
+						var name = $(this).attr("name");
+						$("#groupTypeValue").html(name);
+						$("#groupTypeValue").attr("realValue", value);
+						$("#groupTypeBox").hide();
+					});
+				});
+			}
+			function save() {
+				var userGroupName = $("#userGroupName").val();
+				var userGroupDesc = $("#userGroupDesc").val();
+				var groupType = $("#groupTypeValue").attr("realValue");
+				if (!groupType) {
+					api.toast({
+						msg : '请选择群组类型'
+					});
+					return;
+				} else {
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						var value = ret.value;
+						if (userList.split(",").length == 0) {
+							api.alert({
+								"title" : "提示",
+								"msg" : "您还没有选择顾问"
+							}, function(ret, err) {
+							});
+							return;
+						}
+						var param = {
+							values : {
+								"userGroupName" : userGroupName,
+								"userGroupDesc" : userGroupDesc,
+								"groupType" : groupType,
+								"token" : value,
+								"rowid" : rowid,
+								"userList" : userList
+							}
+						}
+						doAjax(addUserGroup, "post", param, function(data) {
+							var flag = data.flag;
+							if (data.flag == "true") {
+								api.alert({
+									"title" : "提示",
+									"msg" : "操作成功"
+								}, function(ret, err) {
+									
+									api.execScript({
+										name  : "userGroup_window.html",
+										"frameName" : "userGroup_frame",
+	                                    script: 'initData();'
+                                    });
+                                    api.closeWin({
+									});
+								});
+							}
+						}, function(data) {
+						});
+					});
+				}
+			}
+
+			function initUsers(lists) {
+				userList = lists;
+				$("#groupUerList").val("选择了" + userList.split(",").length + "个顾问");
+			}
+		</script>
+	</body>
+</html>

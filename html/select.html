@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-base.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-box.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-color.css" />
+		<link rel="stylesheet" type="text/css" href="../css/appcan.control.css" />
+	</head>
+	<style>
+		body {
+			background-color: gray;
+			height: 100%;
+		}
+		.bc-btn {
+			background-color: rgb(255,210,55);
+			width: 80%;
+			margin: 2em auto;
+			border-radius: 2em;
+		}
+	</style>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<body >
+		<div id="listview_switch" class="ubt sc-border sc-bg">
+			<ul>
+				<li class="ubb ub bc-border bc-text ub-ac lis" data-index="0" >
+					<div class="lv_title ub-f1 marg-l ub ub-ver ut-m line1" style="color:white;font-size: 1.6em">
+						
+					</div>
+					<div class="switch uba bc-border switch-mini " data-checked="false" value="fj">
+						<div class="switch-btn sc-bg-active "></div>
+					</div>
+				</li>
+				<li class="ubb ub bc-border bc-text ub-ac lis" data-index="0"   id="qz">
+					<div class="lv_title ub-f1 marg-l ub ub-ver ut-m line1" style="color:white;font-size: 1.6em">
+						
+					</div>
+					<div class="switch uba bc-border switch-mini " data-checked="false" value="">
+						<div class="switch-btn sc-bg-active "></div>
+					</div>
+				</li>
+				<li class="ubb ub bc-border bc-text ub-ac lis" data-index="0" id="gr" >
+					<div class="lv_title ub-f1 marg-l ub ub-ver ut-m line1" style="color:white;font-size: 1.6em">
+						
+					</div>
+					<div class="switch uba bc-border switch-mini " data-checked="false" value="gr">
+						<div class="switch-btn sc-bg-active "></div>
+					</div>
+				</li>
+				<li class="ubb ub bc-border bc-text ub-ac lis" data-index="0" id="nan">
+					<div class="lv_title ub-f1 marg-l ub ub-ver ut-m line1" style="color:white;font-size: 1.6em">
+						
+					</div>
+					<div class="switch uba bc-border switch-mini " data-checked="false" value="nan">
+						<div class="switch-btn sc-bg-active "></div>
+					</div>
+				</li>
+				<li class="ubb ub bc-border bc-text ub-ac lis" data-index="0" id="nv">
+					<div class="lv_title ub-f1 marg-l ub ub-ver ut-m line1" style="color:white;font-size: 1.6em">
+						
+					</div>
+					<div class="switch uba bc-border switch-mini "  data-checked="false" value="nv">
+						<div class="switch-btn sc-bg-active "></div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="btn ub ub-ac bc-text-head ub-pc bc-btn"  id="btn">
+			确定
+		</div>
+	</body>
+	<script type="text/javascript">
+		var parame = "";
+		var arrayParame = [];
+		$("#btn").click(function() {
+			api.execScript({
+	            name : "root",
+	            "frameName" : "main",
+	            "script" : "initData('"+arrayParame.join(",")+"')"
+            });
+            api.closeFrame({
+	            name: 'select'
+            });
+		});
+		$(".switch").click(function() {
+			var value = $(this).attr("value");
+			var style = $(this).parent().attr("style");
+			if (style) {
+				api.alert({
+					"title" : "提示",
+					"msg" : "选择有冲突请重新选择"
+				}, function(ret, err) {
+				});
+				return;
+			}
+			if ($(this).hasClass("bc-head")) {
+				$(this).removeClass("bc-head");
+				$(this).attr("data-checked", "false");
+				arrayParame = removeArrayByObject(arrayParame.join(","), $(this).attr("value")).split(",");
+				if (value == "qz") {
+					$("#gr").removeAttr("style");
+					$("#nan").removeAttr("style");
+					$("#nv").removeAttr("style");
+				} else if (value == "gr") {
+					$("#qz").removeAttr("style");
+				} else if (value == "nv") {
+					$("#nan").removeAttr("style");
+					$("#qz").removeAttr("style");
+				} else if (value == "nan") {
+					$("#nv").removeAttr("style");
+					$("#qz").removeAttr("style");
+				}
+			} else {
+				$(this).addClass("bc-head");
+				$(this).attr("data-checked", "true");
+				arrayParame.push($(this).attr("value"));
+				if (value == "qz") {
+					$("#gr").attr("style", "background:rgb(120,205,249)");
+					$("#nv").attr("style", "background:rgb(120,205,249)");
+					$("#nan").attr("style", "background:rgb(120,205,249)");
+				} else if (value == "gr") {
+					$("#qz").attr("style", "background:rgb(120,205,249)");
+				} else if (value == "nv") {
+					$("#nan").attr("style", "background:rgb(120,205,249)");
+					$("#qz").attr("style", "background:rgb(120,205,249)");
+				} else if (value == "nan") {
+					$("#nv").attr("style", "background:rgb(120,205,249)");
+					$("#qz").attr("style", "background:rgb(120,205,249)");
+				}
+			}
+		});
+	</script>
+</html>

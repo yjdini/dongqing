@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script>
+		var src = "";
+		var FNImageClip
+		apiready = function() {
+			src = api.pageParam.src;
+			FNImageClip = api.require('FNImageClip');
+			y = 0
+			if (api.systemType == "android") {
+					 y =64;
+				}
+			FNImageClip.open({
+				rect : {
+					x : 0,
+					y : y,
+					w : api.winWidth,
+					h : api.winHeight
+				},
+				srcPath : src,
+				style : {
+					mask : '#888',
+					clip : {
+						w : api.winWidth,
+						h : api.winWidth,
+						x : 0,
+						y : (api.winHeight-api.winWidth)/3,
+						borderWidth : 0,
+						appearance : 'rectangle'
+					}
+				},
+				mode : "image",
+				fixedOn : api.frameName
+			}, function(ret, err) {
+			});
+		}
+		function saveSrc() {
+			var token = $api.getStorage("token");
+			FNImageClip.save({
+				destPath : src,
+				copyToAlbum : false,
+				quality : 1
+			}, function(ret, err) {
+				var src = ret.destPath;
+				api.ajax({
+					url : uploadImg,
+					method : 'POST',
+					timeout : 30,
+					dataType : 'json',
+					returnAll : false,
+					data : {
+						values : {
+							rowid : token
+						},
+						files : {
+							"img" : src
+						}
+					}
+				}, function(ret, err) {
+					setPrefs("img", ret.data);
+					$api.setStorage("img", ret.data);
+					api.alert({
+						msg : "裁剪上传成功"
+					}, function(ret, err) {
+						api.execScript({
+							script : 'initData();',
+							name : "root",
+							frameName : "userInfo"
+						});
+						api.closeToWin({
+							name : 'root'
+						});
+					});
+				});
+			});
+		}
+	</script>
+	</body>
+</html>

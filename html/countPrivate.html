@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/selectUser.css"/>
+		<style>
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<section class="p-t60 p-b60">
+			<div class="topfixed">
+				<div class="search">
+					<p>
+						<span class="query-icon"></span>搜索
+					</p>
+				</div>
+			</div>
+			<ul class="newslist" id="html"></ul>
+		</section>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		var pageIndex = 0;
+		var questionList = [];
+		apiready = function() {
+			initData();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				loadingImg : 'widget://image/refresh.png',
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				pageIndex = 0;
+				initData();
+				api.refreshHeaderLoadDone();
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0 //设置距离底部多少距离时触发，默认值为0，数字类型
+				}
+			}, function(ret, err) {
+				pageIndex++;
+				initData();
+			});
+			$(".search").click(function() {
+				searchUtil(function(data) {
+					var text = data.text;
+					var html = "";
+					for (var i = 0; i < questionList.length; i++) {
+						if (questionList[i].questionTitle.indexOf(text) > -1) {
+							html = html + "<li  nickName rowid = '" + questionList[i].questionUuid + "' questionId='" + questionList[i].questionId + "' class='chatList' ><dl><dt><img src='" + questionList[i].parame2 + "'></dt><dd>";
+							html = html + "<h3><span class='fr c2 date'>" + dateDiff(questionList[i].createDatetime) + "</span>" + questionList[i].parame1 + "</h3><P>";
+							html = html + questionList[i].questionTitle + "</P></dd></dl></li>";
+						}
+					}
+					if (html == "") {
+						api.toast({
+							msg : '查询结果为空'
+						});
+					}
+					$("#html").html(html);
+				});
+			});
+		};
+		function initData() {
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				var value = ret.value;
+				var parame = {
+					values : {
+						"token" : value,
+						command : "type",
+						pageIndex : pageIndex,
+						"type" : "2"
+					}
+				}
+				var url = listMyQuestion;
+				doAjax(url, "post", parame, function(data) {
+					var questions = data.questions;
+					var html = "";
+					for (var i = 0; i < questions.length; i++) {
+						html = html + "<li  nickName rowid = '" + questions[i].questionUuid + "' questionId='" + questions[i].questionId + "' class='chatList' ><dl><dt><img src='" + questions[i].parame2 + "'></dt><dd>";
+						html = html + "<h3><span class='fr c2 date'>" + dateDiff(questions[i].createDatetime) + "</span>" + questions[i].parame1 + "</h3><P>";
+						html = html + questions[i].questionTitle + "</P></dd></dl></li>";
+					}
+					if (pageIndex == "0") {
+						$("#html").html(html);
+						questionList = questions;
+					} else {
+						$("#html").append(html);
+						questionList.concat(questions);
+					}
+					$(".chatList").click(function() {
+						var rowid = $(this).attr("rowid");
+						var parames = {
+							rowid : rowid
+						}
+						openWindow("questionDetail_window", "questionDetail_window.html", parames);
+					});
+				}, function(data) {
+				})
+			});
+		}
+	</script>
+</html>

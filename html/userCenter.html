@@ -1,0 +1,135 @@
+﻿<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/result.css">
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/rem.js"></script>
+		<body>
+			<section class="details userCenter">
+				<div class="details_list1">
+					<dl>
+						<a href="#">
+						<dt><img src="" id="image">
+						</dt>
+						<dd>
+							<span id="name">陈先生|  /b></span>
+							<strong> <b id="score">历史财富：236￥</b> </strong>
+						</dd> </a>
+					</dl>
+					<ul>
+						<li>
+							<a href="#">问题数<b id="countQuestion">8</b></a>
+						</li>
+						<li>
+							<a href="#">角色<b class="bg"><i>点击启用</i></b></a>
+						</li>
+						<li>
+							<a href="#">项目数<b id="countProj">45%</b></a>
+						</li>
+					</ul>
+				</div>
+				<div class="details_list2">
+					<h1>我的关注领域</h1>
+					<dl>
+						<dt>
+							<span>我的技能</span><b></b>
+						</dt>
+						<dd id="tabUserSkills"></dd>
+					</dl>
+					<dl>
+						<dt>
+							<span>我的群组</span><b></b>
+						</dt>
+						<dd id="tabUserGroups"></dd>
+					</dl>
+					<dl>
+						<dt>
+							<span>我关注的项目</span><b></b>
+						</dt>
+						<dd id="projectcollects"></dd>
+					</dl>
+				</div>
+				<div class="userCenter_list1">
+					<ul>
+						<li class="icon2">
+							<a href="#"><b></b>通过</a>
+						</li>
+						<li class="icon3">
+							<a href="#"><b></b>拒绝</a>
+						</li>
+					</ul>
+				</div>
+			</section>
+		</body>
+		<script>
+			var userId = "";
+			var token = "";
+			apiready = function() {
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.token || "";
+					userId = api.pageParam.userId;
+					var parames = {
+						values : {
+							"userid" : userId,
+							"token" : token
+						}
+					}
+					doAjax(getUserInfo, "post", parames, function(data) {
+						//alert(JSON.stringify(data));
+						var user = data.data;
+						var img = user.userImgurl;
+						$("#image").attr("src", img);
+						var name = user.nickName;
+						var sex = user.gender;
+						var sexHtml = "";
+						if (sex == 1) {
+							sexHtml = "../images/dynRes_icon6.png";
+						} else {
+							sexHtml = "../images/dynRes_icon6.png";
+						}
+						$("#name").html(name + "<img src='" + sexHtml + "'><b>" + convertRole(user.roleId) + "<i>常住地:" + user.userBaseAddr + "</i>");
+						$("#score").html("历史积分:" + user.userScore + "￥");
+						var countProj = data.countProj;
+						var countQuestion = data.countQuestion;
+						$("#countQuestion").html(countQuestion);
+						$("#countProj").html(countProj);
+						//
+						var tabUserSkills = data.tabUserSkills;
+						if (tabUserSkills != null) {
+							var html = "";
+							for (var i = 0; i < tabUserSkills.length; i++) {
+								html = html + "<a>" + tabUserSkills[i].skillId + "&nbsp;&nbsp;" + tabUserSkills[i].parame4 + "</a>"
+							}
+						}
+						$("#tabUserSkills").html(html);
+						var tabUserGroups = data.tabUserGroups;
+						var html = "";
+						if (tabUserGroups != null) {
+							for (var i = 0; i < tabUserGroups.length; i++) {
+								html = html + "<a>" + tabUserGroups[i].userGroupName + "&nbsp;&nbsp;" + "</a>"
+							}
+						}
+						$("#tabUserGroups").html(html);
+						var projectcollects = data.projectcollects;
+						var html = "";
+						if (projectcollects != null) {
+							for (var i = 0; i < projectcollects.length; i++) {
+								html = html + "<a>" + projectcollects[i].projName + "&nbsp;&nbsp;" + "</a>"
+							}
+						}
+						$("#projectcollects").html(html);
+						
+					}, function(data) {
+					});
+				});
+			}
+		</script>
+</html>

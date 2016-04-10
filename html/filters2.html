@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-base.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-box.css" />
+		<link rel="stylesheet" type="text/css" href="../css/ui-color.css" />
+		<link rel="stylesheet" type="text/css" href="../css/appcan.control.css" />
+	</head>
+	<style>
+		body {
+		}
+		div#select {
+			width: 98%;
+			height: 300px;
+			border-radius: .3em;
+			background-color: gray;
+		}
+		div#select ul li {
+			width: 70%;
+			margin: 0 auto;
+			height: 3em;
+			line-height: 3em;
+			clear: both;
+		}
+		div#select ul li span {
+			color: #FFF;
+		}
+		div#select ul li span.left {
+			float: left;
+			font-size: 1.5em;
+		}
+		div#select ul li span.right {
+			float: right;
+		}
+		div#button {
+			width: 60%;
+			margin: 0 auto;
+			height: 60px;
+		}
+		div#button button {
+			width: 100%;
+			background-color: rgb(255,210,55);
+			height: 40px;
+			border-radius: 3em;
+		}
+		.bc-btn {
+			background-color: rgb(255,210,55);
+			width: 80%;
+			margin: 2em auto;
+			border-radius: 2em;
+		}
+	</style>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<body >
+		<div id="select">
+			<ul>
+				<li class="list" ty="cy">
+					<span class="left">查看个人信息</span>
+				</li>
+				<div style="height:1px;background-color:white"></div>
+				<li class="list" ty="ll" style="display:none" id="wz">
+					<span class="left">查看个人位置</span>
+				</li>
+				<div id="ss" style="height:1px;background-color:white;display:none"></div>
+				<li class="list" ty="wz">
+					<span class="left">删除好友</span>
+				</li>
+				<div style="height:1px;background-color:white"></div>
+			</ul>
+			<div class="btn ub ub-ac bc-text-head ub-pc bc-btn"  id="btn">
+				确定
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		apiready = function() {
+			var pageParame = api.pageParam;
+			var targetId = pageParame.targetId;
+			var isChild = pageParame.isChild;
+			var parame1 = pageParame.parame1;
+			var parame2 = pageParame.parame2;
+			if (isChild == "true") {
+				$("#wz").show();
+				
+				$("#ss").show();
+			}
+			$("#btn").click(function() {
+				api.closeFrame({
+					name : 'filters2'
+				});
+			});
+			$(".list").click(function() {
+				var ty = $(this).attr("ty");
+				if (ty == "cy") {
+					api.openWin({
+						name : 'userCenter_window',
+						url : './userCenter_window.html',
+						pageParam : {
+							userid : targetId
+						},
+						bounces : false,
+						slidBackEnabled : false
+					});
+				}
+				if (ty == "wz") {
+					api.confirm({
+						"title" : "提示",
+						"msg" : "确认删除吗?",
+						"buttons" : ["确定", "取消"]
+					}, function(ret, err) {
+						if (ret.buttonIndex == 1) {
+							api.getPrefs({
+								key : 'token'
+							}, function(ret, err) {
+								var value = ret.value;
+								api.ajax({
+									url : FIRENDDELETE,
+									timeout : 30,
+									dataType : 'json',
+									method : 'post',
+									returnAll : false,
+									data : {
+										values : {
+											"rowid" : value,
+											"token" : targetId
+										}
+									}
+								}, function(ret, err) {
+									api.alert({
+										"title" : "提示",
+										"msg" : "删除成功"
+									}, function(ret, err) {
+										api.closeToWin({
+	                                        name: 'root'
+                                        });
+									});
+								});
+							});
+						}
+					});
+				} else if (ty == "ll") {
+					api.openWin({
+						name : 'lbswz1_window',
+						url : './lbswz1_window.html',
+						pageParam : {
+							parame1 : parame1,
+							parame2 : parame2
+						},
+						bounces : false,
+						slidBackEnabled : false
+					});
+				}
+			});
+		}
+	</script>
+</html>

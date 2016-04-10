@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/firends.css" rel="stylesheet" type="text/css">
+		<link href="../css/selectUser.css" rel="stylesheet" type="text/css" />
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body style="background:#fff;max-width:100%">
+			<section>
+				<div class="search">
+					<p>
+						<span class="query-icon"></span>搜索
+					</p>
+				</div>
+				<div class="content">
+					<div class="pro-box">
+						<div class="search-tab">
+							<ul class="c" id="list"></ul>
+						</div>
+						<div class="tab-list tab-list1" id="content">
+							<div class="c">
+								<div class="tab1-left" id="left">
+									<div class="tab1-left-outdiv">
+										<div class="tab1-left-indiv" >
+											<ul id="leftList"></ul>
+										</div>
+									</div>
+								</div>
+								<div class="tab1-right"  style="background-color:#fff">
+									<div class="tab1-right-outdiv" style="background-color:#f2f2f2">
+										<div class="tab1-right-indiv">
+											<ul id="right" style="display:none;"></ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<ul class="about" id="listAbout" ></ul>
+					</div>
+				</div>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script type="text/javascript">
+				var config = {};
+				var dataList = [];
+				var KEY = "";
+				var LEVAL = "";
+				var NAME = "";
+				var index = "";
+				var pageIndex = 0;
+				apiready = function() {
+					api.setRefreshHeaderInfo({
+						visible : true,
+						loadingImg : 'widget://image/refresh.png',
+						bgColor : '#fff',
+						textColor : '#000',
+						textDown : '下拉刷新...',
+						textUp : '松开刷新...',
+						showTime : true
+					}, function(ret, err) {
+						api.getPrefs({
+							key : 'token'
+						}, function(ret, err) {
+							if (ret.value != null && ret.value != "") {
+								token = ret.value
+							} else {
+								token = "";
+							}
+							initData(KEY, LEVAL, NAME);
+							api.refreshHeaderLoadDone();
+						});
+					});
+					$(".search").click(function() {
+						searchUtil(function(data) {
+							var text = data.text;
+							initData("", "", text);
+						});
+					});
+					parame = {
+						values : {
+							"type" : "2"
+						}
+					}
+					doAjax(SEARCHCONFIG, "post", parame, function(data) {
+						var top = data.data[0].searchconfigs;
+						var html = "";
+						var width = 100 / top.length;
+						for (var i = 0; i < top.length; i++) {
+							html = html + "  <li class='topList' index='" + i + "' searchId='" + top[i].searchId + "' key='" + top[i].searchKey + "' style='width: " + width + "%'>" + top[i].searchValue + "<span class='tips1' style='display: none;'></span></li>"
+							config[top[i].searchId] = JSON.stringify(top[i].searchconfigs);
+							for (var j = 0; j < top[i].searchconfigs.length; j++) {
+								config[top[i].searchconfigs[j]] = JSON.stringify(top[i].searchconfigs[j].searchconfigs);
+							}
+						}
+						$("#list").html(html);
+						$(".topList").click(function() {
+							var indexes = $(this).attr("index");
+							$('.search-tab li').removeClass('on');
+							$('.search-tab li').children('span.tips1').hide();
+							$(this).addClass('on');
+							$(this).children('span.tips1').show();
+							var searchId = $(this).attr('searchId');
+							//构建左边数据
+							var left = JSON.parse(config[searchId]);
+							var html = "";
+							for (var i = 0; i < left.length; i++) {
+								html = html + "<li class='lefts' searchType='" + left[i].searchtype + "'  data='" + JSON.stringify(left[i].searchconfigs) + "' key='" + left[i].searchKey + "'> ";
+								html = html + "<span class='s-icon s-icon3 '   searchId='" + left[i].searchId + "' ></span><span class='a-icon a-icon-no'></span><a class='num'>63</a>" + left[i].searchValue + "</li>";
+							}
+							$("#leftList").html(html);
+							$("#content").hide();
+							$("#right").hide();
+							if (index == "") {
+								index = indexes;
+							}
+							if (index == indexes) {
+								if ($(this).attr("isshow") == "true") {
+									$("#content").hide();
+									$(this).attr("isshow", "false");
+								} else {
+									$("#content").show("slow");
+									$(this).attr("isshow", "true");
+								}
+							} else {
+								$("#content").show("slow");
+								$(this).attr("isshow", "true");
+							}
+							index = indexes;
+							$(".lefts").click(function() {
+								var data = $(this).attr("data");
+								var key = $(this).attr("key");
+								var type = $(this).attr("searchType");
+								KEY = key;
+								LEVAL = type;
+								var html = "";
+								if (data != null && data != "") {
+									data = JSON.parse(data);
+									for (var i = 0; i < data.length; i++) {
+										html = html + "  <li class='right' searchType ='" + data[i].searchtype + "' key='" + data[i].searchKey + "'>" + data[i].searchValue + "</li>";
+									}
+									$("#right").html(html);
+									if (html == "") {
+										$("#content").hide();
+										initData(key, type);
+										return;
+									}
+									$(".right").click(function() {
+										var key = $(this).attr("key");
+										var type = $(this).attr("searchType");
+										KEY = key;
+										LEVAL = type;
+										initData(key, type);
+										$("#content").hide();
+									});
+								}
+								$("#right").show("slow");
+							});
+							if (indexes != "0") {
+								$("#left").attr("style", "width:100%");
+								$($(".tab1-right")[0]).attr("style", "width:-1");
+								$($(".tab1-right")[0]).hide();
+							} else {
+								$("#left").attr("style", "width:50%");
+								$($(".tab1-right")[0]).attr("style", "width:50%");
+								$($(".lefts")[0]).click();
+							}
+						});
+					}, function() {
+					});
+				}
+				function initData(key, leval, name) {
+					KEY = key;
+					LEVAL = leval;
+					NAME = name;
+					var parmae = {
+						values : {
+							value : key,
+							type : leval,
+							name : name,
+							pageIndex : pageIndex
+						}
+					}
+					doAjax(searchProject, "post", parmae, function(data) {
+						var projs = data.projs;
+						var html = "";
+						for (var i = 0; i < projs.length; i++) {
+							html = html + "<li class='listAbout ' rowid ='" + projs[i].projId + "' name='" + projs[i].projName + "'   tapmode='tapmode' ><dl class='c'><dt><img src='" + IMGURL + indexConfs[i].iocn + "' /></dt><dd><h2>" + projs[i].projName + "</h2><P class='to'>" + projs[i].projDesc + "</P></dd></dl><span class='m-icon'></span></li>";
+						}
+						$("#listAbout").html(html);
+						$(".listAbout").click(function() {
+							var rowid = $(this).attr("rowid");
+							openWindow("projectDetail_window", "projectDetail_window.html", param);
+						});
+					}, function(data) {
+					})
+				}
+			</script>
+		</body>
+</html>

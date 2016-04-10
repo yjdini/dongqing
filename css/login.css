@@ -1,0 +1,40 @@
+*{
+margin:0px;
+padding:0px;
+outline: none;
+-webkit-tap-highlight-color: rgba(0,0,0,0);
+-webkit-touch-callout:none;
+-webkit-user-select: none;
+}
+body{
+font-size:14px;
+color:#4f5257;
+min-width:320px;
+font-family:"microsoft yahei";
+-webkit-text-size-adjust:none;
+}
+html,body {height: 100%;}
+a{text-decoration:none;}
+li{list-style:none;}
+::-webkit-input-placeholder{color:#bbb;}   
+
+.c{zoom:1;}
+.c:after{content:".";display:block;height:0;clear:both;visibility:hidden;}
+.login-bg{ background:url(../images/login-bg.png); background-size:100% 100%;height: 100%;}
+.login-box{ margin-left:7%; margin-right:7%;  -webkit-box-sizing:border-box; padding-top:40%;  font-family:SimHei;}
+.login-lay{ background:rgba(0,0,0,0.34); height:110px;-webkit-border-radius:10px; }
+.login-lay ul li{ height:55px; line-height:55px; border-bottom:1px solid #b7784c; padding:0 10px; -webkit-box-sizing:border-box;}
+.login-lay ul li:last-child{ border-bottom:none;}
+.login-icon1,.login-icon2,.login-line{ background-image:url(../images/login-icon.png); background-size:50px 100px;}
+.login-icon1{ background-position:-10px -13px;width:25px; height:26px; display:inline-block; float:left; margin-top:14px;}
+.login-icon2{ background-position:-12px -65px;width:25px; height:26px; display:inline-block; float:left; margin-top:14px;}
+.login-line{ float:left;background-position:-44px -8px; display:inline-block;width:1px; height:28px; margin-top:12px; margin-left:10px; margin-right:10px;}
+.login-input{ background:none; height:50px; width:100%; border:none; font-size:18px;-webkit-user-select: text; color:#fff;}
+.login-lay ul li dl dt{width:20%; float:left;}
+.login-lay ul li dl dd{width:80%; float:left;}
+.login-button{width:47%; height:39px; background:rgba(0,0,0,0.4); display:inline-block; font-size:22px; text-align:center; color:#ffffff; line-height:39px; -webkit-border-radius:3px;}
+.login-op{ text-align:center; margin-top:10%;}
+.login-op a.first{ float:left;}
+.login-op a.second{ float:right;}
+.login-p{ text-align:center; margin-top:10%;}
+.login-p a{ text-decoration:underline; color:#084676; font-size:16px; }

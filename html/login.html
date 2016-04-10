@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/auiDDD.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<style>
+			.aui-btn-success {
+				width: 30%;
+				font-size: 1.5em;
+			}
+			.aui-btn-warning {
+				width: 30%;
+				font-size: 1.5em;
+			}
+			.aui-input-row .aui-input {
+				font-size: 20px;
+			}
+			.aui-input-row .aui-input-addon.aui-iconfont {
+				font-size: 24px
+			}
+			.aui-btn-row:after{
+				border :0
+			}
+		</style>
+	</head>
+	<body style="background-color:#fff">
+		<div class="aui-content" >
+			<div class="aui-form">
+				<div class="aui-input-row">
+					<i class="aui-input-addon  aui-iconfont aui-icon-people"></i>
+					<input type="number" id="name" class="aui-input" placeholder="请输入账号" value=""/>
+				</div>
+					<div style="border-top:1px  solid #c8c7cc;height: 1px;">&nbsp;</div>
+				<div class="aui-input-row">
+					<i class="aui-input-addon  aui-iconfont aui-icon-lock"></i>
+					<input type="password" id="pass" class="aui-input" placeholder="请输入密码 " value=""/>
+				</div>
+				<div style="border-top:1px  solid #c8c7cc">&nbsp;</div>
+				<div class="aui-btn-row" style="border:0">
+					<div class="aui-btn aui-btn-success"  onclick="login()">
+						登录
+					</div>
+					&nbsp;&nbsp;
+					<div class="aui-btn aui-btn-warning" onclick="re()">
+						注册
+					</div>
+					<p class='aui-text-right history-date' onclick="fo()" style="margin-top:2em;font-size:20px" >
+						忘记密码?
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		// 完成首页初始化
+		function re() {
+			api.openWin({
+				name : "register_window.html",
+				url : "register_window.html",
+				bounces : false,
+				slidBackEnabled : false
+			});
+		}
+
+		function fo() {
+			api.openWin({
+				name : "forgetPassword_window",
+				url : "forgetPassword_window.html",
+				bounces : false,
+				slidBackEnabled : false
+			});
+		}
+
+		function login() {
+			//dlu
+			var url = LOGIN;
+			var password = $("#pass").val() || "";
+			var phone = $("#name").val() || "";
+			if (phone == "") {
+				api.alert({
+					msg : "请输入账号"
+				}, function(ret, err) {
+				});
+				return;
+			}
+			if (password == "") {
+				api.alert({
+					msg : "请输入密码"
+				}, function(ret, err) {
+				});
+				return;
+			}
+			console.debug(url);
+			api.ajax({
+				url : url,
+				timeout : 30,
+				dataType : 'json',
+				method : 'post',
+				returnAll : false,
+				data : {
+					values : {
+						"phone" : phone,
+						"password" : password
+					}
+				}
+			}, function(ret, err) {
+			console.debug("ret"+JSON.stringify(ret));
+			console.debug("err"+JSON.stringify(err));
+				if (ret) {
+					var flag = ret.flag;
+					if (flag == "error") {
+						api.alert({
+							msg : ret.msg
+						});
+					} else {
+						api.toast({
+							msg : '登录成功',
+							duration : 2000,
+							location : 'middle'
+						});
+						setPrefs("token", ret.data.rowid);
+						setPrefs("img", SERVERURL + ret.data.imgsrc);
+						var result = JSON.parse(ret.rongyun.result);
+						setPrefs("rongtoken", result.token);
+						$api.setStorage("img", ret.data.imgsrc);
+						$api.setStorage("userName", ret.data.name);
+						$api.setStorage("token", ret.data.rowid);
+						var tabusers2 = ret.tabusers2;
+						for (var i = 0; i < tabusers2.length; i++) {
+							$api.setStorage("key" + tabusers2[i].rowid, tabusers2[i].name);
+							$api.setStorage("img" + tabusers2[i].rowid, tabusers2[i].imgsrc);
+						}
+						//获取群组
+						var usergroups = ret.usergroups;
+						for (var i = 0; i < usergroups.length; i++) {
+							$api.setStorage("key" + usergroups[i].rowid, usergroups[i].groupname);
+							$api.setStorage("img" + usergroups[i].rowid, usergroups[i].imgsrc);
+						}
+						var queryblackUser = ret.queryblackUser;
+						var list = JSON.parse(queryblackUser).users;
+						$api.setStorage("queryblackUser", list.join(","));
+						initRongYun();
+						
+						//刷新用户数据
+						
+						api.execScript({
+	                        script: 'initMy();',
+	                        name : "root"
+                        });
+						
+						api.closeWin();
+					}
+				}
+			});
+		}
+
+		apiready = function() {
+			$(".first").click(function() {
+			});
+			$(".second").click(function() {
+			});
+			$("#forget").click(function() {
+			});
+			$(".index").click(function() {
+				api.closeWin({
+				});
+			});
+		}
+	</script>
+</html>

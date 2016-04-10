@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<script src="../script/jquery-1.9.1.min.js"></script>
+		<script src="../script/api.js"></script>
+		<script src="../script/app.js"></script>
+		<script type="text/javascript">
+			var lon = "";
+			var lon1 = "";
+			var lat = "";
+			var lat1 = "";
+			apiready = function() {
+				//加载百度地图
+				var pageParam = api.pageParam;
+				lat1 = pageParam.lat;
+				lon1 = pageParam.lon;
+				var height   = api.pageParam.height;
+				var map = api.require('bMap');
+				//获取我的地址
+				map.getLocation({
+					accuracy : '10m',
+					autoStop : true,
+					filter : 1
+				}, function(ret, err) {
+					if (ret.status) {
+						lon = ret.lon;
+						lat = ret.lat;
+						map.open({
+							rect : {
+								x : 0,
+								y : height,
+								w : api.winWidth,
+								h : api.winHeight-height 
+							},
+							center : {
+								lon : lat1,
+								lat : lon1
+							},
+							zoomLevel : 15,
+							fixedOn : '',
+							showUserLocation : true,
+							fixed : true
+						}, function(ret) {
+							if (ret.status) {
+								map.addLine({
+									id : 1,
+									styles : {
+										borderColor : '#FF0000',
+										borderWidth : 3
+									},
+									points : [{
+										lon : lat1,
+										lat : lon1
+									}, {
+										lon : lon,
+										lat : lat
+									}]
+								});
+								map.addAnnotations({
+									annotations : [{
+										id : 31,
+										lon : lat1,
+										lat : lon1
+									}],
+									draggable : true
+								}, function(ret) {
+								});
+								map.getDistance({
+									start : {
+										lon : lon,
+										lat : lat
+									},
+									end : {
+										lon : lat1,
+										lat : lon1
+									}
+								}, function(ret) {
+									if (ret.status) {
+										api.toast({
+	                                        msg:"您当前的位置距离目的地为" +parseInt(ret.distance) + "米",
+	                                        duration :  5000
+                                        });
+									}
+								});
+							}
+						});
+					} else {
+						api.alert({
+							"title" : "提示",
+							msg : "请打开定位"
+						}, function(ret, err) {
+							api.closeWin({
+							});
+						});
+					}
+				});
+			}
+		</script>
+</html>

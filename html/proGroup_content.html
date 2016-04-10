@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<section>
+				<div class="fb-box">
+					<ul class="fb-list">
+						<li class="select select1" id="type3">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="type3Value">选择群组</span></span>选择群
+						</li>
+						<li class="list-box" id="list-box1" style="display:none">
+							<P>
+								<a href="#">制造业</a><a href="#">IT行业</a><a href="#">化工行业</a><a href="#">农业</a>
+							</P>
+							<P>
+								<a href="#">娱乐业</a><a href="#">体育</a><a href="#">教育</a><a href="#">设计与广告</a><a href="#">餐饮业</a>
+							</P>
+						</li>
+					</ul>
+				</div>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script type="text/javascript">
+				var projId = "";
+				var token = "";
+				$('.select1').click(function() {
+					$('#list-box1').toggle();
+				})
+				apiready = function() {
+					var url = listMyUserGroup;
+					projId = api.pageParam.projId;
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						token = ret.value;
+						var param = {
+							values : {
+								token : token
+							}
+						}
+						doAjax(url, "post", param, function(data) {
+							var groups = data.groups;
+							var length = Math.floor(groups.length / 5);
+							var html = "";
+							for (var i = 0; i < length; i++) {
+								html = html + "<P>";
+								for (var j = 0; j < 5; j++) {
+									html = html + "<a href='#' class='groupList' name='" + groups[i * 5 + j].userGroupName + "' rowid ='" + groups[i * 5 + j].userGroupId + "'>" + groups[i * 5 + j].userGroupName + "</a>";
+								}
+								html = html + "</P>";
+							}
+							var model = groups.length % 5;
+							html = html + "<P>";
+							for (var i = 0; i < model; i++) {
+								html = html + "<a href='#' name='" + groups[length * 5 + i].userGroupName + "'   class='groupList' rowid ='" + groups[length * 5 + i].userGroupId + "'>" + groups[length * 5 + i].userGroupName + "</a>";
+							}
+							if (model != 0) {
+								html = html + "<a href='#' name='公共'   class='groupList' rowid =''>公共</a>";
+								html = html + "</P>";
+							} else {
+								html = html + "<P>";
+								html = html + "<a href='#' name='公共'   class='groupList' rowid =''>公共</a>";
+								html = html + "</P>";
+							}
+							$("#list-box1").html(html);
+							$('#list-box1 .groupList').click(function(event) {
+								var rowid = $(this).attr("rowid");
+								var name = $(this).attr("name");
+								$("#type3Value").html(name);
+								$("#type3Value").attr("realValue", rowid);
+								$('#list-box1').toggle();
+								event.stopPropagation();
+							})
+						}, function(data) {
+						})
+					});
+				}
+				//save UpDate
+				function selectGroup() {
+					//
+					//开始设置项目是否公开
+					var parame = {
+						"values" : {
+							"projId" : projId,
+							"groupId" : $("#type3Value").attr("realValue")
+						}
+					}
+					doAjax(updateProjectGroup, "post", parame, function(data) {
+						//创建成果失败
+						if(data.flag ==  "true"){
+							api.alert({
+								"title" : "提示",
+								"msg" : "选择群组成功"
+                            },function(ret,err){
+                            	//关闭创建APP
+                            	api.closeWin({
+                            		name : "pushProject_window.html"
+                                });
+                                
+                                api.closeWin({
+                            		name : "proRequired_window"
+                                });
+                                api.closeWin({
+                                	name : "skillUserList_window.html"
+                                });
+                                
+                                api.closeWin({
+                                	name : "selectUsersBySkill_window"
+                                });
+                                
+                                api.closeWin({
+                                	name : "proGroup_window"
+                                });
+                            });
+						}
+					}, function(data) {
+					});
+				}
+			</script>
+</html>

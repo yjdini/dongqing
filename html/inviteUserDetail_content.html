@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<link href="../css/aui.css" rel="stylesheet" type="text/css">
+		<body>
+			<section>
+				<div class="content">
+					<div><img src="../images/yhxq.png" />
+					</div>
+					<div class="de-pro">
+						<ul>
+							<li id="projName"></li>
+							<li class="price">
+								<span class="fr">行业：<span class="c-red" id="projIndustry"></span></span><span>城市<span class="c-red"></span></span>
+							</li>
+							<li class="sta c">
+								<P>
+									地区：<span class="c-red f16" id="projArea"></span>
+								</P>
+								<P class="mid">
+									紧急程度：<span class="c-red f16" id="projEmergencyLevel"></span>
+								</P>
+								<P>
+									项目详情：<span class="c-red f16" id="projDesc"></span>
+								</P>
+							</li>
+						</ul>
+					</div>
+					<div>
+						<div class="design-user">
+							<ul>
+								<li class="c user-info-box"><img class="design-user-img" src="../images/head-pic1.png" id="userImgurl" /><span class="m_t10 fwb" id="nickName">二维动画设计</span><span class="m-icon"></span>
+								</li>
+								<li class="design-info  c">
+									<span class="fc fl" id="userLeval">猪10戒</span><span class="fl">常住地：<span class="f16" id="userBaseAddr">7484534</span><span class="f16"></span></span>
+								</li>
+								<li class="design-pj c">
+									电子邮箱：<span class="c-red f16 m_r20" id="userEmail">100%</span> 等级：<span class="c-red f16" id="userGrade">8.98</span>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="user-list">
+						<ul id="skillList"></ul>
+					</div>
+				</div>
+				<div style="text-align: center">
+					<p>
+						<button class="aui-btn aui-btn-info" style="width:80%;" state="2">
+							通过
+						</button>
+					</p>
+					<p>
+						<button class="aui-btn aui-btn-danger" style="width:80%;" state="6">
+							拒绝
+						</button>
+					</p>
+				</div>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script>
+				var token = "";
+				var skillId = "";
+				apiready = function() {
+					var param = api.pageParam;
+					skillId = param.rowid;
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						token = ret.value;
+						initData();
+					});
+					$(".aui-btn").click(function() {
+						var state = $(this).attr("state");
+						var url = confirmProjectReq;
+						var param = {
+							"values" : {
+								"state" : state,
+								skillId : skillId,
+								token : token
+							}
+						}
+						doAjax(url, "post", param, function(data) {
+							
+						}, function(data) {
+						})
+					});
+				}
+				//但用户申请的时候 或是刷新的时候需要重新加载数据
+				function initData() {
+					//加载项目信息projId
+					var parame = {
+						"values" : {
+							"skillId" : skillId,
+							"token" : token
+						}
+					}
+					doAjax(listProByReqId, "post", parame, function(data) {
+						var proj = data.proj;
+						$("#projName").html(proj.projName);
+						api.execScript({
+							name : "projectDetail_window",
+							script : 'changeData("' + proj.projName + '");'
+						});
+						$("#projIndustry").html(proj.projIndustry);
+						$("#projCity").html(proj.projCity);
+						$("#projArea").html(proj.projArea);
+						$("#projEmergencyLevel").html(proj.projEmergencyLevel);
+						$("#projDesc").html(proj.projDesc);
+						var tabUser01 = data.tabUser01;
+						$("#userImgurl").attr("src", IMGURL + tabUser01.userImgurl);
+						$("#nickName").html(tabUser01.nickName);
+						$("#userBaseAddr").html(tabUser01.userBaseAddr);
+						$("#userEmail").html(tabUser01.userEmail);
+						$("#userGrade").html(tabUser01.userGrade);
+						var tabProjRequires = proj.tabProjRequires;
+						var html = "";
+						for (var i = 0; i < tabProjRequires.length; i++) {
+							//查看是不是已经申请满了  如果申请满了的话 需要进行 高粱量显示
+							if (tabProjRequires[i].parame4 != '-') {
+								html = html + "<li><h3><span class='fr'>操作</span>" + tabProjRequires[i].skillId + "</h3><div class='user-detail'><a class='state state3 rowList' state='" + tabProjRequires[i].parame1 + "' rowid='" + tabProjRequires[i].projReqId + "'>" + covertApplyProj(tabProjRequires[i].parame1) + "</a><P></P><P><span class='m_r20'>" + tabProjRequires[i].skillDesc + "&nbsp;&nbsp;当前申请人数：" + tabProjRequires[i].parame5 + "</P><P><span class='m_r20'>需要人数：" + tabProjRequires[i].userNumber + "</span>需要城市：" + tabProjRequires[i].baseCity + "</P></div></li>";
+							} else if (parseInt(tabProjRequires[i].parame5) >= parseInt(tabProjRequires[i].userNumber)) {
+								html = html + "<li><h3><span class='fr'>操作</span>" + tabProjRequires[i].skillId + "</h3><div class='user-detail'><a class='state state1 rowList' state='" + tabProjRequires[i].parame1 + "' rowid='" + tabProjRequires[i].projReqId + "'>已满</a><P></P><P><span class='m_r20'>" + tabProjRequires[i].skillDesc + "&nbsp;&nbsp;当前申请人数：" + tabProjRequires[i].parame5 + "</P><P><span class='m_r20'>需要人数：" + tabProjRequires[i].userNumber + "</span>需要城市：" + tabProjRequires[i].baseCity + "</P></div></li>";
+							}
+						}
+						$("#skillList").html(html);
+						//点击开始申请
+						$(".rowList").click(function() {
+							var state = $(this).attr("state");
+						});
+					}, function() {
+					})
+				}
+			</script>
+</html>

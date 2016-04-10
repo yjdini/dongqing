@@ -1,0 +1,36 @@
+<html >
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/style.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+            apiready = function() {
+                $("img").click(function() {
+                    var url = $(this).attr("url");
+                    api.openWin({
+                        name : url,
+                        url : url,
+                        slidBackEnabled : false
+                    });
+                });
+            }
+		</script>
+	</head>
+	<body >
+		<article>
+			<div class="n-list">
+				<p  style="position:absolute; left:15%; top:10%; width:70%;"><img src="../images/19.png" url="createGroup_window.html" style="height:60px"/>
+				</p>
+				<p  style="position:absolute; left:15%; top:30%; width:70%;"><img src="../images/18.png"  url="createActive_window.html"  style="height:60px"/>
+				</p>
+				<p  style="position:absolute; left:15%; top:50%; width:70%;"><img src="../images/17.png" url="createPerson_window.html"  style="height:60px"/>
+				</p>
+				<p  style="position:absolute; left:15%; top:70%; width:70%;"><img src="../images/20.png" url="viewMylistPush_window.html" style="height:60px"/>
+				</p>
+			</div>
+		</article>
+	</body>
+</html>

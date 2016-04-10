@@ -1,0 +1,57 @@
+<html >
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/style.css">
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			apiready = function() {
+				$("img").click(function() {
+					var url = $(this).attr("url");
+					api.openWin({
+						name : url,
+						url : url,
+						slidBackEnabled : false
+					});
+				});
+				initData();
+				setTimeout("initData()", 1000);
+			}
+			
+			function initData(){
+					var sql = "SELECT COUNT(1) cc FROM  message  WHERE STATUS = 1";
+				readSQL(sql, function(data) {
+					var count = data[0].cc;
+					if (count > 0) {
+						$("#tips").html(count);
+						$("#tips").show();
+					}else {
+						$("#tips").hide();
+					}
+				});
+				setTimeout("initData()", 1000);
+			}
+		</script>
+	</head>
+	<body >
+		<article>
+			<ul class="gn-list gn-list1">
+				<li><img src="../images/gh-button1.png" url="huodong_window.html" style="height:60px"/>
+				</li>
+				<li><img src="../images/gh-button2.png" url="firends_window.html" style="height:60px"/>
+				</li>
+				<li><img src="../images/gh-button3.png"url="messageList_window.html" style="height:60px"/><span class="tips" id="tips" style="display:none"  >2</span>
+				</li>
+				<li><img src="../images/gh-button4.png" url="firendList_window.html" style="height:60px"/>
+				</li>
+				<li><img src="../images/gh-button5.png" url="userinfo_window.html" style="height:60px"/>
+				</li>
+				<li><img src="../images/gh-button6.png" url="push_window.html" style="height:60px"/>
+				</li>
+				</div>
+		</article>
+	</body>
+</html>

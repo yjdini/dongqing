@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			.g-op-button {
+				height: 115px;
+			}
+			.aui-btn-info {
+				border: 0px !important;
+				color: #fff;
+			}
+			.aui-btn, button {
+				border-radius: 0px
+			}
+			article {
+				margin-bottom: 66px
+			}
+			.g-op-button {
+				height: 100px
+			}
+		</style>
+	</head>
+	<body>
+		<article>
+			<div class="group">
+				<ul>
+					<li class="c">
+						<dl>
+							<dt style="width:100px"></dt>
+							<dd>
+								<textarea class="group-input" type="text" id="name" style="font-size:1.8em" maxlength="7" placeholder="请输入文章标题"></textarea>
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt style="width:100px"></dt>
+							<dd>
+								<textarea class="group-input"  id="xqxm" placeholder="请输入文章内容" maxlength="255"></textarea>
+							</dd>
+						</dl>
+					</li>
+				</ul>
+				<p class="tac m-t20">
+					<a class="g-op-button m-l5 img" >&nbsp;<img src="../image/addImage.jpg" width="80" height="45"/> </span>
+					<br/>
+					添加图片 </a>
+				</p>
+				<div id="imgurl" style="text-align:center;margin-top:2em;margin-bottom:2em"></div>
+			</div>
+		</article>
+		<div style="text-align:center;position: fixed;bottom: 0;width: 100%;height: 50px;">
+			<p>
+				<button class="aui-btn aui-btn-info" style="width:100%;background:rgb(249,100,0);width: 100%;height: 50px;font-size: 24px;" id="createActive">
+					创建
+				</button>
+			</p>
+		</div>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			var imageArrayLength = 0;
+			var imageArray = [];
+			var type = "2";
+			var token = "";
+			var path = "";
+			var imgsrc = "";
+			var voiceLength = "";
+			var currentMic = 0;
+			var setTimeoutCurrent;
+			var width = $("#name").width();
+			var UIMediaScanner;
+			$("#address").attr("style", "width:" + width + "px;font-size:1.8em;height:100px");
+			$("#xqxm").attr("style", "width:" + width + "px;font-size:1.8em;height:100px");
+			var ff = 1;
+			apiready = function() {
+				UIMediaScanner = api.require('UIMediaScanner');
+				$("#address").click(function() {
+					api.openWin({
+						name : 'lbs_window',
+						url : './lbs_window.html',
+						bounces : false,
+						slidBackEnabled : false
+					});
+				});
+				//获取token
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					//coding...
+					token = ret.value;
+				});
+				$(".voice,#cl").bind("touchstart", function() {
+					//
+					$("#changeImg").attr("style", "background:url('../image/endVoices.png') no-repeat;background-size: 42px auto;");
+					startVoice();
+					$("#ax").html("放手结束");
+				});
+				$(".voice,#cl").bind("touchend", function() {
+					//
+					$("#changeImg").attr("style", "background:url('../image/audios.png') no-repeat;background-size: 42px auto;");
+					endVoice();
+					$("#ax").html("按下说话");
+				});
+			}
+			function startVoice() {
+				setTimeoutCurrent = setTimeout("toast()", 1000);
+				api.startRecord({
+				});
+			}
+
+			function toast() {
+				currentMic = currentMic + 1;
+				api.toast({
+					msg : '正在录音' + currentMic + "秒",
+					duration : 1000,
+					location : 'top'
+				});
+				setTimeoutCurrent = setTimeout("toast()", 1000)
+			}
+
+			function endVoice() {
+				api.stopRecord(function(ret, err) {
+					if (ret) {
+						path = ret.path;
+						$("#voiceDetail").attr("style", "");
+						$("#micLength").html(ret.duration + "秒");
+						voiceLength = ret.duration;
+					}
+				});
+				currentMic = 0;
+				clearTimeout(setTimeoutCurrent);
+			}
+
+
+			$("#createActive").click(function() {
+				if (ff == 2) {
+					return;
+				}
+				ff = 2;
+				var name = $("#name").val();
+				if (name == "" || name == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入标题"
+					}, function(ret, err) {
+						ff = 1;
+					});
+					return;
+				}
+				var xqxm = $("#xqxm").val();
+				if (xqxm == "" || xqxm == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入内容"
+					}, function(ret, err) {
+						//coding...
+						ff = 1;
+					});
+					return;
+				}
+				var parame = {
+					values : {
+						"name" : $("#name").val(),
+						"xqxm" : $("#xqxm").val(),
+						token : token
+					},
+					files : {
+						"img1" : imageArray
+					}
+				}
+				doAjax(addPersonActive + "1", "post", parame, function(data) {
+					if (data.flag == "true") {
+						api.alert({
+							"title" : "提示",
+							"msg" : "创建成功",
+							buttons : ['确定']
+						}, function(ret, err) {
+							ff = 1;
+							api.closeWin({
+							});
+						});
+					}
+				}, function(data) {
+				}, 1)
+			});
+			$(".img").click(function() {
+				UIMediaScanner.open({
+					column : 4,
+					classify : true,
+					max : 9,
+					type : "picture",
+					count : 6,
+					sort : {
+						key : 'time',
+						order : 'desc'
+					},
+					texts : {
+						stateText : '已选择*项',
+						cancelText : '取消',
+						finishText : '完成'
+					},
+					exchange : true,
+					styles : {
+						bg : '#fff',
+						mark : {
+							icon : '',
+							position : 'bottom_left',
+							size : 20
+						},
+						nav : {
+							bg : '#eee',
+							stateColor : '#000',
+							stateSize : 18,
+							cancelBg : 'rgba(0,0,0,0)',
+							cancelColor : '#000',
+							cancelSize : 18,
+							finishBg : 'rgba(0,0,0,0)',
+							finishColor : '#000',
+							finishSize : 18
+						}
+					}
+				}, function(ret) {
+					if (ret) {
+						var list = ret.list;
+						$("#imgurl").html("");
+						imageArrayLength = 0;
+						for (var i = 0; i < list.length; i++) {
+							imageArray.push(list[i].path);
+							imageArrayLength++;
+							$("#imgurl").append("<img width='30%' height='100px' index='" + imageArrayLength + "'  onclick='delFiles(this)' class='' src='" + list[i].path + "' style='padding:0px 10px 10px 0' >");
+						}
+					}
+				});
+			});
+			function delFiles(obj) {
+				$(obj).hide();
+				//删除array的数据
+				var index = $(obj).attr("index");
+				for (var i = index; i < imageArrayLength; i++) {
+					imageArray[i - 1] = imageArray[i];
+				}
+				imageArray.pop();
+				imageArrayLength--;
+			}
+
+			function changeLbs() {
+				api.getPrefs({
+					key : 'localtionName'
+				}, function(ret, err) {
+					localtionName = ret.value;
+					$("#address").val(localtionName);
+				});
+				api.getPrefs({
+					key : 'localtionLon_lat'
+				}, function(ret, err) {
+					$("#address").attr("lbs", ret.value);
+				});
+			}
+		</script>
+	</body>
+</html>

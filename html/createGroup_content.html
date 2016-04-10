@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			article {
+				margin-bottom: 60px
+			}
+			.bor-b-s1 {
+				border: 0px !important
+			}
+			.aui-btn-info {
+				border: 0px !important;
+				color: #fff;
+			}
+			.aui-btn, button {
+				border-radius: 0px
+			}
+			p {
+				color: #000
+			}
+			.perlist {
+				height: 160px;
+			}
+		</style>
+	</head>
+	<body>
+		<article>
+			<div class="group">
+				<ul>
+					<li class="c">
+						<dl>
+							<dt style="font-size:1.8em;width:250px;">
+								设定群组头像：
+							</dt>
+							<dd>
+								<img id="mmmmm" class="imgs" src="../image/addImage.jpg"  width="60px" height="60px"/>
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								群组名称：
+							</dt>
+							<dd>
+								<input class="group-input" type="text" id="name" style="font-size:1.8em" maxlength="7">
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								群组位置：
+							</dt>
+							<dd>
+								<textarea class="group-input"  id="address"  readonly style="height:70px"></textarea>
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								兴趣项目：
+							</dt>
+							<dd></dd>
+							<input class="group-input" type="text" id="xqxm" style="font-size:1.8em" maxlength="10">
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								介绍：
+							</dt>
+							<dd>
+								<textarea class="group-input"  id="js" style="height:70px;" height="40px" maxlength="255"></textarea>
+							</dd>
+						</dl>
+					</li>
+				</ul>
+				<div id="imgurl" style="text-align:center;margin-top:2em"></div>
+				<div style="height:50px">
+					&nbsp;
+				</div>
+			</div>
+			<div style="text-align:center;position: fixed;bottom: 0;width: 100%;height: 50px;">
+				<p>
+					<button class="aui-btn aui-btn-info" style="width:100%;background:rgb(249,100,0);width: 100%;height: 50px;font-size: 24px;" id="createActive">
+						创建
+					</button>
+				</p>
+			</div>
+		</article>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script>
+		var token = "";
+		var path = "";
+		var imgsrc = "";
+		var voiceLength = "";
+		var localtionName = "";
+		var imgsrc1 = ""
+		var currentMic = 0;
+		var setTimeoutCurrent;
+		var width = $("#xqxm").width();
+		var rowid = "";
+		var imgurl = [];
+		$("#js").attr("style", "width:" + width + "px;font-size:1.8em;height:150px");
+		$("#address").attr("style", "width:" + width + "px;font-size:1.8em;height:150px");
+		apiready = function() {
+			var pageParam = api.pageParam;
+			rowid = pageParam.rowid || "";
+			if (rowid != "") {
+				$("#createActive").html("保存");
+			}
+			var map = api.require('bMap');
+			map.getLocation({
+				accuracy : '100m',
+				filter : 1,
+				autoStop : true
+			}, function(ret, err) {
+				if (ret.status) {
+					var lon = ret.lon;
+					var lat = ret.lat;
+					map.getNameFromCoords({
+						lon : lon,
+						lat : lat
+					}, function(ret, err) {
+						if (ret.status) {
+							localtionName = ret.province + ret.city + ret.district + ret.streetName + ret.streetNumber
+							setPrefs("localtionLon_lat", lon + "," + lat);
+							setPrefs("localtionLon", lon);
+							setPrefs("localtionLat", lat);
+							$("#address").attr("lbs", lon + "," + lat);
+							setPrefs("localtionName", localtionName);
+							changeLbs();
+						} else {
+							api.alert({
+								title : '搜索错误代码',
+								msg : err.msg
+							});
+						}
+					});
+				} else {
+					api.alert({
+						msg : err.msg
+					});
+				}
+			});
+			if (rowid != "") {
+				var parame = {
+					values : {
+						rowid : rowid
+					}
+				}
+				doAjax(GROUPINFO, "post", parame, function(data) {
+					$("#mmmmm").attr("src", data.data.imgsrc);
+					$("#name").val(data.data.groupname);
+					$("#address").val(data.data.grouplbsname);
+					$("#address").attr("lbs", data.data.grouplbs);
+					$("#xqxm").val(data.data.xqxm);
+					localtionName = data.data.grouplbsname;
+					$("#js").val(data.data.js);
+				}, function(data) {
+				})
+			}
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				token = ret.value;
+			});
+			$("#address").click(function() {
+				api.openWin({
+					name : 'lbs_window',
+					url : './lbs_window.html',
+					bounces : false,
+					slidBackEnabled : false
+				});
+			});
+			$(".voice,#cl").bind("touchstart", function() {
+				//
+				$("#changeImg").attr("style", "background:url('../image/endVoices.png') no-repeat;background-size: 42px auto;");
+				startVoice();
+				$("#ax").html("放手结束");
+			});
+			$(".voice,#cl").bind("touchend", function() {
+				//
+				$("#changeImg").attr("style", "background:url('../image/audios.png') no-repeat;background-size: 42px auto;");
+				endVoice();
+				$("#ax").html("按下说话");
+			});
+			$("#createActive").click(function() {
+				var name = $("#name").val();
+				if (name == "" || name == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入名称"
+					}, function(ret, err) {
+						//coding...
+					});
+					return;
+				}
+				var address = $("#address").val();
+				if (address == null || address == "") {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入群组地址"
+					}, function(ret, err) {
+						//coding...
+					});
+					return;
+				}
+				var xqxm = $("#xqxm").val();
+				if (xqxm == "" || xqxm == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入兴趣项目"
+					}, function(ret, err) {
+						//coding...
+					});
+					return;
+				}
+				var parame = {
+					values : {
+						"name" : $("#name").val(),
+						"address" : $("#address").val(),
+						xqxm : $("#xqxm").val(),
+						js : $("#js").val(),
+						lbs : $("#address").attr("lbs"),
+						"rowid" : rowid,
+						"token" : $api.getStorage("token")
+					},
+					files : {
+						img : imgurl
+					}
+				}
+				doAjax(addGroup, "post", parame, function(data) {
+					var flag = data.flag;
+					if (flag == "success") {
+						api.alert({
+							msg : "保存成功"
+						}, function(ret, err) {
+							api.execScript({
+								script : 'init();',
+								"name" : "root",
+								frameName : "firendList"
+							});
+							api.closeWin({
+							});
+						});
+					}
+				}, function(data) {
+				}, 1)
+			});
+			$("#mmmmm").click(function() {
+				api.actionSheet({
+					title : '菜单',
+					cancelTitle : '取消',
+					buttons : ['拍照', '相册']
+				}, function(ret, err) {
+					var sourceType = "album";
+					if (ret.buttonIndex == 1) {
+						sourceType = 'camera'
+					} else if (ret.buttonIndex == 2)
+						( sourceType = 'album'
+						)
+					if (ret.buttonIndex != 3) {
+						api.getPicture({
+							sourceType : sourceType,
+							encodingType : 'jpg',
+							mediaValue : 'pic',
+							destinationType : 'url',
+							allowEdit : true,
+							quality : 100,
+							saveToPhotoAlbum : false
+						}, function(ret, err) {
+							if (ret) {
+								//imgurl = ret.data;
+								imgurl = [];
+								imgurl.push(ret.data);
+								$("#mmmmm").attr("src", ret.data);
+							} else {
+							}
+						});
+					}
+				});
+			});
+		}
+		function showTime() {
+			api.openPicker({
+				type : 'date_time',
+				title : '选择时间'
+			}, function(ret, err) {
+				var year = ret.year;
+				var month = ret.month;
+				var day = ret.day;
+				var hour = ret.hour;
+				var minute = ret.minute;
+				$("#times").val(year + "-" + month + "-" + day + " " + hour + ":" + minute);
+			});
+		}
+
+		var start = false;
+		function startVoice() {
+			setTimeoutCurrent = setTimeout("toast()", 1000);
+			api.startRecord({
+			});
+		}
+
+		function toast() {
+			currentMic = currentMic + 1;
+			api.toast({
+				msg : '正在录音' + currentMic + "秒",
+				duration : 1000,
+				location : 'middle'
+			});
+			setTimeoutCurrent = setTimeout("toast()", 1000)
+		}
+
+		function endVoice() {
+			api.stopRecord(function(ret, err) {
+				if (ret) {
+					path = ret.path;
+					$("#voiceDetail").attr("style", "");
+					$("#micLength").html(ret.duration + "秒");
+					voiceLength = ret.duration;
+				}
+			});
+			currentMic = 0;
+			clearTimeout(setTimeoutCurrent);
+		}
+
+		function changeLbs() {
+			api.getPrefs({
+				key : 'localtionName'
+			}, function(ret, err) {
+				localtionName = ret.value;
+				$("#address").val(localtionName);
+			});
+			api.getPrefs({
+				key : 'localtionLon_lat'
+			}, function(ret, err) {
+				$("#address").attr("lbs", ret.value);
+			});
+		}
+	</script>
+</html>

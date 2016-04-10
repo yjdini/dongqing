@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/fonts/font-awesome.min.css">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<link rel="stylesheet" href="../css/appcan.icon.css">
+		<link rel="stylesheet" href="../css/appcan.control.css">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			.t-gra-FS1 {
+				color: #9f9f9f;
+			}
+			.uinn-FS1 {
+				padding: 0.75em 0.625em;
+			}
+			.uinn-FS2 {
+				padding: 0.625em 1.1875em 0.2em 1.1875em;
+			}
+			.uwh-FS1 {
+				width: 2.1em;
+				height: 2.1em;
+			}
+			.uwh-FS2 {
+				width: 1.625em;
+				height: 1.625em;
+			}
+			.uwh-FS3 {
+				width: 0.625em;
+				height: 0.625em;
+			}
+			.c-gra-FS1 {
+				background-color: #d8d8d8;
+			}
+			.c-gra-FS2 {
+				background-color: #b3b3b3;
+			}
+			.uc-a-FS1 {
+				-webkit-border-radius: 2.1em;
+				border-radius: 2.1em;
+			}
+			.uc-a-FS2 {
+				-webkit-border-radius: 1.625em;
+				border-radius: 1.625em;
+			}
+			.uh-FS1 {
+				height: 0.5em;
+			}
+			.umar-tFS1 {
+				margin-top: 0.3em;
+			}
+			.c-wh {
+				background-color: white;
+			}
+			.ulev-app1 {
+				font-size: 0.875em;
+			}
+			.uinn-a1 {
+				padding: 0.625em;
+			}
+			.select {
+				display: block !important
+			}
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="ub ub-ver">
+			<!--分步骤-->
+			<div class="ub ub-ver uinn-FS2">
+				<div class="ub">
+					<div class="ub ub-ver ub-f1">
+						<div class="ub-f1 ub ub-ac">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2 sc-bg-alert uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep1"></div>
+								</div>
+							</div>
+							<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+						</div>
+						<div class="ulev-2 umar-tFS1">
+							创建项目
+						</div>
+					</div>
+					<div class="ub ub-ver ub-f1">
+						<div class="ub-f1 ub ub-ac">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2 sc-bg-alert uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep2"></div>
+								</div>
+							</div>
+							<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+						</div>
+						<div class="ulev-2 umar-tFS1">
+							创建技能
+						</div>
+					</div>
+					<div class="ub ub-ver ub-f1">
+						<div class="ub-f1 ub ub-ac">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2  uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep3"></div>
+								</div>
+							</div>
+							<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+						</div>
+						<div class="ulev-2 umar-tFS1">
+							选择顾问
+						</div>
+					</div>
+					<div class="ub ub-ver">
+						<div class="ub">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2    uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep4"></div>
+								</div>
+							</div>
+						</div>
+						<div class="ulev-2 umar-tFS1 tx-c">
+							结束
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--列表-->
+			<section>
+				<div class="fb-box">
+					<ul class="fb-list">
+						<li class="select" id="skil">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="skilValue"></span></span>应用
+						</li>
+						<li class="list-box" id="skilBox" style="display:none"></li>
+						<li ></li>
+						<li class="select" id="skillDesc">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="skillDescValue"></span></span>模块
+						</li>
+						<li class="list-box" id="skillDescBox" style="display:none"></li>
+						<input class="fb-input fb-input1" type="number" id="expericeYear" placeholder="期望经验" />
+						<li ></li>
+						<input class="fb-input fb-input1" type="number" id="userNumber" placeholder="需求人数" />
+						<li ></li>
+						<li class="select" id="baseCity">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="baseCityValue"></span></span>首选地
+						</li>
+						<li ></li>
+						<li class="select" id="expectDate">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="expectDateValue"></span></span>到岗时间
+						</li>
+						<li ></li>
+					</ul>
+				</div>
+		</div>
+		</section> <script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			var pageParam;
+			apiready = function() {
+				pageParam = api.pageParam;
+				var parames = {
+					values : {
+						type : "1" //表示技能
+					}
+				}
+				doAjax(DICTIONARYCONTROLLER, "post", parames, function(data) {
+					//查询应用 和 模块
+					var dictionaries = data.dictionaries;
+					var length = Math.floor(dictionaries.length / 5);
+					var html = "";
+					for (var i = 0; i < length; i++) {
+						html = html + "<P>";
+						for (var j = 0; j < 5; j++) {
+							html = html + "<a dictionaries='" + JSON.stringify(dictionaries[i * 5 + j].dictionaries) + "'  class='skilBox' name='" + dictionaries[i * 5 + j].dictionaryName + "' rowid ='" + dictionaries[i * 5 + j].dictionaryId + "'>" + dictionaries[i * 5 + j].dictionaryName + "</a>";
+						}
+						html = html + "</P>";
+					}
+					var model = dictionaries.length % 5;
+					html = html + "<P>";
+					for (var i = 0; i < model; i++) {
+						html = html + "<a  dictionaries='" + JSON.stringify(dictionaries[length * 5 + i].dictionaries) + "' name='" + dictionaries[length * 5 + i].dictionaryName + "'   class='skilBox' rowid ='" + dictionaries[length * 5 + i].dictionaryId + "'>" + dictionaries[length * 5 + i].dictionaryName + "</a>";
+					}
+					html = html + "</p>";
+					$("#skilBox").html(html);
+					$("#skil").click(function() {
+						$("#skilBox").show("fast");
+						$(".skilBox").click(function() {
+							var rowid = $(this).attr("rowid");
+							var name = $(this).attr("name");
+							$("#skilValue").html(name);
+							$("#skilValue").attr("realValue", rowid);
+							$("#skillDescValue").html("");
+							$("#skillDescValue").attr("realValue", "");
+							$("#skilBox").hide();
+							var dictionaries = $(this).attr("dictionaries");
+							var json = JSON.parse(dictionaries);
+							length = Math.floor(json.length / 5);
+							var html = "";
+							for (var i = 0; i < length; i++) {
+								html = html + "<P>";
+								for (var j = 0; j < 5; j++) {
+									html = html + "<a   class='skillDescBox' name='" + json[i * 5 + j].dictionaryName + "' rowid ='" + json[i * 5 + j].dictionaryId + "'>" + json[i * 5 + j].dictionaryName + "</a>";
+								}
+								html = html + "</P>";
+							}
+							var model = json.length % 5;
+							html = html + "<P>";
+							for (var i = 0; i < model; i++) {
+								html = html + "<a    name='" + json[length * 5 + i].dictionaryName + "'   class='skillDescBox' rowid ='" + json[length * 5 + i].dictionaryId + "'>" + json[length * 5 + i].dictionaryName + "</a>";
+							}
+							html = html + "</p>";
+							$("#skillDescBox").html(html);
+							$("#skillDesc").click(function() {
+								$("#skillDescBox").show("fast");
+								$(".skillDescBox").click(function() {
+									var rowid = $(this).attr("rowid");
+									var name = $(this).attr("name");
+									$("#skillDescValue").html(name);
+									$("#skillDescValue").attr("realValue", rowid);
+									$("#skillDescBox").hide();
+								});
+							});
+						});
+					});
+				}, function() {
+				});
+			}
+			function changeArea(areaName) {
+				$("#baseCityValue").html(areaName);
+			}
+
+
+			$("#expectDate").click(function() {
+				api.openPicker({
+					type : 'date',
+					title : '选择时间'
+				}, function(ret, err) {
+					var year = ret.year;
+					var month = ret.month;
+					var day = ret.day;
+					var hour = ret.hour;
+					var minute = ret.minute;
+					$("#expectDateValue").html(year + "-" + month + "-" + day);
+				});
+			});
+			$("#baseCity").click(function() {
+				openWindow("selectCity_window.html", "selectCity_window.html", null)
+			});
+			function saveObj() {
+				var projId = pageParam.projId;
+				var parame = {
+					values : {
+						projId : projId,
+						userNumber : $("#userNumber").val(),
+						expectDate : $("#expectDateValue").html(),
+						expericeYear : $("#expericeYear").val(),
+						skillDesc : $("#skillDescValue").attr("realValue"),
+						skillId : $("#skilValue").attr("realValue"),
+						baseCity : $("#baseCityValue").html()
+					}
+				}
+				doAjax(CREATEPROSKILL, "post", parame, function(data) {
+					api.confirm({
+						title : '提示',
+						msg : '需求创建成功，是否继续创建',
+						buttons : ['继续添加技能', '下一步']
+					}, function(ret, err) {
+						if (ret.buttonIndex == 1) {
+							$("#userNumber").val("");
+							$("#expectDateValue").html("");
+							$("#expericeYear").val("");
+							$("#skillDescValue").html("");
+							$("#skilValue").html("");
+							$("#baseCityValue").html("");
+						} else {
+							var parames = {
+								"projId" : projId
+							}
+							openWindow("skillUserList_window.html", "skillUserList_window.html", parames);
+						}
+					});
+				}, function() {
+				});
+			}
+		</script>
+	</body>
+</html>

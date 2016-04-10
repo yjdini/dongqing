@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/aui.css" rel="stylesheet" type="text/css" />
+		<style>
+			ul li {
+				overflow: visible;
+			}
+			.aui-text-center {
+				clear: both !important
+			}
+			.aui-text-right {
+				margin-right: 60px;
+			}
+			.aui-text-left {
+				margin-left: 60px;
+			}
+			.aui-chat-sender .aui-chat-sender-cont {
+				max-width: 65%;
+			}
+			.aui-chat-sender .aui-chat-sender-cont, .aui-chat-receiver .aui-chat-receiver-cont {
+				max-width: 65%;
+			}
+		</style>
+	</head>
+	<body >
+		<article style="height:40%">
+			<div class="chat" id="list"></div>
+			<div class="box bottom"></div>
+		</article>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script src="../image/emotion/emotion.js"></script>
+		<script>
+			var myUserName = "";
+			var myUserImg = "";
+			var myRowid = "";
+			var UIChatBox;
+			var targetId = "";
+			var conversationType = "";
+			var pageIndex = 0;
+			var min = 0;
+			var max = 0;
+			var rongCloud;
+			var height;
+			var currentMic = 0;
+			var setTimeoutCurrent
+			var first = 0;
+			var UIMediaScanner;
+			apiready = function() {
+				myUserName = $api.getStorage("userName");
+				UIMediaScanner = api.require('UIMediaScanner');
+				myUserImg = SERVERURL + $api.getStorage("img");
+				myRowid = $api.getStorage("token");
+				UIChatBox = api.require('UIChatBox');
+				rongCloud = api.require('rongCloud');
+				var pageParam = api.pageParam;
+				targetId = pageParam.targetId;
+				conversationType = pageParam.conversationType;
+				height = pageParam.height
+				pageIndex++;
+				min = pageIndex * 8;
+				max = pageIndex * 8 + 7;
+				api.setRefreshHeaderInfo({
+					visible : true,
+					bgColor : '#ccc',
+					textColor : '#fff',
+					textDown : '正在加载...',
+					textUp : '松开刷新...',
+					showTime : true
+				}, function(ret, err) {
+					api.refreshHeaderLoadDone();
+					pageIndex++;
+					min = pageIndex * 8;
+					max = pageIndex * 8 + 7;
+					readMessage(1);
+				});
+				UIChatBox.addEventListener({
+					target : 'inputBar',
+					name : 'move'
+				}, function(ret, err) {
+					//修改打开的frame的高度
+					var headerHeight = api.pageParam.height;
+					//聊天页面的头部高度
+					var _h = ret.inputBarHeight + ret.panelHeight;
+					var h = api.winHeight - headerHeight - _h;
+					api.setFrameAttr({
+						name : 'chat',
+						rect : {
+							x : 0,
+							y : headerHeight,
+							w : 'auto',
+							h : h
+						}
+					});
+					//滚动到底部
+				});
+				UIChatBox.open({
+					placeholder : '',
+					maxRows : 4,
+					emotionPath : 'widget://image/emotion',
+					texts : {
+						recordBtn : {
+							normalTitle : '按住 说话',
+							activeTitle : '松开 结束'
+						}
+					},
+					styles : {
+						inputBar : {
+							borderColor : '#d9d9d9',
+							bgColor : '#f2f2f2'
+						},
+						inputBox : {
+							borderColor : '#B3B3B3',
+							bgColor : '#FFFFFF'
+						},
+						emotionBtn : {
+							normalImg : 'widget://image/chatBox_face1.png'
+						},
+						extrasBtn : {
+							normalImg : 'widget://image/chatBox_add1.png'
+						},
+						keyboardBtn : {
+							normalImg : 'widget://image/chatBox_key1.png'
+						},
+						speechBtn : {
+							normalImg : 'widget://image/chatBox_key1.png'
+						},
+						recordBtn : {
+							normalBg : '#c4c4c4',
+							activeBg : '#999999',
+							color : '#000',
+							size : 14
+						},
+						indicator : {
+							target : 'both',
+							color : '#c4c4c4',
+							activeColor : '#9e9e9e'
+						}
+					},
+					extras : {
+						titleSize : 12,
+						titleColor : '#000000',
+						btns : [{
+							title : '上传图片',
+							normalImg : 'widget://image/chatBox_album1.png',
+							activeImg : 'widget://image/chatBox_album2.png'
+						}]
+					}
+				}, function(ret) {
+					//点击附加功能面板
+					if (ret.eventType == 'clickExtras') {
+						actionSheet("菜单", ["拍照", "图库"], function(ret) {
+							if (ret.buttonIndex == 1) {
+								api.getPicture({
+									sourceType : 'camera',
+									encodingType : 'jpg',
+									mediaValue : 'pic',
+									destinationType : 'url',
+									allowEdit : true,
+									quality : 100,
+									saveToPhotoAlbum : false
+								}, function(ret, err) {
+									var imgsrc = ret.data;
+									var sql = "INSERT INTO message(content,conversationType,targetId,messageId,sentTime,duration,status,objectName,userId,senderUserId)";
+									sql = sql + " VALUES('" + imgsrc + "','" + conversationType + "','" + targetId + "','" + 111 + "','" + new Date().getTime() + "','" + 0 + "','" + 1 + "','" + "RC:ImgMsg" + "','" + 222 + "','" + myRowid + "')";
+									upDataSql(sql, function() {
+									});
+									//	alert(imgsrc  + " "   + conversationType  + "  "  + targetId )  ;
+									rongCloud.sendImageMessage({
+										conversationType : conversationType,
+										targetId : targetId,
+										imagePath : imgsrc,
+										extra : ''
+									}, function(ret, err) {
+										if (ret.status == 'success') {
+											api.toast({
+												msg : '发送成功',
+												duration : 2000,
+												location : 'middle'
+											});
+										} else {
+										}
+									});
+								});
+							} else if (ret.buttonIndex == 2) {
+								UIMediaScanner.open({
+									column : 4,
+									classify : true,
+									max : 6,
+									type : "picture",
+									count : 6,
+									sort : {
+										key : 'time',
+										order : 'desc'
+									},
+									exchange : true,
+									texts : {
+										stateText : '已选择*项',
+										cancelText : '取消',
+										finishText : '完成'
+									},
+									styles : {
+										bg : '#fff',
+										mark : {
+											icon : '',
+											position : 'bottom_left',
+											size : 20
+										},
+										nav : {
+											bg : '#eee',
+											stateColor : '#000',
+											stateSize : 18,
+											cancelBg : 'rgba(0,0,0,0)',
+											cancelColor : '#000',
+											cancelSize : 18,
+											finishBg : 'rgba(0,0,0,0)',
+											finishColor : '#000',
+											finishSize : 18
+										}
+									}
+								}, function(ret) {
+									if (ret) {
+										var list = ret.list;
+										for (var i = 0; i < list.length; i++) {
+											var path = list[i].path;
+											var sql = "INSERT INTO message(content,conversationType,targetId,messageId,sentTime,duration,status,objectName,userId,senderUserId)";
+											sql = sql + " VALUES('" + path + "','" + conversationType + "','" + targetId + "','" + 111 + "','" + new Date().getTime() + "','" + 0 + "','" + 1 + "','" + "RC:ImgMsg" + "','" + 222 + "','" + myRowid + "')";
+											upDataSql(sql, function() {
+											});
+											rongCloud.sendImageMessage({
+												conversationType : conversationType,
+												targetId : targetId,
+												imagePath : list[i].thumbPath,
+												extra : ''
+											}, function(ret, err) {
+												if (ret.status == 'success') {
+													api.toast({
+														msg : '发送成功',
+														duration : 2000,
+														location : 'middle'
+													});
+												} else {
+													//	alert(JSON.stringify(err));
+												}
+											});
+										}
+									}
+								});
+							}
+						});
+					}
+					if (ret.eventType == 'send') {
+						var content = ret.msg;
+						if (content == "" || content == null) {
+							api.toast({
+								msg : '请输入发表内容'
+							});
+							return;
+						}
+						var sql = "INSERT INTO message(content,conversationType,targetId,messageId,sentTime,duration,status,objectName,userId,senderUserId)";
+						sql = sql + " VALUES('" + content + "','" + conversationType + "','" + targetId + "','" + 111 + "','" + new Date().getTime() + "','" + 0 + "','" + 1 + "','" + "RC:TxtMsg" + "','" + 222 + "','" + myRowid + "')";
+						upDataSql(sql, function() {
+						});
+						rongCloud.sendTextMessage({
+							conversationType : conversationType,
+							targetId : targetId,
+							text : content,
+							extra : ""
+						}, function(ret, err) {
+							if (ret.status == 'success') {
+								api.toast({
+									msg : '发送成功',
+									duration : 2000,
+									location : 'middle'
+								});
+							}
+						});
+					}
+				});
+				readMessage();
+				UIChatBox.addEventListener({
+					target : 'recordBtn',
+					name : 'press'
+				}, function(ret, err) {
+					startVoice();
+				});
+				UIChatBox.addEventListener({
+					target : 'recordBtn',
+					name : 'press_cancel'
+				}, function(ret, err) {
+					endVoice();
+				});
+			}
+			function readMessage(tt) {
+				var sql = "SELECT * from message WHERE targetId='" + targetId + "'  and status = 1 order by sentTime  DESC";
+				if (first == 0) {
+					sql = "select * from (SELECT * from message WHERE targetId='" + targetId + "'  order by sentTime  desc ) d limit 8 offset 0";
+					first = 1;
+				}
+				if (tt != null && tt == 1) {
+					sql = "select *  from (SELECT * from message WHERE targetId='" + targetId + "'  order by sentTime desc) d limit " + 8 + " offset " + min + "";
+				}
+				readSQL(sql, function(data) {
+					var arrayMessage = data;
+					var height = 0;
+					if (tt != null && tt == 1) {
+						for (var i = 0; i < arrayMessage.length; i++) {
+							if (arrayMessage[i].content == "您已经被管理员请出该群" || arrayMessage[i].content == ("您已经被用户" + $api.getStorage("key" + targetId) + "删除")) {
+								return;
+							}
+							var senderUserId = arrayMessage[i].senderUserId || "";
+							var userId = arrayMessage[i].userId || "";
+							var content = arrayMessage[i].content || "";
+							var objectName = arrayMessage[i].objectName || "";
+							var sentTime = arrayMessage[i].sentTime || "";
+							var messageId = arrayMessage[i].messageId || "";
+							var duration = arrayMessage[i].duration || "";
+							autoText(tt, senderUserId, userId, content, objectName, sentTime, messageId, duration);
+						}
+					} else {
+						for (var i = arrayMessage.length - 1; i >= 0; i--) {
+							var senderUserId = arrayMessage[i].senderUserId || "";
+							var userId = arrayMessage[i].userId || "";
+							var content = arrayMessage[i].content || "";
+							var objectName = arrayMessage[i].objectName || "";
+							var sentTime = arrayMessage[i].sentTime || "";
+							var messageId = arrayMessage[i].messageId || "";
+							var duration = arrayMessage[i].duration || "";
+							autoText(tt, senderUserId, userId, content, objectName, sentTime, messageId, duration)
+						}
+					}
+					var sql = "UPDATE message  set status = 2  where targetId='" + targetId + "'";
+					upDataSql(sql, function() {
+						setTimeout("readMessage()", 1000);
+						api.execScript({
+							script : 'changeTip();',
+							name : "root",
+						});
+						api.execScript({
+							script : 'init();',
+							"name" : "root",
+							frameName : "firendList"
+						});
+						api.execScript({
+							script : 'initData();',
+							"name" : "root",
+							frameName : "messageList"
+						});
+					});
+				})
+			}
+
+			function startVoice() {
+				setTimeoutCurrent = setTimeout("toast()", 1000);
+				api.startRecord({
+				});
+			}
+
+			function toast() {
+				if (currentMic >= 59) {
+					api.stopRecord(function(ret, err) {
+						if (ret) {
+							var path = ret.path;
+							if (ret.duration <= 0) {
+								api.toast({
+									msg : '语音少于1秒'
+								});
+								return;
+							}
+							var sql = "INSERT INTO message(content,conversationType,targetId,messageId,sentTime,duration,status,objectName,userId,senderUserId)";
+							sql = sql + " VALUES('" + path + "','" + conversationType + "','" + targetId + "','" + 111 + "','" + new Date().getTime() + "','" + ret.duration + "','" + 1 + "','" + "RC:VcMsg" + "','" + 222 + "','" + myRowid + "')";
+							upDataSql(sql, function() {
+							});
+							rongCloud.sendVoiceMessage({
+								conversationType : conversationType,
+								targetId : targetId,
+								voicePath : path,
+								duration : ret.duration,
+								extra : ''
+							}, function(ret, err) {
+								if (ret.status == 'success') {
+									api.toast({
+										msg : '发送成功',
+										duration : 2000,
+										location : 'middle'
+									});
+								} else {
+								}
+							});
+						}
+					});
+					clearTimeout(setTimeoutCurrent);
+					currentMic = 0;
+					api.toast({
+						msg : '最多60秒',
+						duration : 1000,
+						location : 'middle'
+					});
+				} else {
+					currentMic = currentMic + 1;
+					api.toast({
+						msg : '正在录音' + currentMic + "秒",
+						duration : 1000,
+						location : 'middle'
+					});
+					setTimeoutCurrent = setTimeout("toast()", 1000)
+				}
+			}
+
+			function endVoice() {
+				currentMic = 0;
+				clearTimeout(setTimeoutCurrent);
+				api.stopRecord(function(ret, err) {
+					if (ret) {
+						var path = ret.path;
+						if (ret.duration <= 0) {
+							api.toast({
+								msg : '语音少于1秒'
+							});
+							return;
+						}
+						var sql = "INSERT INTO message(content,conversationType,targetId,messageId,sentTime,duration,status,objectName,userId,senderUserId)";
+						sql = sql + " VALUES('" + path + "','" + conversationType + "','" + targetId + "','" + 111 + "','" + new Date().getTime() + "','" + ret.duration + "','" + 1 + "','" + "RC:VcMsg" + "','" + 222 + "','" + myRowid + "')";
+						upDataSql(sql, function() {
+						});
+						rongCloud.sendVoiceMessage({
+							conversationType : conversationType,
+							targetId : targetId,
+							voicePath : path,
+							duration : ret.duration,
+							extra : ''
+						}, function(ret, err) {
+							if (ret.status == 'success') {
+								api.toast({
+									msg : '发送成功',
+									duration : 2000,
+									location : 'middle'
+								});
+							} else {
+							}
+						});
+					}
+				});
+			}
+
+			function scrollToBy() {
+				api.pageDown({
+					bottom : "true"
+				})
+				$('html,body').animate({
+					scrollTop : $('.bottom').offset().top
+				}, 0);
+				$(".imageArray").click(function() {
+					var imgurl = $(this).attr("src");
+					
+					var obj = api.require('imageBrowser');
+					obj.openImages({
+						imageUrls : [imgurl],
+						showList : false,
+						activeIndex : 0,
+						tapClose : false
+					});
+					
+					event.stopPropagation();
+				});
+				$(".userssss").click(function() {
+					var rowid = $(this).attr("rowid");
+					var parame = {
+						userid : rowid
+					}
+					openWindow("userCenter_window", "userCenter_window.html", parame)
+				});
+			}
+
+			function autoText(tt, senderUserId, userId, content, objectName, sentTime, messageId, dur) {
+				var name = $api.getStorage("key" + senderUserId);
+				var img = SERVERURL + $api.getStorage("img" + senderUserId);
+				var html = " <p class='aui-text-center history-date'  >" + convertDate1(sentTime) + "</p>";
+				//文本消息
+				if (objectName == "RC:TxtMsg") {
+					var list = dataImg;
+					var f = [];
+					var list = dataImg;
+					for (var j = 0; j < list.length; j++) {
+						var imgsrc = "../image/emotion/" + list[j].name + ".png";
+						content = content.replaceAll(list[j].text, "<img class='' width='48px' height='48px' style='vertical-align:middle;' src='" + imgsrc + "'>")
+					}
+					if (userId != "") {
+						html = html + " <p class='aui-text-right history-date' >" + myUserName + "</p>";
+						html = html + " <div class='aui-chat-sender'  ><div class='aui-chat-sender-avatar'><img  rowid='" + myRowid + "' class='userssss' src='" + myUserImg + "' style='width:50px;height:50px'></div><div class='aui-chat-sender-cont' ><div class='aui-chat-right-triangle'></div><span style='height:48px;line-height:48px'>" + "" + "" + content + "</span></div></div>";
+					} else {
+						html = html + " <p class='aui-text-left history-date' >" + name + "</p>";
+						html = html + " <div class='aui-chat-receiver'  ><div class='aui-chat-receiver-avatar'><img  rowid='" + senderUserId + "' class='userssss' src='" + img + "' style='width:50px;height:50px'></div><div class='aui-chat-receiver-cont' ><div class='aui-chat-left-triangle'></div><span style='height:48px;line-height:48px'>" + "" + "" + content + "</span></div></div>";
+					}
+					if (tt != null && tt == 1) {
+						var temp = html + $("#list").html();
+						$("#list").html(temp);
+					} else {
+						$("#list").append(html);
+						scrollToBy();
+					}
+				} else if (objectName == "RC:ImgMsg") {
+					if (userId != "") {
+						html = html + " <p class='aui-text-right history-date' >" + myUserName + "</p>";
+						html = html + "<div class='aui-chat-sender'  ><div class='aui-chat-sender-avatar'><img rowid='" + myRowid + "' class='userssss' src='" + myUserImg + "'  style='width:50px;height:50px'></div><div class='aui-chat-sender-cont' ><div class='aui-chat-right-triangle'></div><span><img class='imageArray' src='" + content + "' width='100px'  ></span></div></div>";
+					} else {
+						html = html + " <p class='aui-text-left history-date' >" + name + "</p>";
+						html = html + "<div class='aui-chat-receiver'  ><div class='aui-chat-receiver-avatar'><img rowid='" + senderUserId + "' class='userssss' src='" + img + "'  style='width:50px;height:50px'></div><div class='aui-chat-receiver-cont' ><div class='aui-chat-left-triangle'></div><span><img class='imageArray' src='" + content + "' width='100px'  ></span></div></div>";
+					}
+					if (tt != null && tt == 1) {
+						var temp = html + $("#list").html();
+						$("#list").html(temp);
+					} else {
+						$("#list").append(html);
+						scrollToBy();
+					}
+				} else if (objectName == "RC:VcMsg") {
+					if (userId != "") {
+						html = html + " <p class='aui-text-right history-date'>" + myUserName + "</p>";
+						var temp = "";
+						for (var t = 0; t < dur / 3; t++) {
+							temp = temp + "&nbsp;";
+						}
+						html = html + " <div class='aui-chat-sender'  ><div class='aui-chat-sender-avatar'><img rowid='" + myRowid + "' class='userssss' src='" + myUserImg + "'  style='width:50px;height:50px'></div><div class='aui-chat-sender-cont'  ><div class='aui-chat-right-triangle'></div><span class='voiceList' html='" + temp + dur + "秒'  id='" + sentTime + "' onclick=\"pl('" + content + "','" + sentTime + "')\" >" + temp + dur + "秒</span></div></div>";
+						if (tt != null && tt == 1) {
+							var temp = html + $("#list").html();
+							$("#list").html(temp);
+							scrollToBy();
+						} else {
+							$("#list").append(html);
+							scrollToBy();
+						}
+					} else {
+						html = html + " <p class='aui-text-left history-date'>" + name + "</p>";
+						var temp = "";
+						for (var t = 0; t < dur / 3; t++) {
+							temp = temp + "&nbsp;";
+						}
+						html = html + " <div class='aui-chat-receiver'  ><div class='aui-chat-receiver-avatar'><img rowid='" + senderUserId + "' class='userssss' src='" + img + "'  style='width:50px;height:50px'></div><div class='aui-chat-receiver-cont'  ><div class='aui-chat-left-triangle'></div><span class='voiceList' html='" + temp + dur + "秒'  id='" + sentTime + "' onclick=\"pl('" + content + "','" + sentTime + "')\" >" + temp + dur + "秒</span></div></div>";
+						if (tt != null && tt == 1) {
+							var temp = html + $("#list").html();
+							$("#list").html(temp);
+							scrollToBy();
+						} else {
+							$("#list").append(html);
+							scrollToBy();
+						}
+					}
+				}
+				scrollToBy();
+			}
+
+			var preFix = "";
+			var currentMics = ""
+			function pl(url, id) {
+				if (preFix != "") {
+					$("#" + preFix).html($("#" + preFix).attr("html"));
+				}
+				preFix = id;
+				if (currentMics == "") {
+					//初始化 设置
+					currentMics = url;
+					$("#" + id).html($("#" + id).attr("html") + ".....");
+					api.startPlay({
+						path : url
+					}, function() {
+						api.toast({
+							msg : '播放完成'
+						});
+						currentMics = "";
+						$("#" + id).html($("#" + id).attr("html") + "");
+					});
+				} else {
+					if (currentMics == url) {
+						currentMics = "";
+						api.stopPlay();
+						$("#" + id).html($("#" + id).attr("html") + "");
+					} else {
+						//记录数据
+						$("#" + id).html($("#" + id).attr("html") + ".....");
+						currentMics = url;
+						api.startPlay({
+							path : url
+						}, function() {
+							api.toast({
+								msg : '播放完成'
+							});
+							currentMics = "";
+							$("#" + id).html($("#" + id).attr("html") + "");
+						});
+					}
+				}
+			}
+			
+			function  sendImg(){
+				
+			}
+			
+		</script>
+	</body>
+</html>

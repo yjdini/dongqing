@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<section>
+				<div class="content">
+					<div class="ht-xqbox">
+						<div class="tit-box">
+							<dl class="c">
+								<dt>
+									<P class="head-img"><img id="userImg" src="../images/head-pic.png" />
+									</P>
+								</dt>
+								<dd>
+									<P class="name" id="nickName">
+										a
+									</P>
+									<P class="date" id="createtime">
+										a
+									</P>
+								</dd>
+							</dl>
+							<span class=" yy-icon" id="delete" style="display:none" >删除</span>
+						</div>
+						<div class="info-box">
+							<P class="content" id="content"></P>
+							<ul class="user-pic c" id="imgList">
+								<li><img src="images/p12.png">
+								</li>
+								<li><img src="images/p13.png">
+								</li>
+								<li><img src="images/p13.png">
+								</li>
+							</ul>
+							<p class="ht-dialog"  id="voice">
+								<span class="tips"></span>
+								<span class="sound-icon"></span>6‘’
+							</p>
+						</div>
+					</div>
+					<div id="tabForumsList"></div>
+					<div class="bbs-pl">
+						<dl class="c">
+							<dt>
+								<p class="head-img"><img src="../images/head-pic.png">
+								</p>
+							</dt>
+							<dd>
+								<input type="text" id="commit" placeholder="么么哒，请尽情的评论吧" />
+							</dd>
+						</dl>
+					</div>
+				</div>
+			</section>
+			<script src="../script/api.js"></script>
+			<script src="../script/jquery-1.9.1.min.js"></script>
+			<script src="../script/app.js"></script>
+			<script>
+				var token = "";
+				var rowid = "";
+				var nickName = "";
+				var currentFloat = 0;
+				var imgList = [];
+				apiready = function() {
+					imageBrowser = api.require('imageBrowser');
+					var pageParam = api.pageParam;
+					rowid = pageParam.rowid;
+					api.getPrefs({
+						key : 'nickName'
+					}, function(ret, err) {
+						nickName = ret.value;
+					});
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						token = ret.value;
+						//获取BBS详情
+						var parame = {
+							values : {
+								"rowid" : rowid,
+								"token" : token
+							}
+						}
+						doAjax(BBSDETAIL, "post", parame, function(data) {
+							var tabTopic = data.tabTopic;
+							$("#nickName").html(tabTopic.parame1);
+							$("#userImg").attr("src", SERVERURL + tabTopic.parame2);
+							$("#createtime").html(dateDiff(tabTopic.createDatetime));
+							$("#content").html("" + tabTopic.topicContent);
+							var attachments = data.attachments;
+							var html = "";
+							for (var i = 0; i < attachments.length; i++) {
+								html = html + "<li><img class='imgList' src='" + IMGURL + attachments[i].fileUrl + "'></li>";
+								imgList.push(IMGURL + attachments[i].fileUrl);
+							}
+							$("#imgList").html(html);
+							$("#voice").hide();
+							var tabForums = data.tabForums;
+							var html = "";
+							for (var i = 0; i < tabForums.length; i++) {
+								html = html + "<div class='ht-xqbox'><div class='tit-box'><dl class='c'><dt>	<P class='head-img'><span class='nopic'></span>"
+								html = html + "</P></dt><dd><P class='name'>" + tabForums[i].parame1
+								html = html + "</P><P class='date'>" + (++currentFloat) + "楼&nbsp;&nbsp;" + dateDiff(tabForums[i].createDatetime) + "</P></dd></dl>";
+								html = html + "<span class='z2-icon yy-icon'></span></div><div class='info-box '><P class='content'>" + tabForums[i].forumContent + "</P></div></div>";
+							}
+							$("#tabForumsList").html(html);
+							$(".imgList").click(function() {
+								imageBrowser.openImages({
+									imageUrls : imgList,
+									showList : false,
+									activeIndex : 0
+								});
+							})
+						}, function(data) {
+						});
+					});
+				}
+				function save() {
+					var content = $("#commit").val();
+					if (content == "" || content == null || content.length == 0) {
+						api.alert({
+							"title" : "提示",
+							"msg" : "请输入评论内容"
+						}, function(ret, err) {
+						});
+						return;
+					}
+					var param = {
+						values : {
+							token : token,
+							content : content,
+							topicId : rowid
+						}
+					}
+					doAjax(COMMITBBSFORUM, "post", param, function(data) {
+						var record = data.record;
+						var html = "";
+						html = html + "<div class='ht-xqbox'><div class='tit-box'><dl class='c'><dt>	<P class='head-img'><span class='nopic'></span>"
+						html = html + "</P></dt><dd><P class='name'>" + nickName;
+						html = html + "</P><P class='date'>" + (++currentFloat) + "楼&nbsp;&nbsp;" + dateDiff(record.createDatetime) + "</P></dd></dl>";
+						html = html + "<span class='z2-icon yy-icon'></span></div><div class='info-box '><P class='content'>" + record.forumContent + "</P></div></div>";
+						$("#tabForumsList").append(html);
+						api.alert({
+							"title" : "提示",
+							"msg" : "评论成功"
+						}, function(ret, err) {
+							$("#commit").val("");
+							api.pageDown(function(ret) {
+							});
+						});
+					}, function(data) {
+					});
+				}
+			</script>
+</html>

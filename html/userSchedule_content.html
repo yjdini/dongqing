@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<style>
+		.bc-text{
+			font-size: 1.3em;
+		}
+		.sc-text1{
+			font-size: 1.1em !important;
+		}
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart id="list">
+		<div id="" class="ubt bc-border sc-bg">
+			<ul id="listview">
+			</ul>
+		</div>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script>
+            apiready = function() {
+                api.getPrefs({
+                    key : 'token'
+                }, function(ret, err) {
+                    var value = ret.value;
+                    var parame = {
+                        values : {
+                            token : value
+                        }
+                    }
+                    doAjax(LISTMYUSERSCHEDULE, "post", parame, function(data) {
+                        var tabUserSchedules = data.tabUserSchedules;
+                        var html = "";
+                        for (var i = 0; i < tabUserSchedules.length; i++) {
+                            html =  html + "<li id='2'  rowid='" + tabUserSchedules[i].scheduleId + "' class='ubb ub bc-border t-bla ub-ac list' data-index='1'>";
+                            html =  html + "<ul class='ub-f1 ub ub-pj ub-ac'>";
+                            html =  html + "<ul class='ub-f1 ub ub-ver marg-l'>";
+                            html =  html + "<li class='bc-text ub ub-ver ut-m line1'>" + tabUserSchedules[i].scheduleTitle +"</li>";
+                            html =  html + "<li class='ulev-1 sc-text1 uinn3'>" + tabUserSchedules[i].parame1 + " </li>";
+                            html =  html + "<li class='ulev-2 sc-text1 uinn3'>开始时间:" + convertDate(tabUserSchedules[i].scheduleSdate) + "结束时间:" + convertDate(tabUserSchedules[i].scheduleEdate)  + "<br>" + "提醒:" + convertScheduleWarn(tabUserSchedules[i].scheduleWarn) +"<br> 开启:" + convertScheduleIsopen(tabUserSchedules[i].scheduleIsopen);
+                            html =  html + "</li></ul><ul class='ub ub-ver ub-ae umar-r'></ul><li class='fa fa-angle-right ulev2'></li></ul></li>";
+                        }
+                       $("#listview").append(html);
+                        $(".list").click(function() {
+                            var rowid = $(this).attr("rowid");
+                            var parame = {
+                                "rowid" : rowid
+                            }
+                            openWindow("userScheduleMan_window.html", "userScheduleMan_window.html", parame);
+                        });
+                    }, function() {
+                    })
+                });
+            }
+		</script>
+	</body>
+</html>

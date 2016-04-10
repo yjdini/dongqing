@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<section class="mine" id="maxRole">
+				<ul class="u-oplist" id="current"></ul>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script type="text/javascript">
+                var token = "";
+                apiready = function() {
+                    api.getPrefs({
+                        key : 'token'
+                    }, function(ret, err) {
+                        token = ret.value;
+                        var parame = {
+                            "values" : {
+                                token : token
+                            }
+                        }
+                        doAjax(GETMYROLEANDMAXROLE, "post", parame, function(data) {
+                            //获取当前的权限
+                            var html = "";
+                            var current = data.current;
+                            for (var i = 0; i < current.length; i++) {
+                                html = html + "<li class='c currentRole' url='" + current[i].indexkeys + "'  >"
+                                html = html + "<span class='fr i-licon m-l10'></span>";
+                                html = html + "<span class='u-icon u-icon1 fl' style='background-image:url(" + current[i].iocn + ")'></span>";
+                                html = html + "<span class='m-l10'>" + current[i].name + "</span>"
+                                html = html + "<span class='fr f13 c1'>当前功能</span></li>";
+                            }
+                            $("#current").html(html);
+                            html = "<ul class='u-oplist bor-b-s' >";
+                            var maxCurrent = data.maxCurrent;
+                            for (var i = 0; i < maxCurrent.length - 1; i++) {
+                                html = html + "<li class='c currentRole' url='" + maxCurrent[i].indexkeys + "'  >"
+                                html = html + "<span class='fr i-licon m-l10'></span>";
+                                html = html + "<span class='u-icon u-icon1 fl' style='background-image:url(" + maxCurrent[i].iocn + ")'></span>";
+                                html = html + "<span class='m-l10'>" + maxCurrent[i].name + "</span>"
+                                html = html + "<span class='fr f13 c1'>" + convertRole(maxCurrent[i].flag) + "请申请 </span></li>";
+                                if (maxCurrent[i].flag != maxCurrent[i + 1].flag) {
+                                    html = html + "</ul><ul class='u-oplist bor-b-s' id='maxRole'>";
+                                }
+                            }
+                            html = html + "<li class='c currentRole' url='" + maxCurrent[maxCurrent.length - 1].indexkeys + "'  >"
+                            html = html + "<span class='fr i-licon m-l10'></span>";
+                            html = html + "<span class='u-icon u-icon1 fl' style='background-image:url(" + maxCurrent[maxCurrent.length - 1].iocn + ")'></span>";
+                            html = html + "<span class='m-l10'>" + maxCurrent[maxCurrent.length - 1].name + "</span>"
+                            html = html + "<span class='fr f13 c1'>" + convertRole(maxCurrent[maxCurrent.length - 1].flag) + "请申请</span></li></ul>";
+                            $("#maxRole").append(html);
+                        }, function(data) {
+                        })
+                    });
+                }
+			</script>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<link rel="stylesheet" href="../css/appcan.icon.css">
+		<link rel="stylesheet" href="../css/appcan.control.css">
+		<style type="text/css">
+			.b-gra3 {
+				border-color: #d8d8d8;
+			}
+			.uinn-a6 {
+				padding: 1em 0.65em 0 0.65em;
+			}
+			.t-gra4 {
+				color: #8c8c8c;
+			}
+			.uinn-a1 {
+				padding: 0.625em;
+			}
+			.uinn-a7 {
+				padding: 0 0.625em;
+			}
+			.c-wh {
+				background-color: #FFF;
+			}
+			.umar-at1 {
+				margin-top: 0.625em;
+			}
+			.uinn-at1 {
+				padding-top: 1em;
+			}
+			input.ub-f1 {
+				padding-left: 2em;
+			}
+			.sc-bg {
+				background-color: #F4F4F4;
+			}
+			.lis {
+				padding: 0.5em 0.75em;
+			}
+			.dot {
+				font-size: 0.4em !important;
+				color: #FF0000;
+				top: 0.2em;
+				position: absolute;
+				margin-left: 0.4em;
+			}
+			.ulev-app1 span {
+				width: 1.1em;
+				height: 1.1em;
+				margin-left: 0.6em;
+				border: 1px;
+				border-style: solid;
+				border-radius: 1.1em;
+				background-color: red;
+				position: relative;
+				top: -4.6em;
+				left: 1.46em;
+			}
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="ub ub-ver" style="margin-left: 1.25em;margin-right: 1em;margin-top: 1em;">
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac">
+				<div class="ulev-app1 umw4">
+					项目名称
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1" type="text"  id="projName" style="padding-left:10px"/>
+					</div>
+				</div>
+			</div>
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac umar-at1">
+				<div class="ulev-app1 umw4">
+					项目描述
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1 selectIsNo" type="text"   id="projDesc" style="padding-left:10px"/>
+					</div>
+				</div>
+			</div>
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac umar-at1">
+				<div class="ulev-app1 umw4">
+					项目经理
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1" type="text"   id="projManager"/>
+					</div>
+				</div>
+			</div>
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac umar-at1">
+				<div class="ulev-app1 umw4">
+					项目职责
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1" type="text" id="projWorkDesc"/>
+					</div>
+				</div>
+			</div>
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac umar-at1">
+				<div class="ulev-app1 umw4">
+					项目开始时间
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1 date" type="text" readonly=""  id="projSdate" style="padding-left:10px"/>
+					</div>
+				</div>
+			</div>
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac umar-at1">
+				<div class="ulev-app1 umw4">
+					项目结束时间
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1 date" type="text" readonly=""  id="projEdate" style="padding-left:10px"/>
+					</div>
+				</div>
+			</div>
+			<div class="uinn-at1" id="btn" >
+				<div class="btn ub ub-ac bc-text-head ub-pc bc-btn"  style="border-radius: 10px;">
+					<div class="uinn3 fa  umh1 umw1"></div>
+					保存
+				</div>
+			</div>
+			<div class="uinn-at1" id="del"  style="display:none">
+				<div class="btn ub ub-ac bc-text-head ub-pc bc-btn"  style="border-radius: 10px;">
+					<div class="uinn3 fa  umh1 umw1"></div>
+					删除
+				</div>
+			</div>
+		</div>
+		<script src="../script/api.js"></script>
+		<script src="../script/jquery-1.9.1.min.js"></script>
+		<script src="../script/app.js"></script>
+		<script >
+			var rowid = "";
+			var resumeId = "";
+			apiready = function() {
+				var param = api.pageParam;
+				var rowid = param.rowid;
+				resumeId = param.resume_id;
+				if (rowid != "") {
+					var params = {
+						"values" : {
+							rowid : rowid
+						}
+					}
+					$("#del").show();
+					$("#del").click(function() {
+						api.confirm({
+							title : '提示',
+							msg : '确定删除项目经历数据吗?',
+							buttons : ['确定', '取消']
+						}, function(ret, err) {
+							if (ret.buttonIndex == 1) {
+								var parame = {
+									values : {
+										rowid : rowid
+									}
+								}
+								doAjax(delUserProjHis, "post", parame, function(data) {
+									var flag = data.flag;
+									if (flag == "true") {
+										api.alert({
+											"title" : "提示",
+											"msg" : "删除成功"
+										}, function(ret, err) {
+											api.closeWin({
+											});
+										});
+									}
+								}, function(data) {
+								})
+							}
+						});
+					});
+					doAjax(LISTUSERPROJHISBYROWID, "POST", params, function(data) {
+						var projHis = data.projHis;
+						$("#projName").val(projHis.projName);
+						$("#projDesc").val(projHis.projDesc);
+						$("#projManager").val(projHis.projManager);
+						$("#projWorkDesc").val(projHis.projWorkDesc);
+						$("#projSdate").val(convertDate(projHis.projSdate));
+						$("#projEdate").val(convertDate(projHis.projEdate));
+					}, function() {
+					})
+				}
+				$(".date").click(function() {
+					var thiss = $(this);
+					api.openPicker({
+						type : 'date_time',
+						title : '选择时间'
+					}, function(ret, err) {
+						var year = ret.year;
+						var month = ret.month;
+						var day = ret.day;
+						var hour = ret.hour;
+						var minute = ret.minute;
+						thiss.val(year + "-" + month + "-" + day + " " + hour + ":" + minute + ":00");
+					});
+				});
+				$("#btn").click(function() {
+					var projName = $("#projName").val();
+					var projDesc = $("#projDesc").val();
+					var projManager = $("projManager").val();
+					var projSdate = $("#projSdate").val();
+					var projWorkDesc = $("#projWorkDesc").val();
+					var projEdate = $("#projEdate").val();
+					var parames = {
+						values : {
+							"rowid" : rowid,
+							"resumeId" : resumeId,
+							"projName" : projName,
+							"projDesc" : projDesc,
+							"projManager" : projManager,
+							"projSdate" : projSdate,
+							"projWorkDesc" : projWorkDesc,
+							"projEdate" : projEdate
+						}
+					}
+					doAjax(HISSAVEORUPDATE, "post", parames, function(data) {
+					}, function() {
+					});
+				});
+			}
+		</script>
+	</body>
+</html>

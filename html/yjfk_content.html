@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			.g-op-button {
+				height: 115px;
+			}
+		</style>
+	</head>
+	<body>
+		<article>
+			<ul>
+				<li class="c">
+					<dl>
+						<dd>
+							<textarea class="group-input"  id="xqxm" placeholder="请输入意见内容" style="height:100%" maxlength="255"></textarea>
+						</dd>
+					</dl>
+				</li>
+			</ul>
+		</article>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			var token = "";
+			apiready = function() {
+				var winHeight = api.winHeight - 70;
+				$("#xqxm").attr("style", "font-size:1.8em;height:" + winHeight + "px");
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+				});
+			}
+			function save() {
+				var name = $("#name").val();
+				var xqxm = $("#xqxm").val();
+				var parame = {
+					values : {
+						token : token,
+						title : name,
+						content : xqxm
+					}
+				}
+				doAjax(yjfk, "post", parame, function(data) {
+					var flag = data.flag;
+					if (flag == "true") {
+						api.alert({
+							"msg" : "提交成功"
+						}, function(ret, err) {
+							api.closeWin({
+							});
+						});
+					}
+				}, function(data) {
+				});
+			}
+		</script>
+	</body>
+</html>

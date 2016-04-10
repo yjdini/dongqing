@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	</head>
+	<body class="bg1">
+		<article>
+			<ul class="yl-list" id="list"></ul>
+		</article>
+	</body>
+	<script type="text/javascript">
+		// 完成首页初始化
+		var longitude = "";
+		var latitude = "";
+		var NEWTOKEN  = "";
+		apiready = function() {
+			api.getLocation(function(ret, err) {
+				longitude = ret.longitude;
+				latitude = ret.latitude;
+			});
+			initRongYun();
+			initData("");
+			setPrefs("parame", "")
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				api.refreshHeaderLoadDone();
+				api.toast({
+					msg : '刷新成功',
+					location : "top"
+				});
+				initData(NEWTOKEN);
+			});
+		}
+		function initData(data) {
+		NEWTOKEN = data;
+			api.getPrefs({
+				key : 'parame'
+			}, function(ret, err) {
+				var data = ret.value;
+				if (data == null || data.length == 0) {
+					data = "none";
+				}
+				api.ajax({
+					url : ACTIVELIST,
+					method : 'POST',
+					timeout : 30,
+					dataType : 'json',
+					returnAll : false,
+					data : {
+						values : {
+							lbs : longitude + "," + latitude,
+							"operate" : NEWTOKEN
+						}
+					}
+				}, function(ret, err) {
+					if (ret) {
+						var html = "";
+						var data = ret.usergroups;
+						for (var i = 0; i < data.length; i++) {
+							html = html + "<li activetype=1 rowid='" + data[i].rowid + "' name='" + data[i].groupname + "' class='c list88'><dl><dt><P><span activetype=1 rowid='" + data[i].rowid + "' name='" + data[i].groupname + "' class='f25 c2 list2' style='color:rgb(228,108,10)'>" + data[i].groupname + "</span><div><span class=' c1 ' style='color:rgb(0,0,0)'>" + "[群组推荐]" + "</span></div></P><P class='c1' style='color:rgb(0,0,0)'>兴趣项目:" + data[i].xqxm + "</P><P class='c1' style='color:rgb(0,0,0)' >人数:" + data[i].rs + "</P><P class='c1' style='color:rgb(0,0,0)'></span></P></dt><dd><p class='head-tips' ><img src='" + SERVERURL + data[i].imgsrc + "' width='90px' height='90px'></p><div style='font-size:18px'>300M以内</div></dd></dl></li> ";
+						}
+						var data = ret.tabusers;
+						for (var i = 0; i < data.length; i++) {
+							data[i].name = data[i].name || '空';
+							data[i].aihao = data[i].aihao || '空';
+							data[i].age = data[i].age || '';
+							var clas = "tx-icon1";
+							if (data[i].sex == '2') {
+								clas = "tx-icon2";
+							}
+						//	html = html + "<li activetype=1 rowid='" + data[i].rowid + "'  class='c listdddd'><dl><dt><P><span  activetype=2 rowid='" + data[i].rowid + "'class='f25 c2 ' style='color:rgb(228,108,10)'>" + data[i].name + "</span><div><span class=' c1 ' style='color:rgb(0,0,0)'>" + "[个人推荐]" + "</span></div></P><P class='c1' style='color:rgb(0,0,0)'><span class='" + clas + " m-l10 m-r10' style='color:rgb(0,0,0)'></span><span class='m-r10 line' style='color:rgb(0,0,0)'>|</span>" + data[i].age + "</P><P class='c1' style='color:rgb(0,0,0)'>爱好：" + data[i].aihao + "</P><P  style='color:rgb(0,0,0)' class='ca1'><a class='th-tipas'><span class='th-con'></span></a></P></dt><dd><p class='head-tips' ><img src='" + SERVERURL + data[i].imgsrc + "' width='90px' height='90px'><div>800M</div></p></dd></dl></li>";
+						}
+						var data = ret.data;
+						for (var i = 0; i < data.length; i++) {
+							if (data[i].activetype == 1) {
+								html = html + "<li activetype=1 rowid='" + data[i].rowid + "' class='c list'><dl><dt><P><span activetype=1 rowid='" + data[i].rowid + "' class='f25 c2 list' style='color:rgb(228,108,10)'>" + data[i].name + "</span><div><span class=' c1 ' style='color:rgb(0,0,0)'>" + convertActiveType(data[i].activetype) + "</span></div></P><P class='c1' style='color:rgb(0,0,0)'>兴趣项目 :" + data[i].xqxm + "</P><P class='c1' style='color:rgb(0,0,0)'>" + data[i].lbsname + "</P><P class='c1' style='color:rgb(0,0,0)'>" + convertDate(data[i].activestartdate) + "</span></P><P class='c1' style='color:rgb(0,0,0)'>人数 :" + data[i].rs + "人</P></dt><dd><p class='head-tips' ><img src='" + SERVERURL + data[i].activeimg + "' width='90px' height='90px'></p><div style='font-size:18px'>300M以内</div></dd></dl></li> ";
+							} else if (data[i].activetype == 2) {
+								var clas = "tx-icon1";
+								if (data[i].sex == '2') {
+									clas = "tx-icon2";
+								}
+								data[i].voicelength = data[i].voicelength || '0';
+								//html = html + "<li activetype=1 rowid='" + data[i].rowid + "'  class='c list'><dl><dt><P><span  activetype=2 rowid='" + data[i].rowid + "'class='f25 c2 list' style='color:rgb(228,108,10)'>" + data[i].name + "</span><div><span class=' c1 ' style='color:rgb(0,0,0)'>" + convertActiveType(data[i].activetype) + "</span></div></P><P class='c1' style='color:rgb(0,0,0)'>" + data[i].userName + "<span class='" + clas + " m-l10 m-r10' style='color:rgb(0,0,0)'></span><span class='m-r10 line' style='color:rgb(0,0,0)'>|</span>" + data[i].age + "</P><P class='c1' style='color:rgb(0,0,0)'>爱好：" + data[i].aihao + "</P><P  style='color:rgb(0,0,0)' class='c1'><a class='th-tips'><span class='th-icon'></span><span class='fr c1 voiceList' url='" + data[i].voicesrc + "' style='color:rgb(0,0,0)'>" + data[i].voicelength + "秒</span></a></P></dt><dd><p class='head-tips' ><img src='" + SERVERURL + data[i].imgsrc + "' width='90px' height='90px'><div>800M</div></p></dd></dl></li>";
+							} else if (data[i].activetype == 3) {
+								html = html + "<li  activetype=1 rowid='" + data[i].rowid + "'  class='c list'><dl><dt><P><span activetype=3 rowid='" + data[i].rowid + "' class='f25 c2 list' >" + data[i].name + "</span><span class='f25 c1 m-l10'>" + convertActiveType(data[i].activetype) + "</span></P><P class='c1'>" + data[i].xqxm + "</P><P class='c1'>" + data[i].aihao + "</P><P class='c1'><span class='tx-icon1 m-r10'></span>3人<span class='m-l10'>" + data[i].lbsname + "</span></P></dt><dd><p class='head-tips'><a class='head-tips-icon hb3'><i class='hb-icon hb-icon2'></i></a></p></dd></dl></li>"
+							} else if (data[i].activetype == 4) {
+								html = html + "<li activetype=1 rowid='" + data[i].rowid + "'  class='c list'><dl><dt><P><span activetype=4 rowid='" + data[i].rowid + "'  class='f25 c2 list'>" + data[i].userName + "</span><span class='tx-icon2 m-l10'></span><span class='f25 c1 m-l10'>" + convertActiveType(data[i].activetype) + "</span></P><P class='c1'>43岁<span class='m-r10 line'>|</span>" + convertHy(data[i].hy) + "</P><P class='c1'>籍贯：" + data[i].szd + "</P><P class='c1'>爱好：" + data[i].aihao + "</P></dt><dd><p class='head-tips'><a class='head-tips-icon hb4'><i class='hb-icon hb-icon4'></i></a></p></dd></dl></li>"
+							}
+						}
+						$("#list").html(html);
+						$('.list88').bind("click", function(event) {
+							var rowid = $(this).attr("rowid");
+							api.openWin({
+								name : 'groupInfo_window',
+								url : './groupInfo_window.html',
+								pageParam : {
+									targetId : rowid
+								},
+								bounces : false,
+								slidBackEnabled : false
+							});
+						});
+						$(".listdddd").click(function() {
+							var rowid = $(this).attr("rowid");
+							api.openWin({
+								name : 'userCenter_window',
+								url : './userCenter_window.html',
+								pageParam : {
+									userid : rowid
+								},
+								bounces : false,
+								slidBackEnabled : false
+							});
+						});
+						$('.list').bind("click", function(event) {
+							var activeId = $(this).attr("rowid");
+							var activetype = $(this).attr("activetype");
+							var name = "";
+							var url = "";
+							if (activetype == 1 || activetype == 3) {
+								name = "content_window";
+								url = "./content_window.html";
+							} else if (activetype == 2 || activetype == 4) {
+								name = "grrenyaoyue_window";
+								url = "./grrenyaoyue_window.html";
+							}
+							api.openWin({
+								name : name,
+								url : url,
+								pageParam : {
+									activeId : activeId,
+									activetype : activetype
+								},
+								bounces : false,
+								slidBackEnabled : false
+							});
+							event.stopPropagation();
+						});
+					}
+				});
+			});
+		}
+	</script>
+</html>

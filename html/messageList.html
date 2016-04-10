@@ -1,0 +1,306 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>Hello APP</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/swiper.css" />
+		<link rel="stylesheet" type="text/css" href="../css/leftDelete.css" />
+		<style>
+			.aui-list-view {
+				background-color: #FFF
+			}
+			.swiper-container span.tips {
+				position: absolute;
+				top: 16px;
+				background: red;
+				width: 30px;
+				height: 30px;
+				text-align: center;
+				line-height: 30px;
+				border-radius: 50%;
+				margin-left: -17px;
+				margin-top: -15px;
+			}
+			.swiper-slide .text, .swiper-slide .fontb span:nth-child(2) {
+				margin-left: 10px
+			}
+			div.fontb span.contnts {
+				color: #000 !important;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 1;
+				-webkit-box-orient: vertical;
+			}
+			.swiper-container {
+				margin-bottom: 1px;
+				border-bottom: 1px;
+				border-bottom-style: solid;
+				border-bottom-color: #F3EDED;
+			}
+			.swiper-slide .text .contain {
+				font-size: 20px
+			}
+		</style>
+	</head>
+	<body >
+		<!--列表容器-->
+		<ul class="aui-list-view" id='list' style="min-height:100%" onclick="cc()"></ul>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/swipe.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		function cc() {
+			initchatList();
+			event.stopPropagation();
+		}
+
+		function initHtml() {
+			var list = $(".swiper-container").length;
+			for (var i = 0; i < list; i++) {
+				var index = i + 1;
+				var swiper = new Swiper('.swiper-btn-' + index + '', {
+					slidesPerView : 4,
+					allowSwipeToPrev : false,
+					onSliderMove : function(swiper) {
+						if (swiper.activeIndex != 0) {
+							swiper.unlockSwipeToPrev();
+						} else {
+							swiper.lockSwipeToPrev();
+						}
+					}
+				});
+			}
+		}
+
+		apiready = function() {
+			//初始化数据
+			initData();
+		};
+		function initData() {
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				var value = ret.value;
+				var parame = {
+					values : {
+						"token" : value
+					}
+				}
+				doAjax(listMyUsers, "post", parame, function(data) {
+					var tabusers2 = data.tabusers2;
+					for (var i = 0; i < tabusers2.length; i++) {
+						$api.setStorage("key" + tabusers2[i].rowid, tabusers2[i].name);
+						$api.setStorage("img" + tabusers2[i].rowid, tabusers2[i].imgsrc);
+					}
+					//获取群组
+					var usergroups = data.usergroups;
+					for (var i = 0; i < usergroups.length; i++) {
+						$api.setStorage("key" + usergroups[i].rowid, usergroups[i].groupname);
+						$api.setStorage("img" + usergroups[i].rowid, usergroups[i].imgsrc);
+					}
+					initchatList();
+				}, function(data) {
+				})
+			});
+		}
+
+		var maxbtn_num = 3;
+		var openSwipers = [];
+		function doAction(targetId, conversationType, extra) {
+			upDataSql("update message set STATUS =2  where targetId='" + targetId + "'", function() {
+				initchatList();
+				api.execScript({
+					script : 'changeTip();',
+					name : "root",
+				});
+				if (conversationType == "SYSTEM") {
+					var rowid = extra.split("!")[0];
+					var type = extra.split("!")[1];
+					var parame = {
+						values : {
+							rowid : rowid,
+							type : type
+						}
+					}
+					if (type == "USERS" || type == "MESSAGE") {
+						doAjax(firendByRowid, "post", parame, function(data) {
+							var data = data.data;
+							if (type == "USERS") {
+								var userid = data.userid;
+								var firendid = data.firendid;
+								if (data.parame1 != "1") {
+									api.alert({
+										msg : "您已经处理过这个消息"
+									}, function(ret, err) {
+										//coding...
+									});
+									return;
+								}
+								if (userid != $api.getStorage("token")) {
+									var parame = {
+										userid : userid,
+										command : "man"
+									}
+									openWindow("userCenter_window", "userCenter_window.html", parame)
+								} else {
+									var parame = {
+										userid : firendid,
+										command : "man"
+									}
+									openWindow("userCenter_window", "userCenter_window.html", parame)
+								}
+							} else if (type == "MESSAGE") {
+								api.alert({
+									msg : "您已处理过该消息"
+								}, function(ret, err) {
+									//coding...
+								});
+							}
+						}, function(data) {
+						});
+					} else if (type == "GROUPS") {
+						//查看处理情况数据
+						var parame = {
+							values : {
+								rowid : rowid
+							}
+						}
+						doAjax(getGroupByFirend, "post", parame, function(data) {
+							var name = data.name;
+							var data = data.data;
+							var flag = data.flag;
+							if (flag != "1") {
+								api.alert({
+									"msg" : "您已处理过该消息"
+								}, function(ret, err) {
+								});
+							} else {
+								var parame = {
+									userid : data.userid,
+									name : name,
+									rowid : data.rowid
+								}
+								openWindow("userCenterGroup_window", "userCenterGroup_window.html", parame);
+							}
+						}, function(data) {
+						})
+					}
+				} else {
+					api.openWin({
+						name : 'chat_window',
+						url : './chat_window.html',
+						pageParam : {
+							targetId : targetId,
+							"conversationType" : conversationType,
+							"name" : "1"
+						},
+						bounces : false,
+						slidBackEnabled : false
+					});
+				}
+			});
+			event.stopPropagation();
+		}
+
+		function initchatList() {
+			var sql = "SELECT data1.content       content,data1.targetId      targetId,data2.cc            cc,data1.sentTime      sentTime, messageId,conversationType,objectName,extra FROM (SELECT pa.content,pa.targetId,pa.sentTime,pa.messageId,pa.conversationType,objectName,pa.extra FROM message pa JOIN (SELECT targetId, MAX(senttime)       AS senttime FROM message GROUP BY targetId) SUB ON sub.senttime = pa.senttime) data1 LEFT JOIN (SELECT targetId,COUNT(1)          AS cc FROM message WHERE STATUS = 1 GROUP BY targetId) data2 ON data1.targetId = data2.targetId  ORDER    BY  senttime DESC   ";
+			readSQL(sql, function(data) {
+				var html = "";
+				for (var i = 0; i < data.length; i++) {
+					var nickName = "未设置";
+					var img = "../image/nv.png";
+					nickName = $api.getStorage("key" + data[i].targetId) || nickName;
+					img = $api.getStorage("img" + data[i].targetId) || img;
+					if (data[i].conversationType == "GROUP") {
+						img = img;
+					} else {
+						if (img != "../image/nv.png") {
+							img = SERVERURL + img;
+						}
+					}
+					var extra = data[i].extra + "";
+					if (extra != "") {
+						try {
+							extra = JSON.parse(extra);
+							if (data[i].conversationType == "SYSTEM") {
+								nickName = extra.parame3;
+								img = extra.parame4;
+								if (extra.parame2 == "MESSAGE" || extra.parame2 == "USERS") {
+									img = SERVERURL + img;
+								}
+							}
+							extra = extra.rowid + "!" + extra.parame2;
+						} catch (e) {
+						}
+					}
+					var index = i + 1;
+					if (data[i].cc != null && data[i].cc > 0) {
+						html = html + "<li class='swiper-container  list swiper-btn-" + index + "' messageType='" + data[i].conversationType + "' indexes='" + i + "' index='" + data[i].messageId + "' onclick=\"doAction('" + data[i].targetId + "','" + data[i].conversationType + "','" + extra + "')\">";
+						html = html + "<div class='swiper-wrapper'>";
+						html = html + "<div class='swiper-slide'>";
+						html = html + "<img src='" + img + "' class='icon'><span class='tips'>" + data[i].cc + "</span>"
+						html = html + "<div class='text'>";
+						html = html + "<span class='contain aui-ellipsis-3'> " + nickName + " <span style='float:right;color: #cacaca;font-size:15px;padding-top:1px'>" + dateDiff(data[i].sentTime) + "</span>";
+						html = html + "<div class='fontb'>"
+						html = html + "<span class='contnts' style='color: #cacaca;'><font style='color:rgb(158,158,158);'>" + parseContent(data[i].content, data[i].objectName) + "</font></span>";
+						html = html + "</div></span></div></div><div class='swiper-slide slide-left'></div><div class='swiper-slide'></div>";
+						html = html + "<div class='swiper-slide'></div>";
+						html = html + "<div class='swiper-slide swipe-btn '  tapmode onclick=\"onDelete(this,'" + data[i].targetId + "')\">删除</div></li>";
+					} else {
+						html = html + "<li class='swiper-container  list swiper-btn-" + index + "' messageType='" + data[i].conversationType + "' indexes='" + i + "' index='" + data[i].messageId + "' onclick=\"doAction('" + data[i].targetId + "','" + data[i].conversationType + "','" + extra + "')\">";
+						html = html + "<div class='swiper-wrapper'>";
+						html = html + "<div class='swiper-slide'>";
+						html = html + "<img src='" + img + "' class='icon'>"
+						html = html + "<div class='text'>";
+						html = html + "<span class='contain aui-ellipsis-3'> " + nickName + " <span style='float:right;color: #cacaca;font-size:15px;padding-top:1px'>" + dateDiff(data[i].sentTime) + "</span>";
+						html = html + "<div class='fontb'>"
+						html = html + "<span class='contnts' style='color: #cacaca;'><font style='color:rgb(158,158,158);'>" + parseContent(data[i].content, data[i].objectName) + "</font></span>";
+						html = html + "</div></span></div></div><div class='swiper-slide slide-left'></div><div class='swiper-slide'></div>";
+						html = html + "<div class='swiper-slide'></div>";
+						html = html + "<div class='swiper-slide swipe-btn '  tapmode onclick=\"onDelete(this,'" + data[i].targetId + "')\">删除</div></li>";
+					}
+				}
+				$("#list").html(html);
+				initHtml();
+				//setTimeout("initchatList()", 3000);
+			});
+		}
+
+		function parseContent(content, type) {
+			if (type == "RC:ImgMsg") {
+				return "[图片]";
+			} else if (type == "RC:VcMsg") {
+				return "[语音]";
+			} else {
+				return content;
+			}
+		}
+
+		function onDelete(obj, id) {
+			api.confirm({
+				"title" : "提示",
+				msg : "确认删除",
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				if (ret.buttonIndex == 1) {
+					upDataSql("DELETE FROM  message      WHERE targetId='" + id + "' ", function(data) {
+						api.alert({
+							"msg" : "删除成功"
+						}, function(ret, err) {
+							initchatList();
+						});
+					});
+				}
+			});
+			event.stopPropagation();
+		}
+	</script>
+</html>

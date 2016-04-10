@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			.current {
+				background-color: gray
+			}
+		</style>
+		<body>
+			<section class="mine">
+				<div class="mine-info">
+					
+					<P class="u-head-box">
+						<span class="u-head-radius"> <img src="images/u-head.png" id="setImg1" /> </span>
+					</P>
+					<P class="tac f16" id="userName"></P>
+					<P class="u-detail">
+						<a class="info  current"  onclick="show('info')" id="infoA">个人资料</a><a class="info" onclick="show('role')" id="roleA" >角色信息</a>
+					</P>
+				</div>
+				<div id="info">
+					<ul class="u-oplist">
+						<li class="c"  tapmode="presshover" onclick="goUrl('editMyInfo_window.html')">
+							<span class="fr i-licon m-l10"></span>
+							<span class="u-icon u-icon1 fl"></span>
+							<span class="m-l10">完善个人资料</span>
+							<span class="fr f13 c1">积分主要用于论坛发布</span>
+						</li>
+						<li class="c"  tapmode="presshover" onclick="goUrl('scoreList_window.html')">
+							<span class="fr i-licon m-l10"></span>
+							<span class="u-icon u-icon1 fl"></span>
+							<span class="m-l10">我的积分管理</span>
+							<span class="fr f13 c1">积分主要用于论坛发布</span>
+						</li>
+						<li class="c"  tapmode="presshover" onclick="goUrl('gradeHistory_window.html')">
+							<span class="fr i-licon m-l10"></span>
+							<span class="u-icon u-icon2 fl"></span>
+							<span class="m-l10">我的等级记录</span>
+							<span class="fr f13 c1"></span>
+						</li>
+						<li class="c"  tapmode="presshover" onclick="goUrl('myResumeList_window.html')">
+							<span class="fr i-licon m-l10"></span>
+							<span class="u-icon u-icon3 fl"></span>
+							<span class="m-l10">我的简历管理</span>
+							<span class="fr f13 c1"></span>
+						</li>
+					</ul>
+					<ul class="u-oplist bor-b-s" id="qiye">
+						<li class="c"  tapmode="presshover" onclick="goUrl('userSkill_window.html')">
+							<span class="fr i-licon  m-l10"></span>
+							<span class="u-icon u-icon4 fl"></span>
+							<span class="m-l10">我的技能管理</span>
+							<span class="fr f13 c1"></span>
+						</li>
+						<li class="c"  style="" id="userGroups" tapmode="presshover" onclick="goUrl('userGroup_window.html')">
+							<span class="fr i-licon  m-l10"></span>
+							<span class="u-icon u-icon4 fl"></span>
+							<span class="m-l10">我的群组管理</span>
+							<span class="fr f13 c1"></span>
+						</li>
+						<li class="c"  tapmode="presshover" onclick="goUrl('userSchedule_window.html')">
+							<span class="fr i-licon m-l10"></span>
+							<span class="u-icon u-icon5 fl"></span>
+							<span class="m-l10">我的预约管理</span>
+							<span class="fr f13 c1"></span>
+						</li>
+						<li class="c"  tapmode="presshover" onclick="goUrl('myQuestion_window.html')">
+							<span class="fr i-licon m-l10"></span>
+							<span class="u-icon u-icon5 fl"></span>
+							<span class="m-l10">我的问题管理</span>
+							<span class="fr f13 c1"></span>
+						</li>
+						<li class="c"  tapmode="presshover" onclick="goUrl('myCollectProjectList_window.html')">
+							<span class="u-icon u-icon6 fl"></span>
+							<span class="m-l10">我关注项目管理</span>
+						</li>
+						<li class="c"  tapmode="presshover" onclick="goUrl('mycollectUsers_window.html')">
+							<span class="u-icon u-icon6 fl"></span>
+							<span class="m-l10">我关注顾问管理</span>
+						</li>
+					</ul>
+				</div>
+				<div id="role" style="display:none"></div>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script type="text/javascript">
+				var token = "";
+				var showFalg = "true";
+				apiready = function() {
+					var $header = $api.dom('.mine-op');
+					$api.fixIos7Bar($header);
+					var strDM = api.systemType;
+					var strSV = api.systemVersion;
+					var numSV = parseInt(strSV, 10);
+					var fullScreen = api.fullScreen;
+					var iOS7StatusBarAppearance = api.iOS7StatusBarAppearance;
+					if (numSV >= 7 && !fullScreen && iOS7StatusBarAppearance) {
+					}
+					/**
+					 *获取用户详细信息
+					 */
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						var value = ret.value;
+						token = value;
+						if (!token || token == "") {
+							openWindow("login_window", "login_window.html", {});
+						} else {
+							var parame = {
+								values : {
+									token : value
+								}
+							};
+							doAjax(GETMYINFO, "post", parame, function(data) {
+								var tabUser01 = data.data;
+								if (tabUser01.userImgurl != null && tabUser01.userImgurl != "") {
+									$("#setImg1").attr("src", IMGURL + tabUser01.userImgurl);
+								}
+								$("#userName").append("<br>" + tabUser01.nickName + "&nbsp;&nbsp;当前角色:&nbsp;" + convertRole(tabUser01.roleId));
+								var indexConfs = data.indexConfs;
+								var html = "";
+								for (var i = 0; i < indexConfs.length; i++) {
+									html = html + "<ul class='u-oplist bor-b-s roleList' url='" + indexConfs[i].indexkeys + "' roleName='" + indexConfs[i].name + "'>"
+									html = html + "<li class='c'  tapmode='presshover' >";
+									html = html + "<span class='fr i-licon  m-l10'></span>";
+									html = html + "<span class='u-icon u-icon4 fl'></span>";
+									html = html + "<span class='m-l10'>" + indexConfs[i].name + "</span>";
+									html = html + "<span class='fr f13 c1'>" + indexConfs[i].namedesc + "</span></li></ul>";
+								}
+								$("#role").html(html);
+								$(".roleList").click(function() {
+									var name = $(this).attr("roleName");
+									var url = $(this).attr("url");
+									if (showFalg == "true") {
+										showFalg = "false";
+										var parame = {
+											values : {
+												token : token
+											}
+										}
+										doAjax(CHECKROLENAME, "post", parame, function(data) {
+											var flag = data.flag;
+											showFalg = "true";
+											if (flag == "false") {
+												api.alert({
+													"title" : "提示",
+													"msg" : data.msg
+												}, function(ret, err) {
+												});
+											} else {
+												//开始申请
+												var pageParame = {
+													name : name
+												}
+												openWindow(url, url, pageParame);
+											}
+										}, function(data) {
+										});
+									}
+								});
+							}, function() {
+							});
+						}
+					});
+					//二维码扫描
+					$(".u-back").click(function() {
+						api.closeWin({
+						});
+					});
+					$(".u-head").click(function() {
+						api.actionSheet({
+							title : '菜单',
+							cancelTitle : '取消',
+							buttons : ['修改密码', '我的二维码', "退出"]
+						}, function(ret) {
+							if (ret.buttonIndex == 1) {
+								openWindow("editPassword", "editPassword.html", {});
+							} else if (ret.buttonIndex == 2) {
+								api.getPrefs({
+									key : 'token'
+								}, function(ret, err) {
+									var value = ret.value;
+									var parame = {
+										values : {
+											"token" : value
+										}
+									}
+									doAjax(GETMYQRCODE, "post", parame, function(data) {
+										var path = data.path;
+										var array = [];
+										array.push(IMGURL + path);
+										var obj = api.require('imageBrowser');
+										obj.openImages({
+											imageUrls : array,
+											showList : false,
+											activeIndex : 0
+										});
+									}, function() {
+									});
+								});
+							} else if (ret.buttonIndex == 3) {
+								//退出 需要清除APP数据
+								api.confirm({
+									title : '提示',
+									msg : '确定退出吗',
+									buttons : ['确定', '取消']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 1) {
+										api.removePrefs({
+											key : 'token'
+										});
+										api.closeWin({
+										});
+									}
+								});
+							}
+						});
+					});
+					$("#setImg1").click(function() {
+						api.actionSheet({
+							title : '菜单',
+							cancelTitle : '取消',
+							buttons : ['拍照', '相册']
+						}, function(ret, err) {
+							var sourceType = "album";
+							if (ret.buttonIndex == 1) {
+								sourceType = 'camera'
+							} else if (ret.buttonIndex == 2)
+								( sourceType = 'album'
+								)
+							if (ret.buttonIndex != 3) {
+								api.getPicture({
+									sourceType : sourceType,
+									encodingType : 'jpg',
+									mediaValue : 'pic',
+									destinationType : 'url',
+									allowEdit : true,
+									quality : 100,
+									targetWidth : 84,
+									targetHeight : 84,
+									saveToPhotoAlbum : false
+								}, function(ret, err) {
+									if (ret) {
+										imgsrc = ret.data;
+										$("#setImg1").attr("src", imgsrc);
+										var parame = {
+											files : {
+												avator : imgsrc
+											},
+											values : {
+												token : token
+											}
+										}
+										doAjax(UPLOADAVATOR, "post", parame, function(data) {
+											var flag = data.flag
+											if (flag == "true") {
+												api.toast({
+													msg : '图像上传成功',
+													location : "middle"
+												});
+											} else {
+												api.toast({
+													msg : data.msg,
+													location : "middle"
+												});
+											}
+										}, function() {
+										})
+									} else {
+										api.alert({
+											msg : err.msg
+										});
+									}
+								});
+							}
+						});
+					});
+				}
+				function goUrl(url) {
+					openWindow(url, url, {});
+				}
+
+				function checkGo(url, name) {
+				}
+
+				function show(id) {
+					if (id == "info") {
+						$("#info").show();
+						$("#role").hide();
+						$("#roleA").removeClass("current");
+						$("#infoA").addClass("current");
+					} else if (id == "role") {
+						$("#role").show();
+						$("#info").hide();
+						$("#infoA").removeClass("current");
+						$("#roleA").addClass("current");
+					}
+				}
+			</script>
+</html>

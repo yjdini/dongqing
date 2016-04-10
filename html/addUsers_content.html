@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<link href="../css/selectUser.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="ub ub-ver">
+			<!--分步骤-->
+			<section>
+				<div class="fb-box">
+					<ul class="fb-list">
+						<input class="fb-input fb-input1" type="text" id="parame1" placeholder="输入打招呼" />
+						<li ></li>
+						<li class="select" id="groupID">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="groupIDValue"></span></span>选择聊天组
+						</li>
+						<li class="list-box" id="groupIDBox" style="display:none"></li>
+					</ul>
+				</div>
+		</div>
+		<ul class="fri-list" id="fri-list"></ul>
+		</section> <script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script >
+			var rowid;
+			var userList;
+			var token = "";
+			var userId = "";
+			var tabgroupId = "";
+			apiready = function() {
+				userId = api.pageParam.userId;
+				var type = api.pageParam.type;
+				if (type != null && type == "reply") {
+					$("#parame1").hide();
+					tabgroupId = api.pageParam.tabgroupId;
+				}
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					var parame = {
+						values : {
+							token : token
+						}
+					}
+					doAjax(myChatGroup, "post", parame, function(data) {
+						var html = "<p>";
+						var tabChatGroups = data.tabChatGroups;
+						for (var i = 0; i < tabChatGroups.length; i++) {
+							html = html + "<a class='groupIDBox' name='" + tabChatGroups[i].groupname + "' value='" + tabChatGroups[i].rowid + "'> " + tabChatGroups[i].groupname + "</a>";
+						}
+						html = html + "</p>";
+						$("#groupIDBox").html(html);
+						$("#groupID").click(function() {
+							$("#groupIDBox").show();
+							$(".groupIDBox").click(function() {
+								var name = $(this).attr("name");
+								var value = $(this).attr("value");
+								$("#groupIDValue").html(name);
+								$("#groupIDValue").attr("realValue", value);
+								$("#groupIDBox").hide();
+							});
+						});
+					}, function(data) {
+					})
+				});
+			}
+			function saveUsers() {
+				var parame = {
+					values : {
+						token : token,
+						parame1 : $("#parame1").val(),
+						userId : userId,
+						groupID : $("#groupIDValue").attr("realValue")
+					}
+				}
+				doAjax(addFirends, "post", parame, function(data) {
+					var flag = data.flag;
+				}, function(data) {
+				})
+			}
+
+			function replyUser() {
+				//开始 验证
+				var parame = {
+					values : {
+						token : token,
+						userId : userId,
+						tabgroupId : tabgroupId,
+						groupID : $("#groupIDValue").attr("realValue")
+					}
+				}
+				doAjax(chatGroupControllerreplyUser, "post", parame, function(data) {
+					var flag = data.flag;
+					if (flag == "true") {
+						api.alert({
+							"title" : "操作成功"
+						}, function(ret, err) {
+							api.closeToWin({
+								name : 'root'
+							});
+						});
+					}
+				}, function(data) {
+				})
+			}
+		</script>
+	</body>
+</html>

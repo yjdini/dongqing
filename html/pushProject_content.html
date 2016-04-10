@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/fonts/font-awesome.min.css">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<link rel="stylesheet" href="../css/appcan.icon.css">
+		<link rel="stylesheet" href="../css/appcan.control.css">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			.t-gra-FS1 {
+				color: #9f9f9f;
+			}
+			.uinn-FS1 {
+				padding: 0.75em 0.625em;
+			}
+			.uinn-FS2 {
+				padding: 0.625em 1.1875em 0.2em 1.1875em;
+			}
+			.uwh-FS1 {
+				width: 2.1em;
+				height: 2.1em;
+			}
+			.uwh-FS2 {
+				width: 1.625em;
+				height: 1.625em;
+			}
+			.uwh-FS3 {
+				width: 0.625em;
+				height: 0.625em;
+			}
+			.c-gra-FS1 {
+				background-color: #d8d8d8;
+			}
+			.c-gra-FS2 {
+				background-color: #b3b3b3;
+			}
+			.uc-a-FS1 {
+				-webkit-border-radius: 2.1em;
+				border-radius: 2.1em;
+			}
+			.uc-a-FS2 {
+				-webkit-border-radius: 1.625em;
+				border-radius: 1.625em;
+			}
+			.uh-FS1 {
+				height: 0.5em;
+			}
+			.umar-tFS1 {
+				margin-top: 0.3em;
+			}
+			.c-wh {
+				background-color: white;
+			}
+			.ulev-app1 {
+				font-size: 0.875em;
+			}
+			.uinn-a1 {
+				padding: 0.625em;
+			}
+			.select {
+				display: block !important
+			}
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="ub ub-ver">
+			<!--分步骤-->
+			<div class="ub ub-ver uinn-FS2">
+				<div class="ub">
+					<div class="ub ub-ver ub-f1">
+						<div class="ub-f1 ub ub-ac">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2 sc-bg-alert uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep1"></div>
+								</div>
+							</div>
+							<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+						</div>
+						<div class="ulev-2 umar-tFS1">
+							创建项目
+						</div>
+					</div>
+					<div class="ub ub-ver ub-f1">
+						<div class="ub-f1 ub ub-ac">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2  uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep2"></div>
+								</div>
+							</div>
+							<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+						</div>
+						<div class="ulev-2 umar-tFS1">
+							创建技能
+						</div>
+					</div>
+					<div class="ub ub-ver ub-f1">
+						<div class="ub-f1 ub ub-ac">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2  uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep3"></div>
+								</div>
+							</div>
+							<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+						</div>
+						<div class="ulev-2 umar-tFS1">
+							选择顾问
+						</div>
+					</div>
+					<div class="ub ub-ver">
+						<div class="ub">
+							<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+								<div class="uwh-FS2    uc-a-FS2 ub ub-ac ub-pc">
+									<div class="ub-img uwh-FS3 formStep4"></div>
+								</div>
+							</div>
+						</div>
+						<div class="ulev-2 umar-tFS1 tx-c">
+							结束
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--列表-->
+			<section>
+				<div class="fb-box">
+					<ul class="fb-list">
+						<input class="fb-input fb-input1" type="projName" id="projName" placeholder="项目名称" />
+						<li ></li>
+						<input class="fb-input fb-input1" type="projManagerName" id="projManagerName" placeholder="项目经理" />
+						<li ></li>
+						<li class="select" id="projSdate">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="projSdateValue"></span></span>项目开始时间
+						</li>
+						<li ></li>
+						<li class="select" id="projEdate">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="projEdateValue"></span></span>项目结束时间
+						</li>
+						<li class="select" id="projCity">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="projCityValue"></span></span>项目地址
+						</li>
+						<li ></li>
+						<li class="select" id="projManagerIsopen">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="projManagerIsopenValue"></span></span>项目经理公开
+						</li>
+						<li class="list-box" id="projManagerIsopenBox" style="display:none">
+							<P>
+								<a class='projManagerIsopenBox' value="1" name="公开">公开</a><a class='projManagerIsopenBox' value="2" name="不公开">不公开</a>
+							</P>
+						</li>
+						<li ></li>
+						<li class="select" id="projNameIsopen">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="projNameIsopenValue"></span>项目名称是否显示
+						</li>
+						<li class="list-box" id="projNameIsopenBox" style="display:none">
+							<P>
+								<a class='projNameIsopenBox' value="1" name="是">是</a><a class='projNameIsopenBox' value="2" name="否">否</a>
+							</P>
+						</li>
+						<li ></li>
+						<li class="select" id="projEmergencyLevel">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="projEmergencyLevelValue"></span>项目紧急程度
+						</li>
+						<li class="list-box" id="projEmergencyLevelBox" style="display:none"></li>
+						<li ></li>
+						<li class="select" id="hangye">
+							<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="hangyeValue"></span>行业
+						</li>
+						<li class="list-box" id="hangyeBox" style="display:none"></li>
+						<li ></li>
+						<li>
+							<textarea  class="fb-input fb-input2" id="projDesc" placeholder="项目描述" ></textarea>
+						</li>
+					</ul>
+				</div>
+		</div>
+		</section> <script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			var jjcd = [];
+			var token = "";
+			var jjcdKey = [];
+			var nickName = "";
+			var projIndustry = "";
+			var hangye = [];
+			var hangyeValue = [];
+			apiready = function() {
+				api.getPrefs({
+					key : 'nickName'
+				}, function(ret, err) {
+					nickName = ret.value;
+					$("#projManagerName").val(nickName);
+				});
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+				});
+				var parames = {
+					values : {
+						type : "4" //表示紧急程度
+					}
+				}
+				//项目紧急程度
+				doAjax(DICTIONARYCONTROLLER, "post", parames, function(data) {
+					var dictionaries = data.dictionaries;
+					//显示项目紧急程度
+					var html = "<p>";
+					for (var i = 0; i < dictionaries.length; i++) {
+						html = html + "<a class='projEmergencyLevelBox' value='" + dictionaries[i].dictionaryId + "' name='" + dictionaries[i].dictionaryName + "'>" + dictionaries[i].dictionaryName + "</a>"
+					}
+					html = html + "</p>";
+					$("#projEmergencyLevelBox").html(html);
+					$("#projEmergencyLevel").click(function() {
+						$("#projEmergencyLevelBox").show("fast");
+						$(".projEmergencyLevelBox").click(function() {
+							var name = $(this).attr("name");
+							var value = $(this).attr("value");
+							$("#projEmergencyLevelValue").html(name);
+							$("#projEmergencyLevelValue").attr("readVal", value);
+							$("#projEmergencyLevelBox").hide();
+						});
+					});
+				}, function(data) {
+				});
+				var parames = {
+					values : {
+						type : "3" //表示行业
+					}
+				}
+				doAjax(DICTIONARYCONTROLLER, "post", parames, function(data) {
+					var dictionaries = data.dictionaries;
+					var html = "<p>";
+					for (var i = 0; i < dictionaries.length; i++) {
+						html = html + "<a class='hangyeBox' value='" + dictionaries[i].dictionaryId + "' name='" + dictionaries[i].dictionaryName + "'>" + dictionaries[i].dictionaryName + "</a>"
+					}
+					html = html + "</p>";
+					$("#hangyeBox").html(html);
+					$("#hangye").click(function() {
+						$("#hangyeBox").show("fast");
+						$(".hangyeBox").click(function() {
+							var name = $(this).attr("name");
+							var value = $(this).attr("value");
+							$("#hangyeValue").html(name);
+							$("#hangyeValue").attr("readVal", value);
+							$("#hangyeBox").hide();
+						});
+					});
+				}, function(data) {
+				});
+				$("#projNameIsopen").click(function() {
+					$("#projNameIsopenBox").show("fast");
+					$(".projNameIsopenBox").click(function() {
+						var name = $(this).attr("name");
+						var value = $(this).attr("value");
+						$("#projNameIsopenValue").html(name);
+						$("#projNameIsopenValue").attr("readVal", value);
+						$("#projNameIsopenBox").hide();
+					});
+					//项目名称是否显示
+				});
+				$("#projManagerIsopen").click(function() {
+					$("#projManagerIsopenBox").show("fast");
+					$(".projManagerIsopenBox").click(function() {
+						var name = $(this).attr("name");
+						var value = $(this).attr("value");
+						alert(value);
+						$("#projManagerIsopenValue").html(name);
+						$("#projManagerIsopenValue").attr("readVal", value);
+						$("#projManagerIsopenBox").hide();
+					});
+				});
+				$("#projSdate").click(function() {
+					api.openPicker({
+						type : 'date',
+						title : '选择时间',
+						date : "yyyy-MM-dd"
+					}, function(ret, err) {
+						var year = ret.year;
+						var month = ret.month;
+						var day = ret.day;
+						var hour = ret.hour;
+						var minute = ret.minute;
+						$("#projSdateValue").html(year + "-" + month + "-" + day);
+					});
+				});
+				$("#projEdate").click(function() {
+					api.openPicker({
+						type : 'date',
+						title : '选择时间',
+						date : "yyyy-MM-dd"
+					}, function(ret, err) {
+						var year = ret.year;
+						var month = ret.month;
+						var day = ret.day;
+						var hour = ret.hour;
+						var minute = ret.minute;
+						$("#projEdateValue").html(year + "-" + month + "-" + day);
+					});
+				});
+				$("#projCity").click(function() {
+					openWindow("selectCity_window.html", "selectCity_window.html", null)
+				});
+			}
+			function changeArea(areaName) {
+				$("#projCityValue").html(areaName);
+			}
+
+			function save() {
+				//验证
+				var projSdateValue = $("#projSdateValue").html();
+				var projEdateValue = $("#projEdateValue").html();
+				var projName = $("#projName").val();
+				if (projName == null || projName == "") {
+					api.toast({
+						msg : '请输入项目名称'
+					});
+					return;
+				}
+				if (projEdateValue == "" && projSdateValue == "") {
+					api.toast({
+						msg : '请选择项目开始日期或项目结束日期'
+					});
+					return;
+				}
+				alert($("#projManagerIsopenValue").attr("readVal"));
+				var parame = {
+					values : {
+						"token" : token,
+						"projAddress" : $("#projCityValue").html(),
+						"projDesc" : $("#projDesc").val(),
+						"projName" : $("#projName").val(),
+						"projManagerName" : $("#projManagerName").val(),
+						"projSdate" : projSdateValue,
+						"projEdate" : projEdateValue,
+						"projManagerIsopen" : $("#projManagerIsopenValue").attr("readVal"),
+						"projNameIsopen" : $("#projNameIsopenValue").attr("readVal"),
+						"projEmergencyLevel" : $("#projEmergencyLevelValue").attr("readVal"),
+						"projIndustry" : $("#hangyeValue").attr("readVal")
+					}
+				}
+				doAjax(CREATEPROJ, "post", parame, function(data) {
+					var record = data.record;
+					api.confirm({
+						title : '提示',
+						msg : '项目创建成功,是否创建项目需求',
+						buttons : ['确定', '取消']
+					}, function(ret, err) {
+						if (ret.buttonIndex == 1) {
+							var projId = record.projId;
+							var parame = {
+								projId : projId,
+								projAddress : record.projAddress
+							}
+							openWindow("proRequired_window", "proRequired_window.html", parame);
+						}
+					});
+				}, function(data) {
+				})
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			.g-op-button {
+				height: 115px;
+			}
+			#cl {
+				text-align: center;
+			}
+			#imgurl {
+				margin-top: 2em;
+			}
+			.aui-btn-info {
+				border: 0px !important;
+				color: #fff;
+			}
+			.aui-btn, button {
+				border-radius: 0px
+			}
+		</style>
+	</head>
+	<body>
+		<article>
+			<div class="group">
+				<ul>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								活动名称：
+							</dt>
+							<dd>
+								<input class="group-input" type="text" id="name" style="font-size:1.8em" maxlength="7">
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								兴趣项目：
+							</dt>
+							<dd>
+								<input class="group-input" type="text" id="xqxm" style="font-size:1.8em" maxlength="20">
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								活动群：
+							</dt>
+							<dd>
+								<input class="group-input" type="text" id="parame1" readonly="" style="font-size:1.8em">
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								活动地址：
+							</dt>
+							<dd>
+								<textarea class="group-input"  id="address" lbs="111,11"  style="" maxlength="500"> </textarea>
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								活动日期：
+							</dt>
+							<dd>
+								<input class="group-input" type="text" onclick="showDate()" readonly="" style="font-size:1.8em" id="dates">
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								活动时间：
+							</dt>
+							<dd>
+								<input class="group-input" type="text" onclick="showTime()" readonly="" style="font-size:1.8em" id="times">
+							</dd>
+						</dl>
+					</li>
+					<li class="c">
+						<dl>
+							<dt class="w100" style="font-size:1.8em;width:250px;">
+								介绍：
+							</dt>
+							<dd>
+								<textarea class="group-input"  id="js" maxlength="255" ></textarea>
+							</dd>
+						</dl>
+					</li>
+				</ul>
+				<P class="c" id="voiceDetail" >
+					<a class="th-tips th-tips2 fl"><span class="th-icon"></span><span class="fr c1" id="micLength">0秒</span></a>
+					<a class="cr-op-button fr" id="cl"  style="text-align:center;background: -webkit-linear-gradient( top,#fc9f00,#f96500);color:#000;width:100px;height:40px;line-height:40px;border-radius: 8px">重录</a>
+				</P>
+				<p class="tac m-t20">
+					<a class="g-op-button voice" ontouchstart>&nbsp;<img src="../image/audios.png" width="80" height="55"/></span>
+					<br/>
+					<span id="ax">按下语音</span></a>
+					<a class="g-op-button m-l5 img" >&nbsp;<img src="../image/addImage.jpg" width="80" height="55"/> </span>
+					<br/>
+					添加图片 </a>
+				</p>
+				<div id="imgurl" style="text-align:center"   style="margin-top:2em"></div>
+			</div>
+			<div style="height:50px">
+				&nbsp;
+			</div>
+			<div style="text-align:center;position: fixed;bottom: 0;width: 100%;height: 50px;">
+				<p>
+					<button class="aui-btn aui-btn-info" style="width:100%;background:rgb(249,100,0);width: 100%;height: 50px;font-size: 24px;" id="createActive">
+						保存
+					</button>
+				</p>
+			</div>
+		</article>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script>
+		var imageArrayLength = 0;
+		var imageArray = [];
+		var token = "";
+		var path = "";
+		var imgsrc = "";
+		var voiceLength = "";
+		var localtionName = "";
+		var currentMic = 0;
+		var setTimeoutCurrent;
+		var width = $("#parame1").width();
+		var UIMediaScanner;
+		$("#js").attr("style", "width:" + width + "px;font-size:1.8em;height:150px");
+		$("#address").attr("style", "width:" + width + "px;font-size:1.8em;height:150px");
+		apiready = function() {
+			UIMediaScanner = api.require('UIMediaScanner');
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				token = ret.value;
+			});
+			$("#address1").click(function() {
+				api.openWin({
+					name : 'lbs_window',
+					url : './lbs_window.html',
+					bounces : false,
+					slidBackEnabled : false
+				});
+			});
+			$(".voice,#cl").bind("touchstart", function() {
+				//
+				$("#changeImg").attr("style", "background:url('../image/endVoices.png') no-repeat;background-size: 42px auto;");
+				startVoice();
+				$("#ax").html("放手结束");
+			});
+			$(".voice,#cl").bind("touchend", function() {
+				//
+				$("#changeImg").attr("style", "background:url('../image/audios.png') no-repeat;background-size: 42px auto;");
+				endVoice();
+				$("#ax").html("按下说话");
+			});
+			$("#parame1").click(function() {
+				openWindow("myGroup_window", "myGroup_window.html", {})
+			});
+			$("#createActive").click(function() {
+				var name = $("#name").val();
+				if (name == "" || name == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入名称"
+					}, function(ret, err) {
+						//coding...
+					});
+					return;
+				}
+				var dates = $("#dates").val() || "";
+				if (dates == "") {
+					api.alert({
+						msg : "请输入活动日期",
+						title : "提示"
+					}, function(ret, err) {
+					});
+					return;
+				}
+				var times = $("#times").val();
+				if (times == "" || times == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入活动时间"
+					}, function(ret, err) {
+					});
+					return;
+				}
+				times = dates + " " + times + ":00"
+				var xqxm = $("#xqxm").val();
+				if (xqxm == "" || xqxm == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入兴趣项目"
+					}, function(ret, err) {
+						//coding...
+					});
+					return;
+				}
+				var address = $("#address").val()  || "";
+				address  = $.trim(address);
+				if (address == null || address == "") {
+					api.alert({
+						"title" : "提示",
+						msg : "请输入地址"
+					}, function(ret, err) {
+						//coding...
+					});
+					return;
+				}
+			
+				if ($("#parame1").val() == "" || $("#parame1").val() == null) {
+					api.alert({
+						"title" : "提示",
+						msg : "请选择活动群"
+					}, function(ret, err) {
+						//coding...
+					});
+					return;
+				}
+				if (path != "") {
+					imageArray.push(path);
+				}
+				var parame = {
+					values : {
+						"name" : name,
+						"xqxm" : $("#xqxm").val(),
+						"lbsName" : $("#address").val(),
+						"lbsLocation" : $("#address").attr("lbs"),
+						"token" : token,
+						"activetype" : 1,
+						"voiceLength" : voiceLength,
+						"startDate" : times,
+						"js" : $("#js").val(),
+						"parame1" : $("#parame1").attr("rowid")
+					},
+					files : {
+						"img1" : imageArray
+					}
+				}
+				doAjax(addPersonActive, "post", parame, function(data) {
+					var flag = data.flag;
+					if (flag == "true") {
+						api.alert({
+							msg : "创建成功"
+						}, function(ret, err) {
+							api.closeWin({
+							});
+						});
+					}
+				}, function(data) {
+				}, 1)
+			});
+			$(".img").click(function() {
+				UIMediaScanner.open({
+					column : 4,
+					classify : true,
+					max : 9,
+					type : "picture",
+					count : 6,
+					sort : {
+						key : 'time',
+						order : 'desc'
+					},
+					texts : {
+						stateText : '已选择*项',
+						cancelText : '取消',
+						finishText : '完成'
+					},
+					exchange :  true,
+					styles : {
+						bg : '#fff',
+						mark : {
+							icon : '',
+							position : 'bottom_left',
+							size : 20
+						},
+						nav : {
+							bg : '#eee',
+							stateColor : '#000',
+							stateSize : 18,
+							cancelBg : 'rgba(0,0,0,0)',
+							cancelColor : '#000',
+							cancelSize : 18,
+							finishBg : 'rgba(0,0,0,0)',
+							finishColor : '#000',
+							finishSize : 18
+						}
+					}
+				}, function(ret) {
+					if (ret) {
+						var list = ret.list;
+						$("#imgurl").html("");
+						imageArrayLength = 0;
+						for (var i = 0; i < list.length; i++) {
+							imageArray.push(list[i].path);
+							imageArrayLength++;
+							$("#imgurl").append("<img width='30%' height='100px' index='" + imageArrayLength + "'  onclick='delFiles(this)' class='' src='" + list[i].path + "' style='padding:0px 10px 10px 0' >");
+						}
+					}
+				});
+			});
+		}
+		function delFiles(obj) {
+			$(obj).hide();
+			//删除array的数据
+			var index = $(obj).attr("index");
+			for (var i = index; i < imageArrayLength; i++) {
+				imageArray[i - 1] = imageArray[i];
+			}
+			imageArray.pop();
+			imageArrayLength--;
+		}
+
+		function showDate() {
+			api.openPicker({
+				type : 'date ',
+				title : '选择日期'
+			}, function(ret, err) {
+				var year = ret.year;
+				var month = ret.month;
+				var day = ret.day;
+				var hour = ret.hour;
+				var minute = ret.minute;
+				$("#dates").val(year + "-" + month + "-" + day);
+			});
+		}
+
+		function showTime() {
+			api.openPicker({
+				type : 'time',
+				title : '选择时间'
+			}, function(ret, err) {
+				var hour = ret.hour;
+				var minute = ret.minute;
+				$("#times").val(hour + ":" + minute);
+			});
+		}
+
+		var start = false;
+		function startVoice() {
+			setTimeoutCurrent = setTimeout("toast()", 1000);
+			api.startRecord({
+			});
+		}
+
+		function toast() {
+			currentMic = currentMic + 1;
+			api.toast({
+				msg : '正在录音' + currentMic + "秒",
+				duration : 1000,
+				location : 'middle'
+			});
+			setTimeoutCurrent = setTimeout("toast()", 1000)
+		}
+
+		function endVoice() {
+			api.stopRecord(function(ret, err) {
+				if (ret) {
+					path = ret.path;
+					$("#voiceDetail").attr("style", "");
+					$("#micLength").html(ret.duration + "秒");
+					voiceLength = ret.duration;
+				}
+			});
+			currentMic = 0;
+			clearTimeout(setTimeoutCurrent);
+		}
+
+		function changeLbs() {
+			api.getPrefs({
+				key : 'localtionName'
+			}, function(ret, err) {
+				localtionName = ret.value;
+				$("#address").val(localtionName);
+			});
+			api.getPrefs({
+				key : 'localtionLon_lat'
+			}, function(ret, err) {
+				$("#address").attr("lbs", ret.value);
+			});
+		}
+
+		function setGroupName(rowid, name) {
+			$("#parame1").val(name);
+			$("#parame1").attr("rowid", rowid);
+		}
+	</script>
+</html>

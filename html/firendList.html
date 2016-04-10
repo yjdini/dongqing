@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/aui.css" rel="stylesheet" type="text/css" />
+		<style>
+			.aui-user-view-cell p {
+				height: 60px;
+				line-height: 60px;
+			}
+			.aui-user-view-cell {
+			}
+			.aui-user-view-cell p {
+				font-size: 20px;
+			}
+			.aui-user-view-cell .aui-img-object {
+				border-radius: 0px;
+				width: 70px !important;
+				height: 70px !important;
+				line-height: 70px !important;
+				max-width: 70px !important;
+			}
+			p {
+				color: #000;
+			}
+			.aui-user-view-cell p {
+				font-size: 26px;
+			}
+			body {
+				background-color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="aui-content">
+			<div style="font-size: 25px;;padding-left:15px;background-color:#f4f4f4">
+				好友
+			</div>
+			<ul class="aui-user-view" id="list" style="margin-bottom:20px"></ul>
+			<div style="font-size: 25px;padding-left:15px;background-color:#f4f4f4">
+				群组
+			</div>
+			<ul class="aui-user-view" id="list1"></ul>
+		</div>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			var userToken = "";
+			apiready = function() {
+				init();
+			}
+			function init() {
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					userToken = ret.value;
+					api.ajax({
+						url : listFirendAndQroup,
+						timeout : 30,
+						dataType : 'json',
+						method : 'post',
+						returnAll : false,
+						data : {
+							values : {
+								"token" : userToken
+							}
+						}
+					},function(ret, err){
+					});
+//					 function(ret, err) {
+//						var html = "";
+//						for (var i = 0; i < ret.tabusers.length; i++) {
+//							var img = ret.tabusers[i].imgsrc || "";
+//							if (img == "") {
+//								if (ret.tabusers[i].sex == "1") {
+//									img = "../image/nan.png";
+//								} else {
+//									img = "../image/nv.png";
+//								}
+//							} else {
+//								img = SERVERURL + ret.tabusers[i].imgsrc
+//							}
+//							html = html + "<li id='" + ret.tabusers[i].rowid + "'  rowid='" + ret.tabusers[i].rowid + "'  class='listUser aui-user-view-cell aui-img'><img class='aui-img-object aui-pull-left' src='" + img + "'><div class='aui-img-body'><p class='aui-ellipsis-1'>" + ret.tabusers[i].name + "</p></div></li>"
+//						}
+//						$("#list").html(html);
+//						html = "";
+//						for (var i = 0; i < ret.usergroups.length; i++) {
+//							html = html + "<li name='" + ret.usergroups[i].groupname + "' id='" + ret.usergroups[i].rowid + "'  class='groupUser aui-user-view-cell aui-img'><img class='aui-img-object aui-pull-left' src='" + ret.usergroups[i].imgsrc + "'><div class='aui-img-body'><p class='aui-ellipsis-1'>" + ret.usergroups[i].groupname + "</p></div></li>"
+//						}
+//						$("#list1").html(html);
+//						$(".listUser").click(function() {
+//							var rowid = $(this).attr("id");
+//							api.openWin({
+//								name : 'chat_window',
+//								url : './chat_window.html',
+//								pageParam : {
+//									targetId : rowid,
+//									"conversationType" : "PRIVATE"
+//								},
+//								bounces : false,
+//								slidBackEnabled : false
+//							});
+//						});
+//						$(".groupUser").click(function() {
+//							var rowid = $(this).attr("id");
+//							api.openWin({
+//								name : 'groupInfo_window',
+//								url : './groupInfo_window.html',
+//								pageParam : {
+//									targetId : rowid
+//								},
+//								bounces : false,
+//								slidBackEnabled : false
+//							});
+//						});
+//					}
+				});
+			}
+		</script>
+	</body>
+</html>

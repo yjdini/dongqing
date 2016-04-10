@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/style.css">
+		<style type="text/css">
+			.b-gra3 {
+				border-color: #d8d8d8;
+			}
+			.uinn-a6 {
+				padding: 1em 0.65em 0 0.65em;
+			}
+			.t-gra4 {
+				color: #8c8c8c;
+			}
+			.uinn-a1 {
+				padding: 0.625em;
+			}
+			.uinn-a7 {
+				padding: 0 0.625em;
+			}
+			.c-wh {
+				background-color: #FFF;
+			}
+			.umar-at1 {
+				margin-top: 0.625em;
+			}
+			.uinn-at1 {
+				padding-top: 1em;
+			}
+			input.ub-f1 {
+				padding-left: 2em;
+			}
+			.sc-bg {
+				background-color: #F4F4F4;
+			}
+			.lis {
+				padding: 0.5em 0.75em;
+			}
+			.dot {
+				font-size: 0.4em !important;
+				color: #FF0000;
+				top: 0.2em;
+				position: absolute;
+				margin-left: 0.4em;
+			}
+			.ulev-app1 span {
+				width: 1.1em;
+				height: 1.1em;
+				margin-left: 0.6em;
+				border: 1px;
+				border-style: solid;
+				border-radius: 1.1em;
+				background-color: red;
+				position: relative;
+				top: -4.6em;
+				left: 1.46em;
+			}
+			.f19 {
+				font-size: 19px;
+			}
+		</style>
+	</head>
+	<div class="content">
+		<ul class="resume">
+			<li id="skillName">
+				<span class="f19">应用名称</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="skillValue"></span>
+			</li>
+			<li id="skillModel">
+				<span class="f19">模块名称</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="skillModelValue"></span>
+			</li>
+			<li>
+				<span class="f19">技能描述</span><span class="fr c1">
+					<input type="text " class="f19" placeholder=""  id="userSkillDesc"/>
+				</span>
+			</li>
+			<li>
+				<span class="f19">技能年限</span><span class="fr c1">
+					<input type="number" class="f19" placeholder=""  id="userSkillAge"/>
+				</span>
+			</li>
+			<li id="degree">
+				<span class="f19">技能等级</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="skillDegreeValue"></span>
+			</li>
+		</ul>
+		<button  id="save" style="width:98%;height:3em;margin-top: 1em; margin-left: 1%; background-color: #DD3030;border-radius:1em;color:#fff" >
+			保存
+		</button>
+		<button id="del"  style="width:98%;height:3em;margin-top: 1em; margin-left: 1%; background-color: #DD3030;border-radius:1em;color:#fff;display:none" >
+			删除
+		</button>
+	</div>
+	<script src="../script/api.js"></script>
+	<script src="../script/jquery-1.9.1.min.js"></script>
+	<script src="../script/app.js"></script>
+	<script >
+		var token = "";
+		var rowid = "";
+		var skillArray = [];
+		var skillArrayValue = [];
+		var skillDegree = [];
+		var skillDegreeValue = [];
+		var parame1 = {};
+		var parameName = [];
+		var parameValue = [];
+		apiready = function() {
+			var pageParam = api.pageParam;
+			rowid = pageParam.rowid;
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				token = ret.value;
+			});
+			if (rowid == "") {
+				doAjax(LISTBYTYPESKILLANDDE, "post", {}, function(data) {
+					var skills = data.skills;
+					for (var i = 0; i < skills.length; i++) {
+						skillArray.push(skills[i].dictionaryName);
+						skillArrayValue.push(skills[i].dictionaryId);
+						var array = [];
+						for (var j = 0; j < skills[i].dictionaries.length; j++) {
+							var result = skills[i].dictionaries[j].dictionaryId + ";" + skills[i].dictionaries[j].dictionaryName;
+							array.push(result);
+						}
+						parame1[skills[i].dictionaryId] = array;
+					}
+					var skillsleval = data.skillsleval;
+					
+					for (var i = 0; i < skillsleval.length; i++) {
+						skillDegree.push(skillsleval[i].dictionaryName);
+						skillDegreeValue.push(skillsleval[i].dictionaryId);
+					}
+				}, function() {
+				});
+				$("#del").hide();
+			} else {
+				$("#del").show();
+				var parame = {
+					values : {
+						"rowid" : rowid
+					}
+				}
+				//删除技能
+				$("#del").click(function() {
+					api.confirm({
+						title : '提示',
+						msg : '确认删除技能信息吗?',
+						buttons : ['确定', '取消']
+					}, function(ret, err) {
+						if (ret.buttonIndex == 1) {
+							var parame = {
+								values : {
+									"rowid" : rowid
+								}
+							}
+							doAjax(delUserSkill, "post", parame, function(data) {
+								var flag = data.flag;
+								if (flag == "true") {
+									api.alert({
+										"title" : "提示",
+										"msg" : "删除成功"
+									}, function(ret, err) {
+										api.closeWin({
+										});
+									});
+								}
+							}, function(data) {
+							});
+						}
+					});
+				});
+				doAjax(LISTSKILLBYROWID, "post", parame, function(data) {
+					var userSkill = data.userSkill;
+					$("#userSkillDesc").val(userSkill.userSkillDesc);
+					$("#userSkillAge").val(userSkill.userSkillAge);
+					var skills = data.skills;
+					for (var i = 0; i < skills.length; i++) {
+						skillArray.push(skills[i].dictionaryName);
+						skillArrayValue.push(skills[i].dictionaryId);
+						if (userSkill.skillId == skills[i].dictionaryId) {
+							$("#skillValue").html(skills[i].dictionaryName);
+							$("#skillValue").attr("readVal", skills[i].dictionaryId);
+						}
+						var array = [];
+						for (var j = 0; j < skills[i].dictionaries.length; j++) {
+							var result = skills[i].dictionaries[j].dictionaryId + ";" + skills[i].dictionaries[j].dictionaryName;
+							array.push(result);
+						}
+						parame1[skills[i].dictionaryId] = array;
+					}
+					var skillsleval = data.skillsleval;
+					var html = "";
+					for (var i = 0; i < skillsleval.length; i++) {
+						skillDegree.push(skillsleval[i].dictionaryName);
+						skillDegreeValue.push(skillsleval[i].dictionaryId);
+						if (userSkill.userSkillLeval == skillsleval[i].dictionaryId) {
+							$("#skillDegreeValue").html(skillsleval[i].dictionaryName);
+							$("#skillDegreeValue").attr("readVal", skillsleval[i].dictionaryId);
+						}
+					}
+				}, function() {
+				})
+			}
+			$("#save").click(function() {
+				var skillId = $("#skillValue").attr("readVal");
+				var userSkillLeval = $("#skillDegreeValue").attr("readVal");
+				var skillModelValue = $("#skillModelValue").attr("readVal");
+				var parame = {
+					values : {
+						token : token,
+						rowid : rowid,
+						userSkillLeval : userSkillLeval,
+						skillId : skillId,
+						userSkillAge : $("#userSkillAge").val(),
+						userSkillDesc : $("#userSkillDesc").val(),
+						"parame1" : skillModelValue
+					}
+				}
+				doAjax(SAVEORUPDATESKILL, "post", parame, function(data) {
+					alert(data.flag);
+				}, function() {
+				})
+			});
+			$("#skillName").click(function() {
+				//选择技能
+				api.actionSheet({
+					title : '选择应用',
+					cancelTitle : '取消',
+					buttons : skillArray
+				}, function(ret, err) {
+					if (ret.buttonIndex <= skillArray.length) {
+						$("#skillValue").html(skillArray[ret.buttonIndex - 1]);
+						$("#skillValue").attr("readVal", skillArrayValue[ret.buttonIndex - 1]);
+						var array = parame1[skillArrayValue[ret.buttonIndex - 1]];
+						parameName = [];
+						parameValue = [];
+						for (var i = 0; i < array.length; i++) {
+							parameName.push(array[i].split(";")[1]);
+							parameValue.push(array[i].split(";")[0]);
+						}
+					}
+				});
+			});
+			$("#skillModel").click(function() {
+				api.actionSheet({
+					title : '选择模块',
+					cancelTitle : '取消',
+					buttons : parameName
+				}, function(ret, err) {
+					if (ret.buttonIndex <= parameName.length) {
+						$("#skillModelValue").html(parameName[ret.buttonIndex - 1]);
+						$("#skillModelValue").attr("readVal", parameValue[ret.buttonIndex - 1]);
+					}
+				});
+			});
+			$("#degree").click(function() {
+				api.actionSheet({
+					title : '选择技能等级',
+					cancelTitle : '取消',
+					buttons : skillDegree
+				}, function(ret, err) {
+					if (ret.buttonIndex <= skillDegree.length) {
+						$("#skillDegreeValue").html(skillDegree[ret.buttonIndex - 1]);
+						$("#skillDegreeValue").attr("readVal", skillDegreeValue[ret.buttonIndex - 1]);
+					}
+				});
+			});
+		}
+	</script>
+	</body>
+</html>

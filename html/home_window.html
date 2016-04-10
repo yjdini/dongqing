@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>window</title>
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+	</head>
+	<body>
+		<header id="topbar">
+			<a class="fl aaa"><span class="back-icon m-r5"></span>返回</a>
+			 <a class="fr">功能</a>
+		</header>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		// 完成首页初始化
+		apiready = function() {
+			var thridHeader = $api.byId('topbar');
+			$api.fixIos7Bar(thridHeader);
+			var thridHeader = $api.offset(thridHeader);
+			// 清除右部class
+			api.openFrame({
+				name : 'home',
+				url : 'home.html',
+				rect : {
+					x : 0,
+					y : thridHeader.h,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				delay : 200
+			});
+			$(".aaa").click(function() {
+				api.closeWin({
+				});
+			});
+		};
+		$(document).ready(function() {
+			$(".fr").click(function() {
+				api.actionSheet({
+					title : '菜单',
+					cancelTitle : '取消',
+					destructiveTitle : "退出登录"
+				}, function(ret, err) {
+					if (ret.buttonIndex == 1) {
+						//退出登录
+						api.confirm({
+							"title" : "提示",
+							"msg" : "是否确定退出",
+							buttons : ['确定', '取消']
+						}, function(ret, err) {
+							if (ret.buttonIndex == 1) {
+								removePrefs("token");
+								removePrefs("rongtoken");
+								api.closeWin({
+								});
+							}
+						});
+					}
+				});
+			});
+		});
+	</script>
+</html>

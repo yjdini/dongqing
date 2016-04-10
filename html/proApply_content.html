@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<link rel="stylesheet" href="../css/appcan.icon.css">
+		<link rel="stylesheet" href="../css/appcan.control.css">
+		<style type="text/css">
+            .b-gra3 {
+                border-color: #d8d8d8;
+            }
+            .uinn-a6 {
+                padding: 1em 0.65em 0 0.65em;
+            }
+            .t-gra4 {
+                color: #8c8c8c;
+            }
+            .uinn-a1 {
+                padding: 0.625em;
+            }
+            .uinn-a7 {
+                padding: 0 0.625em;
+            }
+            .c-wh {
+                background-color: #FFF;
+            }
+            .umar-at1 {
+                margin-top: 0.625em;
+            }
+            .uinn-at1 {
+                padding-top: 1em;
+            }
+            input.ub-f1 {
+                padding-left: 2em;
+            }
+            .sc-bg {
+                background-color: #F4F4F4;
+            }
+            .lis {
+                padding: 0.5em 0.75em;
+            }
+            .dot {
+                font-size: 0.4em !important;
+                color: #FF0000;
+                top: 0.2em;
+                position: absolute;
+                margin-left: 0.4em;
+            }
+            .ulev-app1 span {
+                width: 1.1em;
+                height: 1.1em;
+                margin-left: 0.6em;
+                border: 1px;
+                border-style: solid;
+                border-radius: 1.1em;
+                background-color: red;
+                position: relative;
+                top: -4.6em;
+                left: 1.46em;
+            }
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="ub ub-ver" style="margin-left: 1.25em;margin-right: 1em;margin-top: 1em;">
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac umar-at1">
+				<div class="ulev-app1 umw4">
+					预计到岗时间
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1" type="text" readonly="" id="userCheckinDate"/>
+					</div>
+				</div>
+			</div>
+			<div class="uba b-gra3 uc-a1 c-wh ub uinn-a7 ub-ac umar-at1">
+				<div class="ulev-app1 umw4">
+					选择简历
+				</div>
+				<div class="ub ub-ac umh5 ub-f1">
+					<div class="uinput ub ub-f1">
+						<input placeholder="" class="input1 selectIsNo" type="text" readonly=""   id="parame1" style="padding-left:10px"/>
+					</div>
+				</div>
+			</div>
+			<div class="uinn-at1">
+				<div class="btn ub ub-ac bc-text-head ub-pc bc-btn"  id="btn" style="border-radius: 10px;">
+					<div class="uinn3 fa  umh1 umw1"></div>
+					保存
+				</div>
+			</div>
+		</div>
+		<script src="../script/api.js"></script>
+		<script src="../script/jquery-1.9.1.min.js"></script>
+		<script src="../script/app.js"></script>
+		<script >
+            var token = "";
+            var remuseArray = {};
+            var nameArray = [];
+            var projReqId = "";
+            apiready = function() {
+                var pageParam = api.pageParam;
+                projReqId = pageParam.proId;
+                api.getPrefs({
+                    key : 'token'
+                }, function(ret, err) {
+                    token = ret.value;
+                    var parame = {
+                        values : {
+                            "token" : token
+                        }
+                    }
+                    //获取奖励静态数据
+                    doAjax(LISTMYRESUME, "post", parame, function(data) {
+                        var resumes = data.data;
+                        var html = "";
+                        for (var i = 0; i < resumes.length; i++) {
+                            remuseArray[resumes[i].resumeName] = resumes[i].resumeId;
+                            nameArray.push(resumes[i].resumeName);
+                        }
+                    }, function() {
+                    });
+                });
+                $("#userCheckinDate").click(function() {
+                    api.openPicker({
+                        type : 'date_time',
+                        title : '选择时间'
+                    }, function(ret, err) {
+                        var year = ret.year;
+                        var month = ret.month;
+                        var day = ret.day;
+                        var hour = ret.hour;
+                        var minute = ret.minute;
+                        $("#userCheckinDate").val(year + "-" + month + "-" + day + " " + hour + ":" + minute + ":00");
+                    });
+                });
+                $("#parame1").click(function() {
+                    api.actionSheet({
+                        title : '菜单',
+                        cancelTitle : '取消',
+                        buttons : nameArray
+                    }, function(ret) {
+                        if (ret.buttonIndex != (nameArray.length + 1)) {
+                            $("#parame1").val(nameArray[ret.buttonIndex - 1]);
+                            $("#parame1").attr("readValue", remuseArray[nameArray[ret.buttonIndex - 1]]);
+                        }
+                    });
+                });
+                $(".uinn-at1").click(function() {
+                    var parames = {
+                        values : {
+                            "projReqId" : projReqId,
+                            "token" : token,
+                            "parame1" : $("#parame1").attr("readValue"),
+                            "userCheckinDate" : $("#userCheckinDate").val()
+                        }
+                    }
+                    doAjax(APPLYPROJECT, "post", parames, function(data) {
+                        var flag = data.flag;
+                        if (flag == "true") {
+                            api.alert({
+                                "title" : "提示",
+                                "msg" : "申请成功，等待申请结果"
+                            }, function(ret, err) {
+                            	api.execScript({
+                            		name : "projectDetail_window",
+                            		frameName : "projectDetail_content.html",
+	                                script: 'initData();'
+                                });
+                                api.closeWin({
+                                });
+                            });
+                        }
+                    }, function() {
+                    })
+                });
+            }
+		</script>
+	</body>
+</html>

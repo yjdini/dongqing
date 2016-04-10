@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<section class="welcome">
+				<h3>你好</h3>
+				<P>
+					欢迎使用****
+				</P>
+				<div class="regist-div">
+					<a class="regist-button1">登 录</a>
+					<a class="regist-button2">注 册</a>
+				</div>
+			</section>
+			<script src="../script/jquery-1.9.1.min.js"></script>
+			<script src="../script/api.js"></script>
+			<script src="../script/app.js"></script>
+			<script>
+				apiready = function(){
+					$(".regist-button1").click(function(){
+						openWindow("login","login.html",{});
+					});
+					
+					$(".regist-button2").click(function(){
+						openWindow("regist","regist.html",{
+							"type" : "false"
+						});
+					});
+					
+				}
+			</script>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<link rel="stylesheet" type="text/css" href="../css/appcan.control.css">
+		<link rel="stylesheet" type="text/css" href="../css/result.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<script src="../script/appcan.js"></script>
+		<script src="../script/appcan.control.js"></script>
+		<script src="../script/appcan.tab.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/rem.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<style>
+			p.last {
+				font-size: 0.22rem;
+				padding-top: 0.1rem;
+				height: 0.5rem;
+				line-height: 0.5rem;
+			}
+			.uh, .uf {
+				font-size: 0.36rem;
+			}
+			.sc-text-tab {
+				margin-left: 0.1rem
+			}
+		</style>
+		<body>
+			<div id="tabview" class="uf sc-bg"></div>
+			<section class="dynRes" id="list" style="margin-bottom:40px"></section>
+			<div id="loading-content" style="height:40px;text-align: center;line-height:40px;position: fixed;bottom:0;width:100%;display:none;">
+				<img src="http://img.lanrentuku.com/img/allimg/1212/5-121204193R0-50.gif" width="40px" height="40px">
+			</div>
+		</body>
+		<script>
+			var longitude = "";
+			var latitude = "";
+			var names = "";
+			var token = "";
+			var NewToken = "";
+			var pageIndex = 0;
+			var dataType = "";
+			var goType = 0;
+			 
+			apiready = function() {
+				var map = api.require('bMap');
+				$("div.t-bla div.focus").hide();
+				api.addEventListener({
+					name : 'scrolltobottom',
+					extra : {
+						threshold : 0 //设置距离底部多少距离时触发，默认值为0，数字类型
+					}
+				}, function(ret, err) {
+					$("#loading-content").show();
+					pageIndex++;
+					initData(dataType, names);
+				});
+				api.setRefreshHeaderInfo({
+					visible : true,
+					bgColor : '#ccc',
+					textColor : '#fff',
+					textDown : '下拉刷新...',
+					textUp : '松开刷新...',
+					showTime : true
+				}, function(ret, err) {
+					api.refreshHeaderLoadDone();
+					api.toast({
+						msg : '刷新成功',
+						location : "top"
+					});
+					pageIndex = 0;
+					initData();
+				});
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					NewToken = ret.value;
+					map.getLocation({
+						accuracy : '100m',
+						filter : 1,
+						autoStop : true
+					}, function(ret, err) {
+						if (ret.status) {
+							longitude = ret.lon;
+							latitude = ret.lat;
+							initRongYun();
+							initData(2, "");
+						} else {
+							api.alert({
+								msg : err.msg
+							});
+						}
+					});
+				});
+			}
+			function initData() {
+				var parame = {
+					values : {
+						longitude : longitude,
+						latitude : latitude,
+						pageIndex : pageIndex,
+						token : token
+					}
+				}
+				doAjax(listMyList, "post", parame, function(data) { 
+					
+				});
+			}
+
+			function hidess() {
+				$("#loading-content").hide();
+			}
+		</script>
+</html>

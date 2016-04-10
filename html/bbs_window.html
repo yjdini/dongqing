@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/aui-win.min.css" rel="stylesheet" type="text/css">
+		<body>
+			<header id="header" class="aui-bar aui-bar-nav aui-bar-blue" >
+				<a class="aui-pull-left"> <span class="aui-iconfont aui-icon-left"></span> </a>
+				<div class="aui-title">
+					社区
+				</div>
+				<a class="aui-pull-right"> <span class="aui-iconfont aui-icon-add"></span> </a>
+			</header>
+		</body>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			var pageParam;
+			apiready = function() {
+				var $header = $api.dom('header');
+				$api.fixIos7Bar($header);
+				var header_h = ($api.offset($header).h);
+				pageParam = api.pageParam;
+				api.openFrame({
+					name : 'bbs',
+					url : 'bbs.html',
+					rect : {
+						x : 0,
+						y : header_h,
+						w : 'auto',
+						h : "auto"
+					},
+					pageParam : pageParam
+				});
+				//二维码扫描
+				$(".aui-pull-left").click(function() {
+					api.closeWin({
+					});
+				});
+				$(".aui-pull-right").click(function() {
+					openWindow("pushBBs_window.html", "pushBBs_window.html", {});
+				});
+			}
+		</script>
+</html>

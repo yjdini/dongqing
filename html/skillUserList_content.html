@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<link rel="stylesheet" href="../css/appcan.icon.css">
+		<link rel="stylesheet" href="../css/appcan.control.css">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			.t-gra-FS1 {
+				color: #9f9f9f;
+			}
+			.uinn-FS1 {
+				padding: 0.75em 0.625em;
+			}
+			.uinn-FS2 {
+				padding: 0.625em 1.1875em 0.2em 1.1875em;
+			}
+			.uwh-FS1 {
+				width: 2.1em;
+				height: 2.1em;
+			}
+			.uwh-FS2 {
+				width: 1.625em;
+				height: 1.625em;
+			}
+			.uwh-FS3 {
+				width: 0.625em;
+				height: 0.625em;
+			}
+			.c-gra-FS1 {
+				background-color: #d8d8d8;
+			}
+			.c-gra-FS2 {
+				background-color: #b3b3b3;
+			}
+			.uc-a-FS1 {
+				-webkit-border-radius: 2.1em;
+				border-radius: 2.1em;
+			}
+			.uc-a-FS2 {
+				-webkit-border-radius: 1.625em;
+				border-radius: 1.625em;
+			}
+			.uh-FS1 {
+				height: 0.5em;
+			}
+			.umar-tFS1 {
+				margin-top: 0.3em;
+			}
+			.c-wh {
+				background-color: white;
+			}
+			.ulev-app1 {
+				font-size: 0.875em;
+			}
+			.uinn-a1 {
+				padding: 0.625em;
+			}
+			.f19 {
+				font-size: 19px;
+			}
+		</style>
+		<link href="../css/selectUser.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<section class="" >
+			<div class="ub ub-ver">
+				<div class="ub ub-ver uinn-FS2">
+					<div class="ub">
+						<div class="ub ub-ver ub-f1">
+							<div class="ub-f1 ub ub-ac">
+								<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+									<div class="uwh-FS2 sc-bg-alert  uc-a-FS2 ub ub-ac ub-pc">
+										<div class="ub-img uwh-FS3 formStep1"></div>
+									</div>
+								</div>
+								<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+							</div>
+							<div class="ulev-2 umar-tFS1">
+								创建项目
+							</div>
+						</div>
+						<div class="ub ub-ver ub-f1">
+							<div class="ub-f1 ub ub-ac">
+								<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+									<div class="uwh-FS2  sc-bg-alert uc-a-FS2 ub ub-ac ub-pc">
+										<div class="ub-img uwh-FS3 formStep2"></div>
+									</div>
+								</div>
+								<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+							</div>
+							<div class="ulev-2 umar-tFS1">
+								创建需求
+							</div>
+						</div>
+						<div class="ub ub-ver ub-f1">
+							<div class="ub-f1 ub ub-ac">
+								<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+									<div class="uwh-FS2  uc-a-FS2 ub ub-ac ub-pc">
+										<div class="ub-img uwh-FS3 formStep3"></div>
+									</div>
+								</div>
+								<div class="ub-f1 uh-FS1 c-gra-FS1"></div>
+							</div>
+							<div class="ulev-2 umar-tFS1">
+								选择顾问
+							</div>
+						</div>
+						<div class="ub ub-ver">
+							<div class="ub">
+								<div class="uwh-FS1 c-gra-FS1 uc-a-FS1 ub ub-ac ub-pc">
+									<div class="uwh-FS2    uc-a-FS2 ub ub-ac ub-pc">
+										<div class="ub-img uwh-FS3 formStep4"></div>
+									</div>
+								</div>
+							</div>
+							<div class="ulev-2 umar-tFS1 tx-c">
+								结束
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--列表-->
+			</div>
+			<div class="user-list">
+				<ul id="skillList"></ul>
+			</div>
+		</section>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script>
+		var projId = "";
+		apiready = function() {
+			//加载项目信息projId
+			projId = api.pageParam.projId;
+			var parame = {
+				"values" : {
+					"projId" : projId,
+					"token" : ""
+				}
+			}
+			doAjax(LISTPROBYID, "post", parame, function(data) {
+				var proj = data.proj;
+				$("#projName").html(proj.projName);
+				api.execScript({
+					name : "projectDetail_window",
+					script : 'changeData("' + proj.projName + '");'
+				});
+				var tabProjRequires = proj.tabProjRequires;
+				var html = "";
+				for (var i = 0; i < tabProjRequires.length; i++) {
+					html = html + "<li><h3><span class='fr'>操作</span>" + tabProjRequires[i].skillId + "</h3><div class='user-detail'><a class='state state3 rowList' state='0' rowid='" + tabProjRequires[i].projReqId + "'>邀请</a><P></P><P><span class='m_r20'>" + tabProjRequires[i].skillDesc + "&nbsp;&nbsp;当前申请人数：" + tabProjRequires[i].parame5 + "</P><P><span class='m_r20'>需要人数：" + tabProjRequires[i].userNumber + "</span>需要城市：" + tabProjRequires[i].baseCity + "</P></div></li>";
+				}
+				$("#skillList").html(html);
+				//点击开始申请
+				$(".rowList").click(function() {
+					//选择此技能编号
+					//选择 顾问  
+					var rowid =   $(this).attr("rowid");
+					var parame =  {
+						"skillId" :rowid,
+						"projId" : projId
+					}
+					openWindow("selectUsersBySkill_window","selectUsersBySkill_window.html",parame);
+				});
+			}, function() {
+			})
+		}
+		function saveUsers() {
+		}
+	</script>
+</html>

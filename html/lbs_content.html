@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>window</title>
+	</head>
+	<body></body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+        // 完成首页初始化
+        var localtionLat = "";
+        var localtionLon = "";
+        var localtionName = "";
+        apiready = function() {
+            var map = api.require('bMap');
+            map.getLocation({
+                accuracy : '100m',
+                filter : 1,
+                autoStop : true
+            }, function(ret, err) {
+                if (ret.status) {
+                    openMap(ret.lon, ret.lat);
+                } else {
+                    api.alert({
+                        msg : err.msg
+                    });
+                }
+            });
+            map.addEventListener({
+                name : 'click'
+            }, function(ret) {
+                openMap(ret.lon, ret.lat);
+            });
+        };
+        function openMap(lon, lat) {
+            var map = api.require('bMap');
+            map.close();
+            map.open({
+                rect : {
+                    x : 0,
+                    y : 64,
+                    h : api.frameHeight,
+                },
+                center : {
+                    lon : lon,
+                    lat : lat
+                },
+                zoomLevel : 18
+            }, function(ret, err) {
+                if (ret.status) {
+                    map.getNameFromCoords({
+                        lon : lon,
+                        lat : lat
+                    }, function(ret, err) {
+                        if (ret.status) {
+                            localtionName = ret.province + ret.city + ret.district + ret.streetName + ret.streetNumber
+                            api.toast({
+                                msg : localtionName,
+                                duration : "2000",
+                                location : "middle"
+                            });
+                            setPrefs("localtionLon_lat", lon + "," + lat);
+                            setPrefs("localtionLon", lon);
+                            setPrefs("localtionLat", lat);
+                            setPrefs("localtionName", localtionName);
+                        } else {
+                            api.alert({
+                                title : '搜索错误代码',
+                                msg : err.msg
+                            });
+                        }
+                    });
+                } else {
+                    api.alert({
+                        title : '搜索错误代码',
+                        msg : err.msg
+                    });
+                }
+            });
+        }
+	</script>
+</html>

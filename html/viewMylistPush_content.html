@@ -1,0 +1,247 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/result.css">
+		<link href="../css/aui.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<style>
+			div.lines {
+				clear: both;
+				height: 3px;
+				background: #f96400;
+				-webkit-transition: all 300ms ease-in 100ms
+			}
+			.imgssss {
+				background-image: url("../images/header_userAdd_icon.png");
+				background-size: 30px 30px;
+				background-repeat: no-repeat;
+				padding-left: 30px;
+				background-position: left;
+			}
+			.colors {
+				color: #f96400
+			}
+		</style>
+		<body>
+			<section>
+			<div class="aui-content">
+					<div class="content" id="list"></div>
+					</div>
+			</section>
+			<div id="loading-content" style="height:50px;text-align: center;line-height:50px;position: fixed;bottom:0;width:100%;display:none;width:50px;margin-left:40%">
+				<img src="http://img.lanrentuku.com/img/allimg/1212/5-121204193R0-50.gif" width="40px" height="40px">
+			</div>
+		</body>
+		<script>
+			var longitude = "";
+			var latitude = "";
+			var token = "";
+			var NewToken = "";
+			var pageIndex = 0;
+			var rowid = "";
+			apiready = function() {
+				rowid = api.pageParam.rowid || "";
+				var map = api.require('bMap');
+				token = api.pageParam.rowid;
+				api.addEventListener({
+					name : 'scrolltobottom',
+					extra : {
+						threshold : 0 //设置距离底部多少距离时触发，默认值为0，数字类型
+					}
+				}, function(ret, err) {
+					$("#loading-content").show();
+					pageIndex++;
+					initData();
+				});
+				api.setRefreshHeaderInfo({
+					visible : true,
+					bgColor : '#ccc',
+					textColor : '#fff',
+					textDown : '下拉刷新...',
+					textUp : '松开刷新...',
+					showTime : true
+				}, function(ret, err) {
+					api.refreshHeaderLoadDone();
+					api.toast({
+						msg : '刷新成功',
+						location : "top"
+					});
+					pageIndex = 0;
+				});
+				map.getLocation({
+					accuracy : '100m',
+					filter : 1,
+					autoStop : true
+				}, function(ret, err) {
+					if (ret.status) {
+						longitude = ret.lon;
+						latitude = ret.lat;
+						initData();
+					} else {
+						api.alert({
+							msg : err.msg
+						});
+					}
+				});
+			}
+			function initData() {
+				var parame = {
+					values : {
+						longitude : longitude,
+						latitude : latitude,
+						pageIndex : pageIndex,
+						token : token
+					}
+				}
+				doAjax(ACTIVELISTFilter, "post", parame, function(data) {
+					hidess();
+					var gryy = data.list;
+					var html = "";
+					for (var i = 0; i < gryy.length; i++) {
+						if (gryy[i].activetype == "1") {
+							var img = gryy[i].usergroups.imgsrc;
+							var name = gryy[i].name || "&nbsp;";
+							gryy[i].xqxm = gryy[i].xqxm || "&nbsp;";
+							var files = gryy[i].activefiles;
+							var imgList = [];
+							html = html + "<div class='ht-block group' rowid ='" + gryy[i].rowid + "'><div class='user c'><img class='user-img users fl' rowid='" + gryy[i].parame1 + "' src='" + img + "' /><font color='#f96400' style='font-size:25px'>" + name + "</font><span style='font-size:20px;float:right;color：#cacaca'>" + gryy[i].mics + "km</span></div><div class='user-op'><P class='user-tit' style='font-size:25px'> " + gryy[i].usergroups.grouplbsname + "</p><P class='user-tit' style='margin-left:65px;font-size:25px;margin-button:10px'>" + convertDate(gryy[i].activestartdate) + " </P>";
+							for (var j = 0; j < files.length; j++) {
+								if (isImgFile(files[j].filepath)) {
+									imgList.push(SERVERURL + files[j].filepath)
+								}
+							}
+							if (files.length > 0) {
+								html = html + " <ul class='aui-list-view aui-grid-view' style='padding-left:50px;border:0px;border-top:0px'>";
+								for (var j = 0; j < files.length; j++) {
+									if (isImgFile(files[j].filepath)) {
+										html = html + " <li class='aui-list-view-cell aui-img aui-col-xs-4' style='border:0px'><img style='border:0px;height:100px;width:100px' class='aui-img-object imageBrower'  src='" + imgList[j] + "'  index='" + j + "' data='" + JSON.stringify(imgList) + "'></li>";
+									}
+								}
+								html = html + "</ul>";
+							}
+							html = html + "</div></div>";
+						} else {
+							var img = SERVERURL + gryy[i].imgsrc;
+							var name = gryy[i].userName || "未设置";
+							gryy[i].xqxm = gryy[i].xqxm || "无";
+							var files = gryy[i].activefiles;
+							var imgList = [];
+							html = html + "<div class='ht-block  uuuuuuu' mics='" + gryy[i].mics + "' rowid ='" + gryy[i].rowid + "'><div class='user c'><img class='user-img usersown fl' rowid='" + gryy[i].userid + "' src='" + img + "' /><font color='#f96400' style='font-size:25px'>" + name + "</font><span style='float:right;font-size:20px;color：#cacaca'>" + gryy[i].mics + "km</span> </div><div class='user-op' ><P class='user-tit' style='font-size:25px;margin-buttom:15px'>" + gryy[i].xqxm + "</P>";
+							for (var j = 0; j < files.length; j++) {
+								if (isImgFile(files[j].filepath)) {
+									imgList.push(SERVERURL + files[j].filepath)
+								}
+							}
+							if (files.length > 0) {
+								html = html + " <ul class='aui-list-view aui-grid-view' style='padding-left:50px;border:0px;border-top:0px'>";
+								for (var j = 0; j < files.length; j++) {
+									if (isImgFile(files[j].filepath)) {
+										html = html + " <li class='aui-list-view-cell aui-img aui-col-xs-4' style='border:0px'><img style='border:0px;height:100px;width:100px' class='aui-img-object imageBrower'  src='" + imgList[j] + "'  index='" + j + "' data='" + JSON.stringify(imgList) + "'></li>";
+									}
+								}
+								html = html + "</ul>";
+							}
+							html = html + "</div><ul class='c user-pl'>";
+							html = html + "<li class='z1-icon111' rowid='" + gryy[i].rowid + "'><span class='z1-icon' rowid='" + gryy[i].rowid + "'></span>" + gryy[i].parame2 + "</li>";
+							html = html + "<li  style='color:#f96400' mics=' class='z1-icon112' rowid='" + gryy[i].rowid + "'><span class='z2-icon' mics='" + gryy[i].mics + "' rowid='" + gryy[i].rowid + "'></span>" + convertPlData(gryy[i].plCount) + "</li></ul></div>";
+						}
+					}
+					if (pageIndex != 0) {
+						$("#list").append(html);
+					} else {
+						$("#list").html(html);
+					}
+					$(".z1-icon111").click(function() {
+						var rowid = $(this).attr("rowid");
+						//点赞
+						var thia = $(this);
+						var token = $api.getStorage("token") || "";
+						if (token == "") {
+							api.alert({
+								"title" : "提示",
+								msg : "请先登录"
+							}, function(ret, err) {
+								openWindow("login_window.htnl", "login_window.html", {});
+							});
+						} else {
+							var parame = {
+								values : {
+									rowid : rowid,
+									token : token
+								}
+							}
+							doAjax(dz, "post", parame, function(data) {
+								var flag = data.flag;
+								if (flag == "false") {
+									api.alert({
+										"msg" : data.msg
+									}, function(ret, err) {
+									});
+								} else {
+									initData();
+									api.toast({
+										msg : '点赞成功'
+									});
+								}
+							}, function(data) {
+							})
+						}
+						event.stopPropagation();
+					});
+					//评论
+					$(".z1-icon112").click(function() {
+						var rowid = $(this).attr("rowid");
+						var mics = $(this).attr("mics");
+						var parame = {
+							activeId : rowid,
+							mics : mics
+						}
+						openWindow("grrenyaoyuePl_window", "grrenyaoyuePl_window.html", parame);
+						event.stopPropagation();
+					});
+					$(".imageBrower").click(function() {
+						var index = $(this).attr("index");
+						var data = $(this).attr("data");
+						var obj = api.require('imageBrowser');
+						obj.openImages({
+							imageUrls : JSON.parse(data),
+							showList : false,
+							activeIndex : index
+						});
+						event.stopPropagation();
+					});
+					$(".group").click(function() {
+						var rowid = $(this).attr("rowid");
+						var mics = $(this).attr("mics");
+						var parame = {
+							activeId : rowid,
+							mics : mics
+						}
+						openWindow("content_window", "content_window.html", parame);
+						event.stopPropagation();
+					});
+					$(".uuuuuuu").click(function() {
+						var rowid = $(this).attr("rowid");
+						var mics = $(this).attr("mics");
+						var parame = {
+							activeId : rowid,
+							mics : mics
+						}
+						openWindow("grrenyaoyuePl_window", "grrenyaoyuePl_window.html", parame);
+						event.stopPropagation();
+					});
+				});
+			}
+
+			function hidess() {
+				$("#loading-content").hide();
+			}
+		</script>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body></body>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			var UICityList;
+			var header_h;
+			apiready = function() {
+				UICityList = api.require('UICityList');
+				var lat = "";
+				var lon = "";
+				var localtionName = "";
+				 header_h = api.pageParam.header_h;
+				var bMap = api.require('bMap');
+				bMap.getLocation({
+					accuracy : '100m',
+					autoStop : true,
+					filter : 1
+				}, function(ret, err) {
+					if (ret.status) {
+						lon = ret.lon;
+						lat = ret.lat;
+						bMap.getNameFromCoords({
+							lon : lon,
+							lat : lat
+						}, function(ret, err) {
+							if (ret.status) {
+								localtionName = ret.city.replace("市", "");
+								initCity(localtionName);
+							} else {
+								initCity("");
+							}
+						});
+					} else {
+						initCity("");
+					}
+				});
+			}
+			function initCity(localtionName) {
+				UICityList.open({
+					rect : {
+						x : 0,
+						y : header_h,
+						w : api.winWidth,
+						h : api.winHeight
+					},
+					resource : SERVERURL + "upload/cityList.json",
+					styles : {
+						searchBar : {
+							bgColor : '#696969',
+							cancelColor : '#E3E3E3'
+						},
+						location : {
+							color : '#696969',
+							size : 12
+						},
+						sectionTitle : {
+							bgColor : '#eee',
+							color : '#000',
+							size : 12
+						},
+						item : {
+							bgColor : '#fff',
+							activeBgColor : '#696969',
+							color : '#000',
+							size : 14,
+							height : 40
+						},
+						indicator : {
+							bgColor : '#fff',
+							color : '#696969'
+						}
+					},
+					currentCity : localtionName,
+					locationWay : 'GPS',
+					hotTitle : '热门城市',
+					placeholder : '输入城市名或首字母查询'
+				}, function(ret, err) {
+					if (ret.eventType == 'selected') {
+						var areaName = ret.cityInfo.city;
+						api.execScript({
+							name : "pushProject_window.html",
+							frameName : "pushProject_content",
+							script : 'changeArea("' + areaName + '");'
+						});
+						api.execScript({
+							name : "editMyInfo_window.html",
+							frameName : "editMyInfo.html",
+							script : 'changeArea("' + areaName + '");'
+						});
+						api.execScript({
+							name : "proRequired_window",
+							frameName : "proRequired_content",
+							script : 'changeArea("' + areaName + '");'
+						});
+						api.closeWin({
+						});
+					}
+				});
+			}
+		</script>
+</html>

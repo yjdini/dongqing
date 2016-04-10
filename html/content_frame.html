@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			article {
+				margin-bottom: 60px;
+			}
+			.bor-b-s1 {
+				border: 0px !important
+			}
+			.aui-btn-info {
+				border: 0px !important
+			}
+			.aui-btn, button {
+				border-radius: 0px
+			}
+			p {
+				color: #000
+			}
+			.perlist {
+			}
+			.per-icon {
+				width: 40px;
+				height: 40px;
+			}
+			li, ul{
+			}
+		</style>
+	</head>
+	<body class="bg4" style="background-color:#fff;display:none">
+		<article >
+			<div class="grzl-head change"  >
+				<a class="grzl-img-box tac" id="imgs" > </span> </a>
+			</div>
+			<div class="grzl-info">
+				<ul>
+					<li class="c">
+						<P class="y">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">活动名称:</span>
+							<span id="namesss" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">时间:</span>
+							<span id="times" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd- ">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">地址:</span>
+							<span id="address" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd- ">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">兴趣项目:</span>
+							<span id="xqxm" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd- ">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">内容:</span>
+							<span id="content" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c"></li>
+				</ul>
+			</div>
+			<div class="perlist m-t10">
+				<p class="per-tit" >
+					<span class="per-icon m-r10"></span><span id="userlength" style="font-size:25px">0人</span>
+				</p>
+				<div class="per-lb">
+					<ul class="c" id="list"></ul>
+				</div>
+			</div>
+			<div class="hd-detail m-t20 c" id="neirong"></div>
+			<ul class="yl-list" style=" background: #dadada;padding-left: 10px;font-size: 1.5em;height: 45px;line-height: 45px;color:#000">
+				图片
+			</ul>
+			<div class="hd-detail m-t20 c" id="activefiles"></div>
+			<ul class="yl-list" style=" background: #dadada;padding-left: 10px;font-size: 1.5em;height: 45px;line-height: 45px;color:#000">
+				语音
+			</ul>
+			<ul class="yl-list" id="voices" style="padding-top:20px">
+				<li class="c">
+					<dl>
+						<dt>
+							<p class="c1">
+								<a class="th-tips" id=""><span class="th-icon"></span><span class="fr c1" id="vioceLength"></span></a>
+							</p>
+						</dt>
+					</dl>
+				</li>
+			</ul>
+			<div style="height:50px">
+				&nbsp;
+			</div>
+			<div style="text-align:center;position: fixed;bottom: 0;width: 100%;height: 50px;display:none">
+				<p>
+					<button class="aui-btn aui-btn-info" style="width:100%;background:rgb(249,100,0);width: 100%;height: 50px;font-size: 24px;color:#fff" id="next-button">
+						参加去看看
+					</button>
+				</p>
+			</div>
+		</article>
+	</body>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		// 完成首页初始化
+		var activeId = "";
+		var groupName = "";
+		var targetId = "";
+		var pageParam;
+		var isPlay = "1";
+		var htmla = "";
+		var imgArray = [];
+		apiready = function() {
+			pageParam = api.pageParam;
+			activeId = pageParam.activeId;
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				var v = ret.value;
+				api.ajax({
+					url : ACTIVELISTById,
+					timeout : 30,
+					dataType : 'json',
+					method : 'post',
+					returnAll : false,
+					data : {
+						values : {
+							"rowid" : activeId,
+							"token" : v
+						}
+					}
+				}, function(ret, err) {
+					if (ret) {
+						var data = ret.data;
+						var tabUsers = ret.tabusers;
+						$("#namesss").html(data.name);
+						var users = ret.users;
+						$api.setStorage("name", data.name);
+						$api.setStorage("isOwn", ret.isOwn);
+						$api.setStorage("joinA", ret.joinA);
+						api.execScript({
+							script : 'changeNameaaa();',
+							name : 'content_window'
+						});
+						$("#times").html(convertDate(data.activestartdate).split(" ")[0] + " " + convertDate(data.activestartdate).split(" ")[1]);
+						$("#imgs").attr("style", "background:url('" + ret.data.activeimg + "');background-size:auto 100%;background-repeat:no-repeat;");
+						$("#address").html(data.lbsname);
+						$("#content").html(data.js);
+						$("#xqxm").html(data.xqxm);
+						targetId = data.parame1;
+						groupName = ret.usergroups.groupname;
+						//获取用户表
+						if (ret.joinA == "true") {
+							$("#next-button").html("已经加入活动");
+						}
+						var html = "";
+						
+						var ll =   tabUsers.length;
+						if(tabUsers.length >3){
+							ll  =   3;
+						}
+						
+						for (var i = 0; i < ll; i++) {
+							html = html + "<li  class='list' rowid='" + tabUsers[i].rowid + "' ><a class='head-box' style='background:url(#url) no-repeat; background-size:100% auto'></a><P class='head-detail'><span class=' m-r5'></span><span class='f18'>" + tabUsers[i].name + "</span></P></li>";
+							html = html.replace("#url", SERVERURL + tabUsers[i].imgsrc);
+						}
+						$("#js").append("<span style='color:black;font-family:block'>" + data.js + "</font>");
+						$("#list").html(html);
+						$("#userlength").html(tabUsers.length + "人");
+						var activefiles = ret.activefiles;
+						var newH = "";
+						for (var i = 0; i < activefiles.length; i++) {
+							imgArray.push(SERVERURL + activefiles[i].filepath);
+							newH = newH + "<img class='imgArray' src='" + SERVERURL + activefiles[i].filepath + "' width='33%' height='90'   index='"+i+"'>";
+						}
+						$("#activefiles").html(newH);
+						if (!data.voicesrc) {
+							$("#voices").hide();
+						} else {
+							$("#voices").attr("url", data.voicesrc);
+							$("#vioceLength").html("" + data.voicelength + "秒");
+						}
+						$("#voices").click(function() {
+							if (isPlay == "1") {
+								htmla = $(this).html();
+								var url = $(this).attr("url");
+								getDownLoadFile(url, this);
+								isPlay = "2";
+							} else {
+								isPlay = "1";
+								$(this).html(htmla);
+								api.stopPlay();
+							}
+						});
+						$("article").show();
+						$("div").show();
+						$(".imgArray").click(function() {
+							var obj = api.require('imageBrowser');
+							var  index =   $(this).attr("index");
+							obj.openImages({
+								imageUrls : imgArray,
+								showList : false,
+								activeIndex : index
+							});
+						});
+						$(".list").click(function() {
+						});
+						
+						$(".bg4").show()
+						//
+						$("#list").click(function() {
+							var parame = {
+								activeId : activeId
+							}
+							openWindow("activeUsers_window", "activeUsers_window.html", parame);
+						});
+					}
+				});
+			});
+		};
+		$("#next-button").click(function() {
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				var v = ret.value;
+				if (v != null && v.length > 0) {
+					var html = $("#next-button").html();
+					html = $.trim(html);
+					if (html == "参加去看看") {
+						api.ajax({
+							url : JOINACTIVE,
+							timeout : 30,
+							dataType : 'json',
+							method : 'post',
+							data : {
+								values : {
+									"activeId" : activeId,
+									"token" : v
+								}
+							}
+						}, function(ret, err) {
+							if (ret) {
+								if (ret.flag == "success") {
+									$("#next-button").html("已经加入活动");
+									var rong = api.require('rongCloud');
+									rong.joinGroup({
+										groupId : targetId,
+										groupName : groupName
+									}, function(ret, err) {
+										if (ret.status == 'success')
+											api.toast({
+												msg : JSON.stringify(ret.status)
+											});
+										else
+											api.toast({
+												msg : err.code
+											});
+									})
+								}
+							}
+						});
+					} else {
+					}
+				} else {
+					token = "11aaa1";
+					api.alert({
+						title : "提示",
+						msg : '请登录后进行操作',
+						buttons : ['确定']
+					}, function(ret, err) {
+						api.openWin({
+							name : "login_window",
+							url : "./login_window.html",
+							slidBackEnabled : false
+						});
+					});
+				}
+			});
+		});
+	</script>
+</html>

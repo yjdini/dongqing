@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<header>
+				<p class="left">
+					<span class="back-icon"><img src="../images/back-icon.png"></span>
+				</p>
+				<span class="tit">选择顾问</span>
+				<P class="right">
+					<span class="more-icon"><img src="../images/p-icon2.png"></span>
+				</P>
+			</header>
+		</body>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+            apiready = function() {
+                var $header = $api.dom('header');
+                $api.fixIos7Bar($header);
+                var strDM = api.systemType;
+                var pageParam =  api.pageParam;
+                if (strDM == 'ios') {
+                    var strSV = api.systemVersion;
+                    var numSV = parseInt(strSV, 10);
+                    var fullScreen = api.fullScreen;
+                    var iOS7StatusBarAppearance = api.iOS7StatusBarAppearance;
+                    if (numSV >= 7 && !fullScreen && iOS7StatusBarAppearance) {
+                        $api.dom('.left').style.top = '30px';
+                        $api.dom('.right').style.top = '30px';
+                    }
+                }
+                var header_h = ($api.offset($header).h);
+                api.openFrame({
+                    name : 'selectUsers_content',
+                    url : 'selectUsers_content.html',
+                    rect : {
+                        x : 0,
+                        y : header_h,
+                        w : 'auto',
+                        h : "auto"
+                    },
+                    pageParam : pageParam
+                });
+                //二维码扫描
+                $(".left").click(function() {
+                    api.closeWin({
+                    });
+                });
+                $(".right").click(function() {
+                	api.execScript({
+                		name :"selectUsers_window.html",
+                		"frameName" : "selectUsers_content",
+	                    script: 'saveUsers();'
+                    });
+                });
+            }
+		</script>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/fonts/font-awesome.min.css">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<link rel="stylesheet" href="../css/appcan.icon.css">
+		<link rel="stylesheet" href="../css/appcan.control.css">
+		<link rel="stylesheet" href="lis_content/css/main.css">
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="ub ub-ver">
+			<div class="umar-tcon ubt bc-border ubb">
+				<div class="list ub ub-ac umar-lrlist uinn-lrlist ubb bc-border uinn-3" onclick="yjfk()">
+					<div class="res-feedback umwh-micons ub-img ulev-1" ></div>
+					<div class="ub-f1 ut-s uinn-l3">
+						<span class="-1" style="font-size:25px">意见反馈</span>
+					</div>
+					<div class="ulev1 t-c2c">
+						>
+					</div>
+				</div>
+				<div class="list ub ub-ac umar-lrlist uinn-lrlist ubb bc-border uinn-3" onclick="about()">
+					<div class="res-feedback umwh-micons ub-img ulev-1" ></div>
+					<div class="ub-f1 ut-s uinn-l3">
+						<span class="-1" style="font-size:25px">关于</span>
+					</div>
+					<div class="ulev1 t-c2c">
+						>
+					</div>
+				</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script>
+        apiready = function() {
+            $("#news").click(function() {
+                if ($("#list").attr("data-checked") == "true") {
+                    $("#list").attr("data-checked", "false");
+                    $("#list").removeClass("bc-head");
+                } else {
+                    $("#list").attr("data-checked", "true");
+                    $("#list").addClass("bc-head");
+                }
+            });
+        }
+        function yjfk() {
+            api.prompt({
+                title : "请输入意见反馈内容",
+                buttons : ['确定', '取消']
+            }, function(ret, err) {
+                if (ret.buttonIndex == 1) {
+                    api.alert({
+                        title : "提示",
+                        msg : "提交成功"
+                    }, function(ret, err) {
+                        //coding...
+                    });
+                }
+            });
+        }
+        
+        function about(){
+        	api.alert({
+                        title : "关于",
+                        msg : "冬青-老年人社交"
+                    }, function(ret, err) {
+                        //coding...
+                    });
+        }
+        
+	</script>
+</html>

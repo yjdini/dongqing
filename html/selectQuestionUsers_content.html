@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			.t-gra-FS1 {
+				color: #9f9f9f;
+			}
+			.uinn-FS1 {
+				padding: 0.75em 0.625em;
+			}
+			.uinn-FS2 {
+				padding: 0.625em 1.1875em 0.2em 1.1875em;
+			}
+			.uwh-FS1 {
+				width: 2.1em;
+				height: 2.1em;
+			}
+			.uwh-FS2 {
+				width: 1.625em;
+				height: 1.625em;
+			}
+			.uwh-FS3 {
+				width: 0.625em;
+				height: 0.625em;
+			}
+			.c-gra-FS1 {
+				background-color: #d8d8d8;
+			}
+			.c-gra-FS2 {
+				background-color: #b3b3b3;
+			}
+			.uc-a-FS1 {
+				-webkit-border-radius: 2.1em;
+				border-radius: 2.1em;
+			}
+			.uc-a-FS2 {
+				-webkit-border-radius: 1.625em;
+				border-radius: 1.625em;
+			}
+			.uh-FS1 {
+				height: 0.5em;
+			}
+			.umar-tFS1 {
+				margin-top: 0.3em;
+			}
+			.c-wh {
+				background-color: white;
+			}
+			.ulev-app1 {
+				font-size: 0.875em;
+			}
+			.uinn-a1 {
+				padding: 0.625em;
+			}
+			.f19 {
+				font-size: 19px;
+			}
+		</style>
+		<link href="../css/selectUser.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<section class="p-t44  p-b60" >
+			<div class="topfixed">
+				<div class="search">
+					<P>
+						<span class="query-icon"></span>搜索名称
+					</P>
+				</div>
+			</div>
+			<div class="fri-con" id="firendList"></div>
+		</section>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script>
+		var dataList = [];
+		var resultData = [];
+		apiready = function() {
+			var userGroup = $api.getStorage("userGroup");
+			if (userGroup != "" && userGroup != null) {
+				dataList = userGroup.split(",");
+			}
+			$(".search").click(function() {
+				var obj = api.require('UISearchBar');
+				obj.open({
+					placeholder : '请输入搜索关键字',
+					historyCount : 10,
+					showRecordBtn : false,
+					texts : {
+						cancelText : '取消',
+						clearText : '清除搜索记录'
+					},
+					styles : {
+						navBar : {
+							bgColor : '#FFFFFF',
+							borderColor : '#ccc'
+						},
+						searchBox : {
+							bgImg : '',
+							color : '#000',
+							height : 44
+						},
+						cancel : {
+							bg : 'rgba(0,0,0,0)',
+							color : '#D2691E',
+							size : 16
+						},
+						list : {
+							color : '#696969',
+							bgColor : '#FFFFFF',
+							borderColor : '#eee',
+							size : 16
+						},
+						clear : {
+							color : '#000000',
+							borderColor : '#ccc',
+							size : 16
+						}
+					}
+				}, function(ret) {
+					if (ret.eventType == 'record') {
+					} else if (ret.eventType == 'search') {
+						filterUsers(ret.text);
+					} else if (ret.eventType == 'history') {
+						filterUsers(ret.text);
+					} else {
+					}
+				});
+			});
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				var token = ret.value;
+				var parame = {
+					values : {
+						token : token
+					}
+				}
+				doAjax(listMyUserGroup, "post", parame, function(data) {
+					var list = data.groups;
+					var index = "";
+					var totalHtml = "";
+					var html = "";
+					html = "<p class='fri-tit'></p><ul class='fri-list'>";
+					for (var j = 0; j < list.length; j++) {
+						var img = list[j].userImgurl || "../images/h12.png";
+						var nickName = list[j].userGroupName || "未设置";
+						resultData.push(list[j]);
+						if (isSelect(list[j].userGroupId) == "true") {
+							html = html + "<li id='" + list[j].userGroupId + "'> <dl class='c'><dd class='fl select'><span name = '" + nickName + "' rowid = '" + list[j].userGroupId + "' class='select-icon  cur'></span></dd><dt></dt><dd class='userlist' rowid='" + list[j].userGroupId + "'>" + nickName + "</dd></dl></li>";
+						} else {
+							html = html + "<li id='" + list[j].userGroupId + "'> <dl class='c'><dd class='fl select'><span name = '" + nickName + "' rowid = '" + list[j].userGroupId + "' class='select-icon  '></span></dd><dt></dt><dd class='userlist' rowid='" + list[j].userGroupId + "'>" + nickName + "</dd></dl></li>";
+						}
+					}
+					html = html + "</ul>";
+					totalHtml = totalHtml + html;
+					$("#firendList").html(totalHtml);
+					$(".select-icon").click(function() {
+						var rowid = $(this).attr("rowid");
+						if ($(this).hasClass("cur")) {
+							dataList = delArray(dataList, rowid);
+						} else {
+							dataList.push(rowid);
+						}
+						$(this).toggleClass("cur");
+					});
+					$(".userlist").click(function() {
+						var rowid = $(this).attr("rowid");
+						//获取当前群的用户数据
+						var param = {
+							"rowid" : rowid
+						}
+						openWindow("selectQuestionUsers_windowStep2", "selectQuestionUsers_windowStep2.html", param);
+					});
+				}, function(data) {
+				})
+			});
+		}
+		function saveUsers() {
+			$api.setStorage("userGroup", dataList.join(","));
+			api.execScript({
+				script : 'initUsersByToken();',
+				name : "pushQuestion_window.html",
+				"frameName" : "pushQuestion_content"
+			});
+			api.closeWin({
+			});
+		}
+
+		function isSelect(userId) {
+			var userGroup = $api.getStorage("userGroup");
+			if (userGroup != null && userGroup.length > 0) {
+				var split = userGroup.split(",");
+				for (var i = 0; i < split.length; i++) {
+					if (split[i] == userId) {
+						return "true";
+					}
+				}
+			}
+			return "false";
+		}
+
+		function filterUsers(names) {
+			//
+			for (var i = 0; i < resultData.length; i++) {
+				if (resultData[i].nickName.indexOf(names) > -1) {
+					$("#" + resultData[i].userId).show();
+				} else {
+					$("#" + resultData[i].userId).hide();
+				}
+			}
+		}
+	</script>
+</html>

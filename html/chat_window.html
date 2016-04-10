@@ -1,0 +1,458 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/aui-win.min.css" rel="stylesheet" type="text/css">
+		<style>
+			.aui-bar .aui-title {
+				font-size: 25px;
+				font-family: "kaiti"
+			}
+		</style>
+		<body>
+			<header id="header" class="aui-bar aui-bar-nav aui-bar-blue" >
+				<a class="aui-pull-left"> <span class="aui-iconfont aui-icon-left">返回</span></a>
+				<div class="aui-title" id="title">
+					聊天
+				</div>
+				<a class="aui-pull-right" id="d"  ><span class="aui-iconfont aui-icon-right " id="dd"></span> </a>
+				<a class="aui-pull-right" id="form" style="padding-right:0px" ><span class="aui-iconfont " id="delete">功能</span> </a>
+			</header>
+		</body>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			// 完成首页初始化
+			var type = "";
+			var isChild = "";
+			var parame1 = "";
+			var parame2 = "";
+			var token = "";
+			var targetIds = "";
+			var array1 = ['设置群信息', '管理群成员', '查看群位置', '解散群'];
+			var array2 = ['查看群信息', '查看群成员', '查看群位置', '退出群'];
+			var lon = "";
+			var lat = "";
+			var readLength = 0;
+			var array3 = ['查看个人信息', '删除好友'];
+			var locks = "1";
+			function initGroup() {
+				initFootData();
+				array1 = ['设置群信息', '管理群成员', '查看群位置', '解散群'];
+				array2 = ['查看群信息', '查看群成员', '查看群位置', '退出群'];
+				var sql = "SELECT  *  FROM contents  WHERE targetId ='" + targetIds + "'";
+				readSQL(sql, function(data) {
+					readLength = data.length
+					if (data.length > 0 && data[0].flag == "1") {
+						array1.push("取消免打扰");
+						array2.push("取消免打扰");
+					} else {
+						array1.push("设置免打扰");
+						array2.push("设置免打扰");
+					}
+				});
+			}
+
+			function initPerson() {
+				initFootData();
+				array3 = ['查看个人信息', '删除好友'];
+				var queryblackUser = $api.getStorage("queryblackUser");
+				var list = queryblackUser.split(",");
+				var flag = "1"
+				for (var i = 0; i < list.length; i++) {
+					if (list[i] == targetIds) {
+						flag = "2";
+						break;
+					}
+				}
+				if (flag == "1") {
+					array3.push("设置黑名单");
+				} else {
+					array3.push("取消黑名单");
+				}
+			}
+
+			apiready = function() {
+				var $header = $api.dom('header');
+				$api.fixIos7Bar($header);
+				var pageParam = api.pageParam;
+				rowid = pageParam.activeId;
+				var header_h = ($api.offset($header).h);
+				if (api.systemType == "android") {
+					$("#header").css("padding-top", "20px");
+					header_h = header_h + 20;
+				}
+				var pageParam = api.pageParam;
+				targetIds = pageParam.targetId;
+				$api.setStorage("targetIds", targetIds);
+				isChild = pageParam.isChild;
+				type = pageParam.conversationType;
+				if (type == "GROUP") {
+					initGroup();
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						token = ret.value;
+						var parame = {
+							values : {
+								token : token,
+								rowid : targetIds
+							}
+						}
+						doAjax(GROUPINFO, "post", parame, function(data) {
+							lon = data.data.grouplbs.split(",")[0];
+							lat = data.data.grouplbs.split(",")[1];
+							if (data.isManager == "true") {
+								$(".aui-pull-right").click(function() {
+									actionSheet("菜单", array1, function(data) {
+										if (data.buttonIndex == 1) {
+											//编辑群信息
+											var parame = {
+												"rowid" : targetIds
+											}
+											openWindow("createGroup_window.html", "createGroup_window.html", parame);
+										} else if (data.buttonIndex == 2) {
+											var parame = {
+												"targetId" : targetIds
+											}
+											openWindow("groupUsers_window.html", "groupUsers_window.html", parame);
+										} else if (data.buttonIndex == 3) {
+											var parame = {
+												lon : lat,
+												lat : lon
+											}
+											openWindow("map_window.html", "map_window.html", parame);
+										} else if (data.buttonIndex == 4) {
+											api.confirm({
+												"title" : "提示",
+												msg : "确定解散群吗?",
+												buttons : ['确定', '取消']
+											}, function(ret, err) {
+												locks = 2;
+												if (ret.buttonIndex == 1) {
+													var parame = {
+														values : {
+															"rowid" : targetIds
+														}
+													}
+													doAjax(deleteGroup, "post", parame, function(data) {
+														var flag = data.flag;
+														if (flag == "true") {
+															upDataSql("DELETE FROM message  where targetId='" + targetIds + "'", function(data) {
+																api.alert({
+																	"title" : "提示",
+																	msg : "群解散成功"
+																}, function(ret, err) {
+																	api.closeToWin({
+																		name : 'root'
+																	});
+																});
+															});
+														}
+													}, function(data) {
+													})
+												}
+											});
+										} else if (data.buttonIndex == 5) {
+											if (array1[data.buttonIndex - 1] == "取消免打扰") {
+												sql = "update contents  set flag ==2 WHERE targetId ='" + targetIds + "'";
+												upDataSql(sql, function(data) {
+													initGroup();
+												})
+											} else {
+												if (readLength == 0) {
+													var sql = "INSERT INTO contents(targetId,flag) VALUES('" + targetIds + "','1')";
+													upDataSql(sql, function(data) {
+														initGroup();
+													})
+												} else {
+													sql = "update contents  set flag ==1 WHERE targetId ='" + targetIds + "'";
+													upDataSql(sql, function(data) {
+														initGroup();
+													})
+												}
+											}
+										}
+									})
+								});
+							} else {
+								$(".aui-pull-right").click(function() {
+									actionSheet("菜单", array2, function(data) {
+										if (data.buttonIndex == 1) {
+											var parame = {
+												targetId : targetIds
+											}
+											openWindow("groupInfo_window", "groupInfo_window.html", parame);
+										} else if (data.buttonIndex == 2) {
+											var parame = {
+												"targetId" : targetIds
+											}
+											openWindow("groupUsers_window.html", "groupUsers_window.html", parame);
+										} else if (data.buttonIndex == 3) {
+											var parame = {
+												lon : lat,
+												lat : lon
+											}
+											openWindow("map_window.html", "map_window.html", parame);
+										} else if (data.buttonIndex == 4) {
+											locks = 2;
+											api.confirm({
+												"title" : "提示",
+												msg : "确定退出该群吗?",
+												buttons : ['确定', '取消']
+											}, function(ret, err) {
+												if (ret.buttonIndex == 1) {
+													var parame = {
+														values : {
+															token : token,
+															targetIds : targetIds
+														}
+													}
+													doAjax(exitGroup, "post", parame, function(data) {
+														var flag = data.flag;
+														if (flag == "true") {
+															api.alert({
+																msg : "退出成功"
+															}, function(ret, err) {
+																var sql = "DELETE FROM message where targetId='" + targetIds + "'";
+																upDataSql(sql, function(data) {
+																	api.execScript({
+																		script : 'changeTip();',
+																		name : "root",
+																	});
+																	api.execScript({
+																		script : 'init();',
+																		"name" : "root",
+																		frameName : "firendList"
+																	});
+																	api.execScript({
+																		script : 'initData();',
+																		"name" : "root",
+																		frameName : "messageList"
+																	});
+																	api.closeWin({
+																	});
+																});
+															});
+														}
+													}, function(data) {
+													});
+												}
+											});
+										} else if (data.buttonIndex == 5) {
+											if (array2[data.buttonIndex - 1]) {
+												if (array2[data.buttonIndex - 1] == "取消免打扰") {
+													sql = "update contents  set flag ==2 WHERE targetId ='" + targetIds + "'";
+													upDataSql(sql, function(data) {
+														initGroup();
+													})
+												} else {
+													if (readLength == 0) {
+														var sql = "INSERT INTO contents(targetId,flag) VALUES('" + targetIds + "','1')";
+														upDataSql(sql, function(data) {
+															initGroup();
+														})
+													} else {
+														sql = "update contents  set flag ==1 WHERE targetId ='" + targetIds + "'";
+														upDataSql(sql, function(data) {
+															initGroup();
+														})
+													}
+												}
+											}
+										}
+									});
+								});
+							}
+						}, function(data) {
+						})
+					});
+				} else {
+					initPerson();
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						token = ret.value;
+					});
+					$(".aui-pull-right").click(function() {
+						actionSheet("菜单", array3, function(data) {
+							if (data.buttonIndex == 1) {
+								//查看用户
+								var parame = {
+									userid : targetIds
+								}
+								openWindow("userCenter_window", "userCenter_window.html", parame)
+							} else if (data.buttonIndex == 2) {
+								api.confirm({
+									"title" : "提示",
+									msg : "确定删除好友吗?",
+									buttons : ['确定', '取消']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 1) {
+										var parame = {
+											values : {
+												rowid : targetIds,
+												token : token
+											}
+										}
+										locks = 2;
+										doAjax(FIRENDDELETE, "post", parame, function(data) {
+											var flag = data.data;
+											if (flag == "true") {
+												api.alert({
+													msg : "删除成功"
+												}, function(ret, err) {
+													var sql = "DELETE FROM message where targetId='" + targetIds + "'";
+													upDataSql(sql, function(data) {
+														api.execScript({
+															script : 'changeTip();',
+															name : "root",
+														});
+														api.execScript({
+															script : 'init();',
+															"name" : "root",
+															frameName : "firendList"
+														});
+														api.execScript({
+															script : 'initData();',
+															"name" : "root",
+															frameName : "messageList"
+														});
+														api.closeWin({
+														});
+													});
+												});
+											}
+										}, function(data) {
+										})
+									}
+								});
+							} else if (data.buttonIndex == 3) {
+								api.confirm({
+									"title" : "提示",
+									msg : "确定设置黑名单?",
+									buttons : ['确定', '取消']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 1) {
+										var text = array3[2];
+										var state = "1";
+										if (text == "设置黑名单") {
+											state = "1"
+										} else {
+											state = "2"
+										}
+										var parame = {
+											values : {
+												token : token,
+												targetIds : targetIds,
+												state : state
+											}
+										}
+										if (state == "1") {
+											locks = 2;
+											var sql = "DELETE FROM message where targetId='" + targetIds + "'";
+											upDataSql(sql, function(data) {
+											});
+										}
+										doAjax(upDataBlackUser, "POST", parame, function(data) {
+											var queryblackUser = data.queryblackUser;
+											var list = JSON.parse(queryblackUser).users;
+											$api.setStorage("queryblackUser", list.join(","));
+											var sql = "DELETE FROM message where targetId='" + targetIds + "'";
+											upDataSql(sql, function(data) {
+												api.execScript({
+													script : 'changeTip();',
+													name : "root",
+												});
+												api.execScript({
+													script : 'init();',
+													"name" : "root",
+													frameName : "firendList"
+												});
+												api.execScript({
+													script : 'initData();',
+													"name" : "root",
+													frameName : "messageList"
+												});
+												api.closeWin({
+												});
+											});
+											api.closeToWin({
+												name : 'root'
+											});
+										}, function(data) {
+										});
+									}
+								});
+							}
+						})
+					});
+				}
+				var i = 0;
+				$(".aui-pull-left").click(function() {
+					api.stopPlay();
+					$api.setStorage("targetIds", "");
+					api.closeWin();
+				});
+				api.openFrame({
+					name : 'chat',
+					url : 'chat.html',
+					rect : {
+						x : 0,
+						y : header_h,
+						w : 'auto',
+						h : api.winHeight - header_h - 50
+					},
+					pageParam : {
+						targetId : pageParam.targetId,
+						"conversationType" : pageParam.conversationType,
+						"name" : pageParam.name,
+						"height" : header_h
+					},
+					bounces : false,
+					delay : 200
+				});
+			};
+			function initFootData() {
+				if (locks == "1") {
+					if (type == "PRIVATE") {
+					} else {
+						//群组
+						var parame = {
+							values : {
+								token : token,
+								"rowid" : targetIds
+							}
+						}
+						doAjax(GROUPINFO, "post", parame, function(data) {
+							var data1 = data.data;
+							var isGroup = data.isGroup;
+							if (data1 == null) {
+								locks = "2";
+							} else if (isGroup == null || isGroup == "false") {
+								locks = "2";
+								upDataSql("DELETE FROM message  where targetId='" + targetIds + "'", function(data) {
+									api.alert({
+										"title" : "提示",
+										msg : "您已被请出该群"
+									}, function(ret, err) {
+										api.closeToWin({
+											name : 'root'
+										});
+									});
+								});
+							}
+						}, function(data) {
+						})
+					}
+					//setTimeout("initFootData()", 2000);
+				}
+			}
+		</script>
+</html>

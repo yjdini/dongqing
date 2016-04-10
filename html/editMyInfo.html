@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/style.css">
+		<style type="text/css">
+			.f19 {
+				font-size: 19px
+			}
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart>
+		<div class="content">
+			<ul class="resume">
+				<li>
+					<span class="f19">真实姓名</span><span class="fr c1">
+						<input type="text " class="f19" placeholder=""  id="userName"/>
+					</span>
+				</li>
+				<li id="userNameIsopen" class="selectIsNo">
+					<span class="f19">姓名是否公开</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="userNameIsopenValue"></span>
+				</li>
+				<li id="gender">
+					<span class="f19">性别</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="genderValue"></span>
+				</li>
+				<li>
+					<span class="f19">昵称</span><span class="fr c1">
+						<input type="text" class="f19" placeholder=""  id="nickName"/>
+					</span>
+				</li>
+				<li id="userBirthday" class="date">
+					<span class="f19">出生日期</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="userBirthdayValue"></span>
+				</li>
+				<li>
+					<span class="f19">联系方式</span><span class="fr c1">
+						<input type="text" class="f19" placeholder=""  id="userPhone"/>
+					</span>
+				</li>
+				<li id="userCommunicationIsopen" class="selectIsNo">
+					<span class="f19">是否公开联系方式</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="userCommunicationIsopenValue"></span>
+				</li>
+				<li id="userBaseAddr">
+					<span class="f19">常住地</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="userBaseAddrValue"></span>
+				</li>
+				<li>
+					<span class="f19">电子邮箱</span><span class="fr c1">
+						<input type="text" class="f19" placeholder=""  id="userEmail"/>
+					</span>
+				</li>
+				<li id="userFreelancerFlag" class="selectIsNo">
+					<span class="f19">是否自由顾问</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="userFreelancerFlagValue"></span>
+				</li>
+				<li>
+					<span class="f19">就职公司</span><span class="fr c1">
+						<input type="text" class="f19" placeholder=""  id="userCompany"/>
+					</span>
+				</li>
+				<li id="userCompanyIsopen" class="selectIsNo">
+					<span class="f19">公司是否公开</span><span class="li-icon m-t15 m-l10 fr"></span><span class="fr c1 f19"  id="userCompanyIsopenValue"></span>
+				</li>
+				<li>
+					<span class="f19">备注</span><span class="fr c1"> 						<textarea class="f19" id="userNote" style="border:none; height:40px; width:80%; text-align:right; font-family:Microsoft Yahei; float:right;"></textarea> </span>
+				</li>
+			</ul>
+			<button class="uinn-at1" style="width:98%;height:3em;margin-top: 1em; margin-left: 1%; background-color: #DD3030;border-radius:1em;color:#fff" >
+				保存
+			</button>
+		</div>
+		<script src="../script/api.js"></script>
+		<script src="../script/jquery-1.9.1.min.js"></script>
+		<script src="../script/app.js"></script>
+		<script >
+			var token = "";
+			var date = "";
+			apiready = function() {
+				$(".date").click(function() {
+					var id = $(this).attr("id");
+					api.openPicker({
+						type : 'date_time',
+						title : '选择时间'
+					}, function(ret, err) {
+						var year = ret.year;
+						var month = ret.month;
+						var day = ret.day;
+						var hour = ret.hour;
+						var minute = ret.minute;
+						$("#" + id + "Value").html(year + "-" + month + "-" + day + " " + hour + ":" + minute + ":00");
+						date = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":00";
+					});
+				});
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					var parame = {
+						values : {
+							token : token
+						}
+					};
+					doAjax(GETMYINFO, "post", parame, function(data) {
+						var tabUser01 = data.data;
+						$("#userName").val(tabUser01.userName);
+						$("#userNameIsopenValue").html(convertIsNo(tabUser01.userNameIsopen));
+						$("#genderValue").html(convertSex(tabUser01.gender));
+						$("#nickName").val(tabUser01.nickName);
+						$("#userBirthdayValue").html(convertDate(tabUser01.userBirthday));
+						date = convertDate(tabUser01.userBirthday);
+						$("#userCommunicationIsopenValue").html(convertIsNo(tabUser01.userCommunicationIsopen));
+						$("#userPhone").val(tabUser01.userPhone);
+						$("#userBaseAddrValue").html(tabUser01.userBaseAddr);
+						$("#userEmail").val(tabUser01.userEmail);
+						$("#userFreelancerFlagValue").html(convertIsNo(tabUser01.userFreelancerFlag));
+						$("#userCompany").val(tabUser01.userCompany);
+						$("#userCompanyIsopenValue").html(convertIsNo(tabUser01.userCompanyIsopen));
+						$("#userNote").val(tabUser01.userNote);
+					}, function() {
+					});
+				});
+				//选择性别
+				$("#gender").click(function() {
+					api.actionSheet({
+						title : '菜单',
+						cancelTitle : '取消',
+						buttons : ['男', '女']
+					}, function(ret, err) {
+						if (ret.buttonIndex <= 2) {
+							$("#genderValue").html(convertSex(ret.buttonIndex));
+						}
+					});
+				});
+				$(".selectIsNo").click(function() {
+					var id = $(this).attr("id");
+					api.actionSheet({
+						title : '菜单',
+						cancelTitle : '取消',
+						buttons : ['是', '否']
+					}, function(ret, err) {
+						if (ret.buttonIndex <= 2) {
+							$("#" + id + "Value").html(convertIsNo(ret.buttonIndex));
+						}
+					});
+				});
+				$("#userBaseAddr").click(function() {
+					openWindow("selectCity_window.html", "selectCity_window.html", null)
+				});
+				$(".uinn-at1").click(function() {
+					var parame = {
+						values : {
+							token : token,
+							userName : $("#userName").val(),
+							userNameIsopen : getIsNo($("#userNameIsopenValue").html()),
+							gender : getSex($("#genderValue").html()),
+							nickName : $("#nickName").val(),
+							userBirthday : date,
+							userCommunicationIsopen : getIsNo($("#userCommunicationIsopenValue").html()),
+							userPhone : $("#userPhone").val(),
+							userBaseAddr : $("#userBaseAddrValue").html(),
+							userEmail : $("#userEmail").val(),
+							userFreelancerFlag : getIsNo($("#userFreelancerFlagValue").html()),
+							userCompany : $("#userCompany").val(),
+							userCompanyIsopen : getIsNo($("#userCompanyIsopenValue").html()),
+							userNote : $("#userNote").val()
+						}
+					};
+					doAjax(editUserInfo, "post", parame, function(data) {
+						api.alert({
+							"title" : "提示",
+							"msg" : "更新基本信息成功"
+						}, function(ret, err) {
+							setPrefs("nickName", $("#nickName").val());
+							api.closeWin({
+							});
+						});
+					}, function() {
+					});
+				});
+			}
+			function changeArea(name) {
+				$("#userBaseAddrValue").html(name);
+			}
+		</script>
+	</body>
+</html>

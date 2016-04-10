@@ -1,0 +1,556 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/result.css">
+		<link href="../css/aui.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<style>
+			div.lines {
+				height: 3px;
+				background: #f96400;
+				-webkit-transition: all 300ms ease-in 100ms
+			}
+			.imgssss {
+				background-image: url("../images/header_userAdd_icon.png");
+				background-size: 30px 30px;
+				background-repeat: no-repeat;
+				padding-left: 30px;
+				background-position: left;
+			}
+			.colors {
+				color: #f96400
+			}
+			.hot-sqinfo {
+				font-family: "kaiti";
+				padding-bottom: 1px;
+				margin-top: 0px;
+				height: 44px;
+				line-height: 44px;
+			}
+			.user-pic li {
+				width: 33.3333333333%
+			}
+			p {
+				margin-top: 0;
+				margin-bottom: 0;
+				font-size: 25px;
+				color: #000;
+			}
+			div {
+				border: 0px;
+			}
+		</style>
+		<body>
+			<section >
+				<ul class="hot-sqinfo c" style="background-color: #fff;">
+					<li class="tops colors" index="0" style="line-height:40px">
+						<P>
+							个人
+						</P>
+					</li>
+					<li class="tops" index="1" style="line-height:40px">
+						<P>
+							分享
+						</P>
+					</li>
+					<li class="tops" index="2" style="line-height:40px">
+						<P>
+							群组
+						</P>
+					</li>
+					<li class="tops" index="3" style="line-height:40px">
+						<P>
+							活动
+						</P>
+					</li>
+				</ul>
+				<div class="content lines" id="lines"></div>
+				<div class="aui-content">
+					<div class="content" id="list"></div>
+					<div style="height:60px">
+						&nbsp;
+					</div>
+					<div id="loading-content" style="height:60px;text-align: center;line-height:60px;position: fixed;bottom:0;width:100%;displ1ay:none;width:50px;margin-left:40%;margin-top:40px;clear:both">
+						<img src="http://img.lanrentuku.com/img/allimg/1212/5-121204193R0-50.gif" width="40px" height="40px">
+					</div>
+				</div>
+			</section>
+		</body>
+		<script>
+			var width = 0;
+			var longitude = "";
+			var latitude = "";
+			var names = "";
+			var token = "";
+			var NewToken = "";
+			var pageIndex = 0;
+			var goType = 0;
+			var dataType = "";
+			var html = "";
+			var netAudio;
+			var curVoice = "";
+			var curll = "";
+			apiready = function() {
+				netAudio = api.require('netAudio');
+				width = api.winWidth / 4;
+				api.execScript({
+					script : 'change(0);',
+					name : "root"
+				});
+				$("#lines").attr("style", "width:" + width + "px");
+				$(".tops").click(function() {
+					var index = $(this).attr("index");
+					var cont = width * index;
+					goType = index;
+					pageIndex = 0;
+					$("#lines").attr("style", "width:" + width + "px;-webkit-transform:translateX(" + cont + "px)");
+					initData();
+					$(".tops").removeClass("colors")
+					$(this).addClass("colors");
+					if (goType == 0) {
+						api.execScript({
+							script : 'change(0);',
+							name : "root"
+						});
+					} else {
+						api.execScript({
+							script : 'change(1);',
+							name : "root"
+						});
+					}
+				});
+				var map = api.require('bMap');
+				$("div.t-bla div.focus").hide();
+				api.addEventListener({
+					name : 'swiperight'
+				}, function(ret, err) {
+					if (goType == 0) {
+						return;
+					} else {
+						goType = parseInt(goType) - 1;
+						$(".tops[index='" + goType + "']").click();
+					}
+				});
+				api.addEventListener({
+					name : 'swipeleft'
+				}, function(ret, err) {
+					if (goType == 3) {
+						return;
+					} else {
+						goType = parseInt(goType) + 1;
+						$(".tops[index='" + goType + "']").click();
+					}
+				});
+				api.addEventListener({
+					name : 'scrolltobottom',
+					extra : {
+						threshold : 0 //设置距离底部多少距离时触发，默认值为0，数字类型
+					}
+				}, function(ret, err) {
+					$("#loading-content").show();
+					pageIndex++;
+					initData(dataType, names);
+				});
+				api.setRefreshHeaderInfo({
+					visible : true,
+					bgColor : '#ccc',
+					textColor : '#fff',
+					textDown : '下拉刷新...',
+					textUp : '松开刷新...',
+					showTime : true
+				}, function(ret, err) {
+					api.refreshHeaderLoadDone();
+					api.toast({
+						msg : '刷新成功',
+						location : "top"
+					});
+					pageIndex = 0;
+					initData();
+				});
+				api.getPrefs({
+					key : 'token'
+					});
+//				 function(ret, err) {
+//					token = ret.value;
+//					NewToken = ret.value;
+//					map.getLocation({
+//						accuracy : '100m',
+//						filter : 1,
+//						autoStop : true
+//					}, function(ret, err) {
+//						if (ret.status) {
+//							longitude = ret.lon;
+//							latitude = ret.lat;
+//							initRongYun();
+//							initData();
+//						} else {
+//							api.alert({
+//								msg : err.msg
+//							});
+//						}
+//					});
+				
+			}
+			function initData2(index) {
+				goType = 0;
+				pageIndex = 0;
+				index = index || "";
+				if (index == "1" || index == "2") {
+					$api.setStorage("filter", index);
+				} else {
+					$api.setStorage("filter", "");
+				}
+				initData();
+			}
+
+			function initData() {
+				var parame = {
+					values : {
+						longitude : longitude,
+						latitude : latitude,
+						pageIndex : pageIndex,
+						token : token,
+						type : goType
+					}
+				}
+				doAjax(listGr, "post", parame, function(data) {
+					hidess();
+					if (goType == 0) {
+						var grtj = data.grtj;
+						grtj.sort(by("micus"));
+						var html = "";
+						for (var i = 0; i < grtj.length; i++) {
+							var filter = $api.getStorage("filter") || "";
+							if (filter == "" || (filter == "1" && grtj[i].sex == "1") || (filter == "2" && grtj[i].sex != "1")) {
+								var img = SERVERURL + grtj[i].imgsrc;
+								var name = grtj[i].name || "未设置";
+								grtj[i].szd = grtj[i].jg || "&nbsp;";
+								grtj[i].aihao = grtj[i].aihao || "&nbsp;";
+								html = html + "<div class='ht-block users' rowid='" + grtj[i].rowid + "'><div class='user c'>"
+								html = html + "<img class='user-img fl' src='" + img + "' /><font color='#f96400' style='font-size:25px'>" + name + "</font><span style='float:right;font-size:20px;color：#cacaca' 1style=''>" + convertMis(grtj[i].micus) + "km</span>";
+								html = html + "</div><div class='user-op'>";
+								html = html + "<P class='user-tit' style='font-size:25px;'>";
+								html = html + grtj[i].aihao + "</P><P class='user-tit' style='padding-left:10px;font-size:25px'>" + grtj[i].szd + "</P></div></div>";
+							}
+						}
+						if (pageIndex != 0) {
+							$("#list").append(html);
+						} else {
+							$("#list").html(html);
+						}
+						$(".users").click(function() {
+							var rowid = $(this).attr("rowid");
+							var parame = {
+								userid : rowid
+							}
+							api.stopPlay();
+							openWindow("userCenter_window", "userCenter_window.html", parame)
+						});
+					} else if (goType == 1) {
+						var gryy = data.gryy;
+						var html = "";
+						for (var i = 0; i < gryy.length; i++) {
+							var img = SERVERURL + gryy[i].imgsrc;
+							var name = gryy[i].userName || "未设置";
+							gryy[i].xqxm = gryy[i].xqxm || "无";
+							var files = gryy[i].activefiles;
+							var imgList = [];
+							html = html + "<div class='ht-block wz' mics='" + gryy[i].mics + "' rowid ='" + gryy[i].rowid + "' ><div class='user c' style='border:0px'><img class='user-img usersown fl' rowid='" + gryy[i].userid + "' src='" + img + "' /><font color='#f96400' style='font-size:25px'>" + name + "</font><span style='float:right;font-size:20px;color：#cacaca'>" + gryy[i].mics + "km</span> </div><div class='user-op' ><P class='user-tit' style='font-size:25px;margin-buttom:15px;margin-button:10px'>" + gryy[i].xqxm + "</P>";
+							for (var j = 0; j < files.length; j++) {
+								if (isImgFile(files[j].filepath)) {
+									imgList.push(SERVERURL + files[j].filepath)
+								}
+							}
+							if (files.length > 0) {
+								html = html + " <ul class='aui-list-view aui-grid-view' style='padding-left:50px;border:0px;border-top:0px'>";
+								for (var j = 0; j < files.length; j++) {
+									if (isImgFile(files[j].filepath)) {
+										html = html + " <li class='aui-list-view-cell aui-img aui-col-xs-4' style='border:0px'><img style='border:0px;height:100px;width:100px' class='aui-img-object imageBrower'  src='" + imgList[j] + "'  index='" + j + "' data='" + JSON.stringify(imgList) + "'></li>";
+									}
+								}
+								html = html + "</ul>";
+							}
+							html = html + "</div><ul class='c user-pl'>";
+							html = html + "<li class='dz' rowid='" + gryy[i].rowid + "'><span class='z1-icon'   rowid='" + gryy[i].rowid + "'></span>" + gryy[i].parame2 + "</li>";
+							html = html + "<li class='plsss' style='color:#f96400' mics='" + gryy[i].mics + "' rowid='" + gryy[i].rowid + "'><span class='z2-icon' mics='" + gryy[i].mics + "' rowid='" + gryy[i].rowid + "'></span>" + convertPlData(gryy[i].plCount) + "</li></ul></div>";
+						}
+						if (pageIndex != 0) {
+							$("#list").append(html);
+						} else {
+							$("#list").html(html);
+						}
+						$(".usersown").click(function() {
+							var rowid = $(this).attr("rowid");
+							var parame = {
+								userid : rowid
+							}
+							api.stopPlay();
+							openWindow("userCenter_window", "userCenter_window.html", parame)
+							event.stopPropagation();
+						});
+						$(".imageBrower").click(function() {
+							var index = $(this).attr("index");
+							var data = $(this).attr("data");
+							var obj = api.require('imageBrowser');
+							obj.openImages({
+								imageUrls : JSON.parse(data),
+								showList : false,
+								activeIndex : index
+							});
+							event.stopPropagation();
+						});
+						$(".wz").click(function() {
+							var rowid = $(this).attr("rowid");
+							var mics = $(this).attr("mics");
+							var parame = {
+								activeId : rowid,
+								mics : mics
+							}
+							api.stopPlay();
+							openWindow("grrenyaoyuePl_window", "grrenyaoyuePl_window.html", parame);
+							event.stopPropagation();
+						});
+						$(".dz").click(function() {
+							var rowid = $(this).attr("rowid");
+							//点赞
+							var thia = $(this);
+							var token = $api.getStorage("token") || "";
+							if (token == "") {
+								api.alert({
+									"title" : "提示",
+									msg : "请先登录"
+								}, function(ret, err) {
+									api.stopPlay();
+									openWindow("login_window.htnl", "login_window.html", {});
+								});
+							} else {
+								var parame = {
+									values : {
+										rowid : rowid,
+										token : token
+									}
+								}
+								doAjax(dz, "post", parame, function(data) {
+									var flag = data.flag;
+									if (flag == "false") {
+										api.alert({
+											"msg" : data.msg
+										}, function(ret, err) {
+										});
+									} else {
+										initData();
+										api.toast({
+											msg : '点赞成功'
+										});
+									}
+								}, function(data) {
+								})
+							}
+							event.stopPropagation();
+						});
+						//评论
+						$(".plsss").click(function() {
+							var rowid = $(this).attr("rowid");
+							var mics = $(this).attr("mics");
+							var parame = {
+								activeId : rowid,
+								mics : mics
+							}
+							api.stopPlay();
+							openWindow("grrenyaoyuePl_window", "grrenyaoyuePl_window.html", parame);
+							event.stopPropagation();
+						});
+					} else if (goType == 2) {
+						var usergroups = data.usergroups;
+						usergroups.sort(by("micus"));
+						var html = "";
+						for (var i = 0; i < usergroups.length; i++) {
+							var img = usergroups[i].imgsrc;
+							var name = usergroups[i].groupname || "&nbsp;";
+							usergroups[i].xqxm = usergroups[i].xqxm || "&nbsp;";
+							usergroups[i].js = usergroups[i].js || "&nbsp;";
+							html = html + "<div class='ht-block groups' rowid='" + usergroups[i].rowid + "'><div class='user c'>"
+							html = html + "<img class='user-img fl' src='" + img + "' /><font color='#f96400' style='font-size:25px'>" + name + "</font><span style='float:right;font-size:20px;color：#cacaca'>" + usergroups[i].micus + "km</span>";
+							html = html + "</div><div class='user-op'>";
+							html = html + "<P class='user-tit' style='font-size:25px;margin-button:10px'>";
+							html = html + usergroups[i].xqxm + "</P><P class='user-tit imgssss' style='margin-left:65px;font-size:25px;margin-button:10px;margin-top:10px'><font style='font-size:26px'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + usergroups[i].userLength + "</font>人</P></div></div>";
+						}
+						if (pageIndex != 0) {
+							$("#list").append(html);
+						} else {
+							$("#list").html(html);
+						}
+						$(".groups").click(function() {
+							var rowid = $(this).attr("rowid");
+							var parame = {
+								targetId : rowid
+							}
+							api.stopPlay();
+							openWindow("groupInfo_window", "groupInfo_window.html", parame)
+						});
+					} else if (goType == 3) {
+						var gryy = data.gryy;
+						gryy.sort(by("mics"));
+						var html = "";
+						for (var i = 0; i < gryy.length; i++) {
+							var img = gryy[i].usergroups.imgsrc;
+							var name = gryy[i].name || "&nbsp;";
+							gryy[i].xqxm = gryy[i].xqxm || "&nbsp;";
+							var files = gryy[i].activefiles;
+							var imgList = [];
+							html = html + "<div class='ht-block wz' rowid ='" + gryy[i].rowid + "'><div class='user c'><img class='user-img usersown fl' rowid='" + gryy[i].parame1 + "' src='" + img + "' /><font color='#f96400' style='font-size:25px'>" + name + "</font><span style='font-size:20px;float:right;color：#cacaca'>" + gryy[i].mics + "km</span></div><div class='user-op'><P class='user-tit' style='font-size:25px;margin-button:10px'> " + gryy[i].lbsname + "</p><P class='user-tit' style='margin-left:65px;font-size:25px;margin-button:10px'>" + convertDate(gryy[i].activestartdate) + " </P>";
+							for (var j = 0; j < files.length; j++) {
+								if (isImgFile(files[j].filepath)) {
+									imgList.push(SERVERURL + files[j].filepath)
+								}
+							}
+							if (files.length > 0) {
+								html = html + " <ul class='aui-list-view aui-grid-view' style='padding-left:50px;border:0px;border-top:0px'>";
+								for (var j = 0; j < files.length; j++) {
+									if (isImgFile(files[j].filepath)) {
+										html = html + " <li class='aui-list-view-cell aui-img aui-col-xs-4' style='border:0px'><img style='border:0px;height:100px;width:100px' class='aui-img-object imageBrower'  src='" + imgList[j] + "'  index='" + j + "' data='" + JSON.stringify(imgList) + "'></li>";
+									}
+								}
+								html = html + "</ul>";
+							}
+							var mic = gryy[i].voicesrc || "";
+							if (mic != "") {
+								html = html + "<p class='ht-dialog voices'   id='" + gryy[i].rowid + "' link='" + mic + "' style='margin-left: 65px;height:50px;line-height:50px;margin-top:0px;padding:0px'><span class='ti6ps'></span><span class='sound-icon' style='margin-top:2px;padding:0px'></span>'" + gryy[i].voicelength + "'</p>"
+							}
+							html = html + "</div></div>";
+						}
+						if (pageIndex != 0) {
+							$("#list").append(html);
+						} else {
+							$("#list").html(html);
+						}
+						$(".voices").click(function() {
+							var link = $(this).attr("link");
+							var html = $(this).html();
+							var isPlay = $(this).attr("isPlay") || "";
+							if (curll == "") {
+								curll = $(this).attr("id");
+							} else {
+								$("#" + curll).html($("#" + curll).attr("beforeHtml"));
+								curll = $(this).attr("id");
+							}
+							curll = $(this).attr("id");
+							if (curVoice == "" || curVoice != link) {
+								$(this).attr("beforeHtml", html);
+								getDownLoadFile(link, $(this));
+							} else {
+								//看看是不是在播放
+								if (isPlay == "") {
+									$(this).attr("beforeHtml", html);
+									getDownLoadFile(link, $(this));
+								} else {
+									api.stopPlay();
+									$(this).attr("isPlay", "");
+									$(this).html($(this).attr("beforeHtml"));
+								}
+							}
+							curVoice = link;
+							event.stopPropagation();
+						});
+						$(".usersown").click(function() {
+							var rowid = $(this).attr("rowid");
+							api.stopPlay();
+							api.openWin({
+								name : 'groupInfo_window',
+								url : './groupInfo_window.html',
+								pageParam : {
+									targetId : rowid
+								},
+								bounces : false,
+								slidBackEnabled : false
+							});
+							event.stopPropagation();
+						});
+						$(".imageBrower").click(function() {
+							var index = $(this).attr("index");
+							var data = $(this).attr("data");
+							var obj = api.require('imageBrowser');
+							obj.openImages({
+								imageUrls : JSON.parse(data),
+								showList : false,
+								activeIndex : index
+							});
+							event.stopPropagation();
+						});
+						$(".wz").click(function() {
+							var rowid = $(this).attr("rowid");
+							var mics = $(this).attr("mics");
+							var parame = {
+								activeId : rowid,
+								mics : mics
+							}
+							api.stopPlay();
+							openWindow("content_window", "content_window.html", parame);
+							event.stopPropagation();
+						});
+						$(".z1-icon").click(function() {
+							var rowid = $(this).attr("rowid");
+							//点赞
+							var thia = $(this);
+							var token = $api.getStorage("token") || "";
+							if (token == "") {
+								api.alert({
+									"title" : "提示",
+									msg : "请先登录"
+								}, function(ret, err) {
+									api.stopPlay();
+									openWindow("login_window.htnl", "login_window.html", {});
+								});
+							} else {
+								var parame = {
+									values : {
+										rowid : rowid,
+										token : token
+									}
+								}
+								doAjax(dz, "post", parame, function(data) {
+									var flag = data.flag;
+									if (flag == "false") {
+										api.alert({
+											"msg" : data.msg
+										}, function(ret, err) {
+										});
+									} else {
+										initData();
+										api.toast({
+											msg : '点赞成功'
+										});
+									}
+								}, function(data) {
+								})
+							}
+							event.stopPropagation();
+						});
+						//评论
+						$(".z2-icon").click(function() {
+							var rowid = $(this).attr("rowid");
+							var mics = $(this).attr("mics");
+							var parame = {
+								activeId : rowid,
+								mics : mics
+							}
+							api.stopPlay();
+							openWindow("grrenyaoyuePl_window", "grrenyaoyuePl_window.html", parame);
+							event.stopPropagation();
+						});
+					}
+				});
+			}
+
+			function hidess() {
+				$("#loading-content").hide();
+			}
+		</script>
+</html>

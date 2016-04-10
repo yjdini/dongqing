@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			.de-pro ul li.sta p {
+				width: 100%;
+			}
+			.de-pro ul li.sta p:last-child {
+				text-align: left;
+			}
+			.state0 {
+				border: 1px solid #f19231;
+				color: #f19231 !important;
+			}
+			.state1 {
+				border: 1px solid #ff5704;
+				color: #ff5704 !important;
+			}
+			.state2 {
+				border: 1px solid #01a7f3;
+				color: #01a7f3 !important;
+			}
+			.state3 {
+				border: 1px solid #699f00;
+				color: #699f00 !important;
+			}
+		</style>
+		<body>
+			<section>
+				<div class="content">
+					<div class="de-pro">
+						<ul>
+							<li id="projName"></li>
+							<li class="sta c">
+								<P>
+									行业：<span class="c-red f16" id="projIndustry"></span>
+								</P>
+							</li>
+							<li class="sta c">
+								<P>
+									问题类型：<span class="c-red f16" id="questionType"></span>
+								</P>
+							</li>
+							<li class="sta c">
+								<P>
+									支撑类型：<span class="c-red f16" id="questionMoudle"></span>
+								</P>
+							</li>
+							<li class="sta c">
+								<P>
+									问题等级型：<span class="c-red f16" id="questionLevel"></span>
+								</P>
+							</li>
+							<li class="sta c">
+								<P>
+									问题内容：<span class="c-red f16" id="questionContent1"></span>
+								</P>
+							</li>
+						</ul>
+					</div>
+					<div class="user-list">
+						<ul id="skillList"></ul>
+					</div>
+				</div>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script>
+				var token = "";
+				var id = "";
+				var pageIndex = 0;
+				apiready = function() {
+					id = api.pageParam.id;
+					//获取问题详细信息
+					var url = confirmMyQuesionByid;
+					var parames = {
+						values : {
+							rowid : id
+						}
+					}
+					doAjax(GETQUESTIONBYID, "post", parames, function(data) {
+						var question = data.question;
+						$("#projName").html(question.questionTitle);
+						$("#projIndustry").html(question.questionIndustry);
+						$("#questionType").html(question.questionType);
+						$("#questionMoudle").html(question.questionMoudle);
+						$("#questionLevel").html(question.questionLevel);
+						$("#questionContent1").html(question.questionContent1);
+						//显示回复数据
+						var questionReplays = data.questionReplays;
+						var html = "";
+						for (var i = 0; i < questionReplays.length; i++) {
+							html = html + "<li><h3><span class='fr'>操作</span>" + questionReplays[i].parame1 + "</h3><div class='user-detail'><a class='state state" + questionReplays[i].questionReplayStatus + "  rowList' state='" + questionReplays[i].questionReplayStatus + "' rowid='" + questionReplays[i].questionReplayUuid + "'>" + convetQuestion(questionReplays[i].questionReplayStatus) + "</a><P></P><P><span class='m_r20'>回复内容：" + questionReplays[i].questionReplyContent + "</P><P><span class='m_r20'></span></P></div></li>";
+						}
+						$("#skillList").append(html);
+						$(".rowList").click(function() {
+							var rowid = $(this).attr("rowid");
+							var state = $(this).attr("state");
+							api.confirm({
+								"title" : "提示",
+								"msg" : "请选择操作选项",
+								buttons : ['通过并标记解决', '拒绝', '已阅']
+							}, function(ret, err) {
+								var state = "0";
+								if (ret.buttonIndex == 1) {
+									state = 2;
+								} else if (ret.buttonIndex == 2) {
+									state = 3;
+								} else if (ret.buttonIndex == 3) {
+									state = 1;
+								}
+								var url = "";
+								var parame = {
+									
+								}
+							});
+						});
+					}, function(data) {
+					});
+				}
+				function initData() {
+				}
+			</script>
+</html>

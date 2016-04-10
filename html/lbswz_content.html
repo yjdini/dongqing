@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>window</title>
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style>
+            .topbar {
+                height: 50px;
+                border-bottom: 1px solid #DDDFE3;
+                position: relative;
+            }
+            .whitebar {
+                background-color: rgb(249,100,0);
+            }
+            .secCitylistarrow {
+                vertical-align: top;
+                width: 15px;
+                padding-top: 12px;
+                padding-left: 15px;
+            }
+            .back {
+                float: left;
+            }
+            .filter {
+                float: right;
+            }
+            .filter img {
+                width: 25px;
+                padding-top: 10px;
+                padding-right: 10px;
+            }
+            .secCitylistarrow:nth-child(2) {
+                width: 50px;
+                padding-left: 0px;
+                height: 38px;
+                line-height: 26px;
+                color: #fff;
+            }
+		</style>
+	</head>
+	<body></body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+        // 完成首页初始化
+        var localtionLat = "";
+        var localtionLon = "";
+        var localtionName = "";
+        apiready = function() {
+            var pageParam = api.pageParam;
+            var targetId = pageParam.targetId;
+            api.ajax({
+                url : GROUPINFO,
+                method : 'post',
+                timeout : 30,
+                dataType : 'json',
+                returnAll : false,
+                data : {
+                    values : {
+                        "rowid" : targetId
+                    }
+                }
+            }, function(ret, err) { 
+            });
+        };
+	</script>
+</html>

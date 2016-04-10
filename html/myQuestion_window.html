@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/aui.css" rel="stylesheet" type="text/css">
+		<link href="../css/aui-win.min.css" rel="stylesheet" type="text/css">
+		<style>
+			.aui-tab-nav.aui-tab-border li.actiave {
+			}
+			.aui-tab-nav.aui-tab-border li {
+			}
+			.aui-bar .aui-btn{
+				border-radius : 3px; 
+			}
+		</style>
+		<body>
+			<header id="header" class="aui-bar aui-bar-nav aui-bar-blue" >
+				<a class="aui-pull-left"> <span class="aui-iconfont aui-icon-left"></span> </a>
+				<div class="aui-title" id="name">
+					<button class="aui-btn aui-btn-primary" style="margin:0px;border:0px">默认按钮(default)</button>   
+					<button class="aui-btn aui-btn-warning" style="margin:0px;border:0px">默认按钮(default)</button>   
+				</div>
+				<a class="aui-pull-right" style="display:none"> <span class="aui-iconfont aui-icon-add"></span> </a>
+			</header>
+		</body>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			var pageParam;
+			apiready = function() {
+				var $header = $api.dom('header');
+				$api.fixIos7Bar($header);
+				var header_h = ($api.offset($header).h);
+				pageParam = api.pageParam;
+				$(".yiingda").click(function() {
+					var html = $(this).html();
+					$(".yiingda").removeClass("active");
+					$(this).addClass("active");
+					if ($.trim(html) == "应答") {
+						//
+						$(".aui-pull-right").hide();
+						//应答 是公共群 和自己内部群数据
+						api.openFrame({
+							name : 'myQuestion_content',
+							url : 'myQuestion_content.html',
+							rect : {
+								x : 0,
+								y : header_h,
+								w : 'auto',
+								h : "auto"
+							},
+							pageParam : pageParam
+						});
+					} else {
+						$(".aui-pull-right").show();
+						api.openFrame({
+							name : 'myQuestion_content',
+							url : 'myQuestion_content.html',
+							rect : {
+								x : 0,
+								y : header_h,
+								w : 'auto',
+								h : "auto"
+							},
+							pageParam : pageParam
+						});
+					}
+				});
+				api.openFrame({
+					name : 'myQuestion_content',
+					url : 'myQuestion_content.html',
+					rect : {
+						x : 0,
+						y : header_h,
+						w : 'auto',
+						h : "auto"
+					},
+					pageParam : pageParam
+				});
+				//二维码扫描
+				$(".aui-pull-left").click(function() {
+					api.closeWin({
+					});
+				});
+				$(".aui-pull-right").click(function() {
+					openWindow("pushQuestion_window", "pushQuestion_window.html", {});
+				});
+			}
+		</script>
+</html>

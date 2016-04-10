@@ -1,0 +1,260 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/result.css">
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script src="../image/emotion/emotion.js"></script>
+		<style>
+			body{
+				background-color: #fff;
+			}
+		</style>
+		<section >
+			<div class="content" id="list"></div>
+		</section>
+		<script>
+			var activeId = "";
+			var UIChatBox;
+			var token = "";
+			var mics = "";
+			apiready = function() {
+				activeId = api.pageParam.activeId;
+				mics = api.pageParam.mics;
+				initData();
+				UIChatBox = api.require('UIChatBox');
+				UIChatBox.open({
+					placeholder : '',
+					maxRows : 4,
+					emotionPath : 'widget://image/emotion',
+					styles : {
+						inputBar : {
+							borderColor : '#d9d9d9',
+							bgColor : '#f2f2f2'
+						},
+						inputBox : {
+							borderColor : '#B3B3B3',
+							bgColor : '#FFFFFF'
+						},
+						emotionBtn : {
+							normalImg : 'widget://image/chatBox_face1.png'
+						},
+						recordBtn : {
+							normalBg : '#c4c4c4',
+							activeBg : '#999999',
+							color : '#000',
+							size : 14
+						},
+						indicator : {
+							target : 'both',
+							color : '#c4c4c4',
+							activeColor : '#9e9e9e'
+						}
+					}
+				}, function(ret) {
+					if (ret.eventType == 'send') {
+						var content = ret.msg;
+						
+						if (content == "" || content == null) {
+							api.toast({
+								msg : '请输入发表内容'
+							});
+							return;
+						}
+						var parame = {
+							values : {
+								activeId : activeId,
+								token : $api.getStorage("token"),
+								content : content
+							}
+						}
+						doAjax(activePL, "post", parame, function(data) {
+							var flag = data.flag;
+							api.alert({
+								"msg" : "评论成功"
+							}, function(ret, err) {
+								initData();
+							});
+						}, function(data) {
+						})
+					}
+				});
+			}
+			function initData() {
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					var parame = {
+						values : {
+							rowid : activeId,
+							token : token
+						}
+					}
+					doAjax(activeid, "post", parame, function(data) {
+						var gryy = data.gryy;
+						
+						
+						if(gryy[0].userid  ==  $api.getStorage("token")){
+							
+						}
+						
+						var html = "";
+						for (var i = 0; i < gryy.length; i++) {
+							var img = SERVERURL + gryy[i].imgsrc;
+							var name = gryy[i].userName || "未设置";
+							var title = gryy[i].name;
+							gryy[i].xqxm = gryy[i].xqxm || "无";
+							var files = gryy[i].activefiles;
+							var imgList = [];
+							html = html + "<div class='ht-block  ' rowid ='" + gryy[i].rowid + "'><div class='user c '><img class='user-img topuser fl' rowid='" + gryy[i].userid + "' src='" + img + "' /><font color='#f96400'>" + name + "</font><span style='float:right;font-size:20px'>" + mics + "km</span></div><div class='user-op'><P class='user-tit' style='text-overflow:clip;text-align:center;'><font color='#1ba1e2' style='margin-left:-30px' >" + title + "</font></P><P class='user-tit' style='text-overflow:clip;-webkit-line-clamp: 1111;margin-button:10px'>"+gryy[i].xqxm+"</P>";
+							for (var j = 0; j < files.length; j++) {
+								if (isImgFile(files[j].filepath)) {
+									imgList.push(SERVERURL + files[j].filepath)
+								}
+							}
+							html = html + "<ul class='user-pic c'>";
+							for (var j = 0; j < files.length; j++) {
+								if (isImgFile(files[j].filepath)) {
+									html = html + "<li><img src='" + imgList[j] + "' style='width:80px;height:80px' class='imageBrower' index='" + j + "' data='" + JSON.stringify(imgList) + "'/></li>";
+								}
+							}
+							html = html + "</ul><p class='addr' style='margin-left:65px'>" + convertDate(gryy[i].createtime) + "</p><ul class='c user-pl'>";
+							html = html + "<li class='dz' rowid='" + gryy[i].rowid + "'><span class='z1-icon' rowid='" + gryy[i].rowid + "'></span>" + gryy[i].parame2 + "</font></li>";
+							html = html + "<li class='pls'  style='color:#f96400'  rowid='" + gryy[i].rowid + "'><span class='z2-icon' rowid='" + gryy[i].rowid + "'></span>" + convertPlData(gryy[i].plCount) + "</li></ul></div>";
+						}
+						//获取评论数据
+						html = html + "</ul>";
+						html = html + " <div class='huifu'><ul>";
+						var tabPls = data.tabPls;
+						for (var i = 0; i < tabPls.length; i++) {
+							var f = [];
+							var content = tabPls[i].content
+							var contents = content.split("]")
+							var list = dataImg
+							for (var j = 0; j < list.length; j++) {
+								var imgsrc = "../image/emotion/" + list[j].name + ".png";
+							content =	content.replaceAll(list[j].text, "<span style='height:28px;line-height:28px;background:url(" + imgsrc + ");background-size:28px 28px;background-repeat:no-repeat'> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>")
+							}
+							html = html + "<li style='font-size: 23px;' > <span class='fwb ' ><font color='#f96400' class='topuser' rowid='" + tabPls[i].userid + "'>" + tabPls[i].parame1 + "</font> ：" + content + "</span>  </li>";
+						}
+						html = html + "</ul></div>";
+						$("#list").html(html);
+						// 调用
+						$(".topuser").click(function() {
+							var rowid = $(this).attr("rowid");
+							var parame = {
+								userid : rowid
+							}
+							openWindow("userCenter_window", "userCenter_window.html", parame)
+							event.stopPropagation();
+						});
+						$(".imageBrower").click(function() {
+							var index = $(this).attr("index");
+							var data = $(this).attr("data");
+							var obj = api.require('imageBrowser');
+							obj.openImages({
+								imageUrls : JSON.parse(data),
+								showList : false,
+								activeIndex : index
+							});
+							event.stopPropagation();
+						});
+						$(".dz").click(function() {
+							var rowid = $(this).attr("rowid");
+							//点赞
+							var thia = $(this);
+							var token = $api.getStorage("token") || "";
+							if (token == "") {
+								api.alert({
+									"title" : "提示",
+									msg : "请先登录"
+								}, function(ret, err) {
+									openWindow("login_window.htnl", "login_window.html", {});
+								});
+							} else {
+								var parame = {
+									values : {
+										rowid : rowid,
+										token : token
+									}
+								}
+								doAjax(dz, "post", parame, function(data) {
+									var flag = data.flag;
+									if (flag == "false") {
+										api.alert({
+											"msg" : data.msg
+										}, function(ret, err) {
+										});
+									} else {
+										initData();
+										api.toast({
+											msg : '点赞成功'
+										});
+									}
+								}, function(data) {
+								})
+							}
+							event.stopPropagation();
+						});
+						$(".z2-icon").click(function() {
+							var rowid = $(this).attr("rowid");
+						});
+					});
+				});
+			}
+
+			var autoTextarea = function(elem, extra, maxHeight) {
+				extra = extra || 0;
+				var isFirefox = !!document.getBoxObjectFor || 'mozInnerScreenX' in window, isOpera = !!window.opera && !!window.opera.toString().indexOf('Opera'), addEvent = function(type, callback) {
+					elem.addEventListener ? elem.addEventListener(type, callback, false) : elem.attachEvent('on' + type, callback);
+				}, getStyle = elem.currentStyle ? function(name) {
+					var val = elem.currentStyle[name];
+					if (name === 'height' && val.search(/px/i) !== 1) {
+						var rect = elem.getBoundingClientRect();
+						return rect.bottom - rect.top - parseFloat(getStyle('paddingTop')) - parseFloat(getStyle('paddingBottom')) + 'px';
+					};
+					return val;
+				} : function(name) {
+					return getComputedStyle(elem, null)[name];
+				}, minHeight = parseFloat(getStyle('height'));
+				elem.style.resize = 'none';
+				var change = function() {
+					var scrollTop, height, padding = 0, style = elem.style;
+					if (elem._length === elem.value.length)
+						return;
+					elem._length = elem.value.length;
+					if (!isFirefox && !isOpera) {
+						padding = parseInt(getStyle('paddingTop')) + parseInt(getStyle('paddingBottom'));
+					};
+					scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+					elem.style.height = minHeight + 'px';
+					if (elem.scrollHeight > minHeight) {
+						if (maxHeight && elem.scrollHeight > maxHeight) {
+							height = maxHeight - padding;
+							style.overflowY = 'auto';
+						} else {
+							height = elem.scrollHeight - padding;
+							style.overflowY = 'hidden';
+						};
+						style.height = height + extra + 'px';
+						scrollTop += parseInt(style.height) - elem.currHeight;
+						document.body.scrollTop = scrollTop;
+						document.documentElement.scrollTop = scrollTop;
+						elem.currHeight = parseInt(style.height);
+					};
+				};
+				addEvent('propertychange', change);
+				addEvent('input', change);
+				addEvent('focus', change);
+				change();
+			};
+		</script>
+		</body>
+</html>

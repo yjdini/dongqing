@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+	</head>
+	<body >
+		<section>
+			<div class="fb-box">
+				<ul class="fb-list">
+					<input class="fb-input fb-input1" type="text" id="userGroupDesc" placeholder="外部群名称" />
+					<li ></li>
+					<input class="fb-input fb-input1" type="text" id="userGroupName" placeholder="企业群名片" />
+					<li ></li>
+					<li class="select" id="userGroupType">
+						<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="userGroupTypeValue"></span></span>指定群类型
+					</li>
+					<li class="list-box" id="userGroupTypeValueBox" style="display:none">
+						<P>
+							<a class='userGroupTypeValueBox' value="1" name="内部群组">内部群组</a><a class='userGroupTypeValueBox' value="2" name="外部群组">外部群组</a>
+						</P>
+					</li>
+					<li ></li>
+					<li class="select" id="projRole">
+						<span class="fr i-licon m-l10"></span><span class="fr  m-l10" id="projRoleValue"></span></span>指定群权限
+					</li>
+				</ul>
+			</div>
+			</div>
+		</section>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			var token = "";
+			var rowid = "";
+			var result = "";
+			var qunArray = [];
+			var userArray = [];
+			//表示角色返回的数据
+			apiready = function() {
+				rowid = api.pageParam.rowid;
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					$("#userGroupType").click(function() {
+						$("#userGroupTypeValueBox").show();
+						$(".userGroupTypeValueBox").click(function() {
+							var value = $(this).attr("value");
+							var name = $(this).attr("name");
+							$("#userGroupTypeValue").html(name);
+							$("#userGroupTypeValue").attr("realValue", value);
+							$("#userGroupTypeValueBox").hide();
+						});
+					});
+					$("#projRole").click(function() {
+						openWindow("selectUsersAndGroups_window", "selectUsersAndGroups_window.html", {});
+					});
+				});
+			}
+			function savaUsers(data) {
+				result = data;
+				var jsonResult = JSON.parse(data);
+				var qunSum = 0;
+				var userSum = 0;
+				for (var i = 0; i < jsonResult.length; i++) {
+					if (jsonResult[i].type == 1) {
+						qunSum++;
+						qunArray.push(jsonResult[i].rowid);
+					} else if (jsonResult[i].type == 2) {
+						userSum++;
+						userArray.push(jsonResult[i].rowid);
+					}
+				}
+				$("#projRoleValue").html(qunSum + "群;" + userSum + "用户");
+			}
+			
+			function submits(){
+				//开始提交数据
+				
+				var parames = {
+					values : {
+						token : token,
+						userGroupDesc : $("#userGroupDesc").val(),
+						userGroupName : $("#userGroupName").val(),
+						userGroupType : $("#userGroupTypeValueBox").attr("realValue"),
+						"qunUsers" : qunArray.join(","),
+						"userUsers" : userArray.join(","),
+						rowid : rowid
+					}
+				}
+				
+				doAjax(scanGroupJoinEnt,"post",parames,function(data){
+					if(data.flag == "true"){
+						api.alert({
+							"title" : "提示",
+							"msg" : "操作成功"
+                        },function(ret,err){
+                        	api.closeToWin({
+	                            name: 'root'
+                            });
+                        });
+					}
+				},function(){});
+			}
+		</script>
+	</body>
+</html>

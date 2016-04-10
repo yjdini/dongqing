@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="api.css"/>
+		<link href="../css/selectUser.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<section>
+			<div class="fri-con" id="firendList"></div>
+		</section>
+	</body>
+	<script src="../script/api.js"></script>
+	<script src="../script/jquery-1.9.1.min.js"></script>
+	<script src="../script/app.js"></script>
+	<script type="text/javascript">
+		var dataList = [];
+		apiready = function() {
+			checkLogin(function(data) {
+				var url  = listMyCollect;
+				var parame  =  {
+					values  : {
+						type : "2",
+						token : data
+					}
+				}
+				doAjax(url, "post", parame, function(data) {
+					var tabUser01s = data.tabUser01s;
+					var html = "";
+					for (var i = 0; i < tabUser01s.length; i++) {
+						var img = tabUser01s[i].userImgurl || "../images/h12.png";
+						var nickName = tabUser01s[i].nickName || "未设置";
+						html = html + "<ul class='fri-list'><li><dl class='c'><dd class='fl'><span name = '" + nickName + "' rowid = '" + tabUser01s[i].userId + "' class=' '></span></dd><dt><img src=" + img + "></dt><dd class='lists' rowid = '" + tabUser01s[i].userId + "'>" + nickName + "</dd></dl></li>";
+						html = html + "</ul>";
+					}
+					$("#firendList").html(html);
+				}, function() {
+				})
+			})
+		};
+	</script>
+</html>

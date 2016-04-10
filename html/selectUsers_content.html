@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			.t-gra-FS1 {
+				color: #9f9f9f;
+			}
+			.uinn-FS1 {
+				padding: 0.75em 0.625em;
+			}
+			.uinn-FS2 {
+				padding: 0.625em 1.1875em 0.2em 1.1875em;
+			}
+			.uwh-FS1 {
+				width: 2.1em;
+				height: 2.1em;
+			}
+			.uwh-FS2 {
+				width: 1.625em;
+				height: 1.625em;
+			}
+			.uwh-FS3 {
+				width: 0.625em;
+				height: 0.625em;
+			}
+			.c-gra-FS1 {
+				background-color: #d8d8d8;
+			}
+			.c-gra-FS2 {
+				background-color: #b3b3b3;
+			}
+			.uc-a-FS1 {
+				-webkit-border-radius: 2.1em;
+				border-radius: 2.1em;
+			}
+			.uc-a-FS2 {
+				-webkit-border-radius: 1.625em;
+				border-radius: 1.625em;
+			}
+			.uh-FS1 {
+				height: 0.5em;
+			}
+			.umar-tFS1 {
+				margin-top: 0.3em;
+			}
+			.c-wh {
+				background-color: white;
+			}
+			.ulev-app1 {
+				font-size: 0.875em;
+			}
+			.uinn-a1 {
+				padding: 0.625em;
+			}
+			.f19 {
+				font-size: 19px;
+			}
+		</style>
+		<link href="../css/selectUser.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<section class="p-t44  p-b60" >
+			<div class="topfixed">
+				<div class="search">
+					<P>
+						<span class="query-icon"></span>搜索名称
+					</P>
+				</div>
+			</div>
+			<div class="fri-con" id="firendList"></div>
+		</section>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script>
+		var projId = "";
+		var dataList = [];
+		var resultData = [];
+		apiready = function() {
+			projId = api.pageParam.projId;
+			$(".search").click(function() {
+				var obj = api.require('UISearchBar');
+				obj.open({
+					placeholder : '请输入搜索关键字',
+					historyCount : 10,
+					showRecordBtn : false,
+					texts : {
+						cancelText : '取消',
+						clearText : '清除搜索记录'
+					},
+					styles : {
+						navBar : {
+							bgColor : '#FFFFFF',
+							borderColor : '#ccc'
+						},
+						searchBox : {
+							bgImg : '',
+							color : '#000',
+							height : 44
+						},
+						cancel : {
+							bg : 'rgba(0,0,0,0)',
+							color : '#D2691E',
+							size : 16
+						},
+						list : {
+							color : '#696969',
+							bgColor : '#FFFFFF',
+							borderColor : '#eee',
+							size : 16
+						},
+						clear : {
+							color : '#000000',
+							borderColor : '#ccc',
+							size : 16
+						}
+					}
+				}, function(ret) {
+					if (ret.eventType == 'record') {
+					} else if (ret.eventType == 'search') {
+						
+						filterUsers(ret.text);
+						
+					} else if (ret.eventType == 'history') {
+						filterUsers(ret.text);
+					} else {
+					}
+				});
+			});
+			doAjax(listReqProjectUsers, "post", {}, function(data) {
+				var result = data.listUsersList;
+				var index = "";
+				var totalHtml = "";
+				var html = "";
+				for (var i = 65; i <= 25 + 65; i++) {
+					index = String.fromCharCode(i);
+					var list = result[index];
+					if (list != null && list.length > 0 && list != undefined) {
+						html = "<p class='fri-tit'>" + index + "</p><ul class='fri-list'>";
+						for (var j = 0; j < list.length; j++) {
+							var img = list[j].userImgurl || "../images/h12.png";
+							var nickName = list[j].nickName || "未设置";
+							resultData.push(list[j]);
+							html = html + "<li id='"+list[j].userId+"'> <dl class='c'><dd class='fl select'><span name = '" + nickName + "' rowid = '" + list[j].userId + "' class='select-icon  '></span></dd><dt><img src=" + img + "></dt><dd>" + nickName + "</dd></dl></li>";
+						}
+						html = html + "</ul>";
+						totalHtml = totalHtml + html;
+					}
+				}
+				$("#firendList").html(totalHtml);
+				$(".select-icon").click(function() {
+					var rowid  =   $(this).attr("rowid");
+					if($(this).hasClass("cur")){
+						dataList = delArray(dataList,rowid);
+					}else{
+						dataList.push(rowid);
+					}
+					api.toast({
+	                    msg:dataList.join(",")
+                    });
+					$(this).toggleClass("cur");
+				});
+			}, function(data) {
+			})
+		}
+		function saveUsers() {
+			 
+			var users = dataList.join(",");
+			api.execScript({
+				script : 'initUsers("' + users + '");',
+				name : "userGroupManager_window.html",
+				"frameName" : "userGroupManager_content"
+			});
+			api.closeWin({
+			});
+		}
+		
+		function filterUsers(names){
+			//
+			for(var i =  0 ; i < resultData.length;i++){
+				if(resultData[i].nickName.indexOf(names) > -1){
+					$("#" + resultData[i].userId).show();
+				}else{
+					$("#" + resultData[i].userId).hide();
+				}
+			}
+			
+		}
+		
+		
+	</script>
+</html>

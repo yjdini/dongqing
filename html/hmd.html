@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>Hello APP</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/swiper.css" />
+		<link rel="stylesheet" type="text/css" href="../css/leftDelete.css" />
+	</head>
+	<body>
+		<!--列表容器-->
+		<ul class="aui-list-view" id='list'></ul>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/swipe.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		var token = "";
+		function initData() {
+			var list = $(".swiper-container").length;
+			for (var i = 0; i < list; i++) {
+				var index = i + 1;
+				var swiper = new Swiper('.swiper-btn-' + index + '', {
+					slidesPerView : 4,
+					allowSwipeToPrev : false,
+					onSliderMove : function(swiper) {
+						if (swiper.activeIndex != 0) {
+							swiper.unlockSwipeToPrev();
+						} else {
+							swiper.lockSwipeToPrev();
+						}
+					}
+				});
+			}
+		}
+
+		apiready = function() {
+			init();
+		};
+		
+		function init(){
+			
+			//获取token
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				var value = ret.value;
+				token = value;
+				var parame = {
+					values : {
+						"token" : value
+					}
+				}
+				//获取黑名单
+				doAjax(listBlackUser, "post", parame, function(data) {
+					var hmd = data.hmd;
+					var html = "";
+					for (var i = 0; i < hmd.length; i++) {
+						var index = i + 1;
+						var nickName = "未设置";
+						var img = "../image/nv.png";
+						nickName = $api.getStorage("key" + hmd[i].name) || nickName;
+						img = $api.getStorage("img" + hmd[i].imgsrc) || img;
+						if (img != "../image/nv.png") {
+							img = SERVERURL + img;
+						}
+						html = html + "<li class='swiper-container  list swiper-btn-" + index + "'  onclick=\"doAction('" + hmd[i].rowid + "')\">"
+						html = html + "<div class='swiper-wrapper'>";
+						html = html + "<div class='swiper-slide'>";
+						html = html + "<img src='" + img + "' class='icon' /><div class='text'>";
+						html = html + "<span class='contain aui-ellipsis-3'> " + hmd[i].name + " </span></div></div><div class='swiper-slide slide-left'></div><div class='swiper-slide'></div>";
+						html = html + "<div class='swiper-slide'></div>";
+						html = html + "<div class='swiper-slide swipe-btn '  tapmode onclick=\"onDelete(this,'" + hmd[i].rowid + "')\">删除</div>";
+						html = html + "</div>";
+						html = html + "</li>";
+					}
+					$("#list").html(html);
+					initData();
+				}, function(data) {
+				})
+			});
+		}
+		var maxbtn_num = 3;
+		var openSwipers = [];
+		function doAction(targetId, conversationType) {
+			event.stopPropagation();
+		}
+
+		function initchatList() {
+		}
+
+		function parseContent(content, type) {
+		}
+
+		function onDelete(obj, id) {
+			api.confirm({
+				"title" : "提示",
+				msg : "确认删除",
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				if (ret.buttonIndex == 1) {
+					var parame = {
+						values : {
+							token : token,
+							targetIds : id,
+							state : 2
+						}
+					}
+					doAjax(upDataBlackUser, "POST", parame, function(data) {
+						var queryblackUser = data.queryblackUser;
+						var list = JSON.parse(queryblackUser).users;
+						$api.setStorage("queryblackUser", list.join(","));
+						api.toast({
+							msg : '操作成功'
+						});
+						init();
+					}, function(data) {
+					});
+				}
+			});
+			event.stopPropagation();
+		}
+	</script>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style3.css" rel="stylesheet" type="text/css" />
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			article {
+				margin-bottom: 60px
+			}
+			.bor-b-s1 {
+				border: 0px !important
+			}
+			.aui-btn-info {
+				border: 0px !important
+			}
+			.aui-btn, button {
+				border-radius: 0px
+			}
+			p {
+				color: #000
+			}
+			.perlist {
+				height: 160px;
+			}
+			.fl {
+				font-size: 1.2em;
+			}
+			.sr-input {
+				font-size: 1em;
+				width: 40%;
+			}
+			.c3 {
+				color: rgb(228,108,10)
+			}
+			.bb {
+				color: #FFF !important
+			}
+		</style>
+	</head>
+	<body class="bg4">
+		<article>
+			<div class="grzl-head change" >
+				<a class="grzl-img-box tac" id="img"> <img src="../image/addImage.jpg" width="80" height="55"/> </span>
+				<P class="grtx-gy">
+					更换头像
+				</P> </a>
+			</div>
+			<div class="grzl-info">
+				<ul>
+					<label for="name">
+						<li class="c"  style="background-color:#fff">
+							<P class="y">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">姓名:</span>
+								<input class="sr-input" type="text" id="name" style="font-size:25px;width:70%"  maxlength="5">
+							</P>
+						</li> </label>
+					<label for="age">
+						<li class="c"  style="background-color:#fff">
+							<P class="jd-lay">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">年龄:</span>
+								<input class="sr-input" type="number" maxlength="2" id="age" style="font-size:25px" oninput="tt()">
+							</P>
+						</li> </label>
+					<label   >
+						<li class="c"  style="background-color:#fff" id="sex1">
+							<P class="jd-lay">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">性别:</span>
+								<input class="sr-input" type="text" id="sex" readonly="" style="font-size:25px">
+							</P>
+						</li></label>
+					<label  >
+						<li class="c"  style="background-color:#fff" id="hy1">
+							<P class="jd-lay">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">婚姻:</span>
+								<input class="sr-input" type="text" id="hy" readonly="" style="font-size:25px">
+							</P>
+						</li></label>
+					<label for="jg">
+						<li class="c"  style="background-color:#fff">
+							<P class="jd-">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">职业:</span>
+								<input class="sr-input l" type="text" id="jg" maxlength="10" style="width:70%;font-size:25px">
+							</p>
+						</li></label>
+					<label for="szd">
+						<li class="c"  style="background-color:#fff">
+							<P class="jd-">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">所在地:</span>
+								<input class="sr-input " type="text" id="szd" maxlength="10"  style="width:60%;font-size:25px">
+							</p>
+						</li></label>
+					<label for="ah">
+						<li class="c" style="background-color:#fff">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">爱好:</span>
+							<input class="sr-input " type="text" id="ah"  maxlength="15"  style="width:70%;font-size:25px">
+						</li></label>
+					<label for="parame2">
+						<li class="c"  style="background-color:#fff">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">个人介绍:</span>
+						</li></label>
+					<li style="height:auto; -webkit-box-sizing:border-box; padding-right:10px;background-color:#fff">
+						<textarea name="" cols="" id="parame2" maxlength="50"  rows="" class="n-intro" style="font-size:25px"></textarea>
+					</li
+				</ul>
+				<div style="height:50px">
+					&nbsp;
+				</div>
+				<div style="text-align:center;position: fixed;bottom: 0;width: 100%;height: 50px;" class="bb">
+					<p>
+						<button class="aui-btn aui-btn-info" style="width:100%;background:rgb(249,100,0);width: 100%;height: 50px;font-size: 24px;color:#fff" id="next-button">
+							保存
+						</button>
+					</p>
+				</div>
+			</div>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script>
+				var token = "";
+				var sex = "";
+				var hy = "";
+				var lock = 1;
+				var lock1 = 1;
+				
+					function tt() {
+				var val = $("#age").val();
+				if ($("#age").val().length > 2) {
+					val = val.slice(0, 2);
+					$("#age").val(val)
+				}
+			}
+				
+				$("#sex1").click(function() {
+					if (lock1 == 1) {
+						lock1 = 2;
+						api.actionSheet({
+							title : '菜单',
+							cancelTitle : '取消',
+							buttons : ['男', '女']
+						}, function(ret, err) {
+							if (ret.buttonIndex == 1) {
+								sex = "1";
+							} else if (ret.buttonIndex == 2) {
+								sex = "2";
+							}
+							$("#sex").val(convertSex(sex));
+							lock1 = 1;
+						});
+						event.stopPropagation();
+					}
+				});
+				$("#hy1").click(function() {
+					if (lock == 1) {
+						lock = 2;
+						api.actionSheet({
+							title : '菜单',
+							cancelTitle : '取消',
+							buttons : ['已婚', '未婚', '单身']
+						}, function(ret, err) {
+							if (ret.buttonIndex == 1) {
+								hy = "1";
+							} else if (ret.buttonIndex == 2) {
+								hy = "2";
+							} else if (ret.buttonIndex == 3) {
+								hy = "3";
+							}
+							$("#hy").val(convertHy(hy));
+							lock = 1;
+						});
+						event.stopPropagation();
+					}
+				});
+				apiready = function() {
+					
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						token = ret.value;
+						//获取基本信息
+						api.ajax({
+							url : USERLISTID,
+							method : 'POST',
+							timeout : 30,
+							dataType : 'json',
+							returnAll : false,
+							data : {
+								values : {
+									rowid : token
+								}
+							}
+						}, function(ret, err) {
+							var data = ret.data;
+							if (data.imgsrc != null && data.imgsrc.length > 0) {
+								$("#img").attr("style", "background:url('" + SERVERURL + data.imgsrc + "') no-repeat;background-size:110px auto; ")
+								$("#img img").hide();
+							} else if (data.sex == "1") {
+								$("#img").attr("style", "background:url('../image/nan.png') no-repeat;background-size:110px auto; ")
+								$("#img img").hide();
+							} else if (data.sex == "2") {
+								$("#img").attr("style", "background:url('../image/nv.png') no-repeat;background-size:110px auto; ")
+								$("#img img").hide();
+							}
+							$("#age").val(data.age);
+							$("#sex").val(convertSex(data.sex));
+							$("#hy").val(convertHy(data.hy));
+							$("#jg").val(data.jg);
+							$("#szd").val(data.szd);
+							$("#ah").val(data.aihao);
+							$("#name").val(data.name);
+							$("#parame2").val(data.parame2);
+						});
+					});
+					$(".change").click(function() {
+						api.actionSheet({
+							title : '菜单',
+							cancelTitle : '取消',
+							buttons : ['拍照', '相册']
+						}, function(ret, err) {
+							var sourceType = "album";
+							if (ret.buttonIndex == 1) {
+								sourceType = 'camera'
+							} else if (ret.buttonIndex == 2)
+								( sourceType = 'album'
+								)
+							if (ret.buttonIndex != 3) {
+								api.getPicture({
+									sourceType : sourceType,
+									encodingType : 'jpg',
+									mediaValue : 'pic',
+									destinationType : 'url',
+									allowEdit : false,
+									quality : 100,
+									saveToPhotoAlbum : false
+								}, function(ret, err) {
+									if (ret) {
+										var data = ret.data;
+										
+										var parame = {
+											src :  data
+										}
+										openWindow("gradeHistory_window","gradeHistory_window.html",parame);
+									
+									} else {
+										api.alert({
+											msg : err.msg
+										});
+									}
+								});
+							}
+						});
+					});
+					$("#next-button").click(function() {
+						var name = $("#name").val();
+						if (name != null && name.length > 6) {
+							api.alert({
+								msg : "名字只有6个长度"
+							}, function(ret, err) {
+								//coding...
+							});
+							return;
+						}
+						var sexss = $("#sex").val();
+						if (sexss == "男") {
+							sexss = "1";
+						} else {
+							sexss = "2";
+						}
+						var hy = $("#hy").val();
+						if (hy == "已婚") {
+							hy = "1";
+						} else if (hy == "未婚") {
+							hy = "2";
+						} else if (hy == "单身") {
+							hy = "3";
+						}
+						var parame = {
+							values : {
+								"age" : $("#age").val(),
+								"hy" : hy,
+								"sex" : sexss,
+								"jg" : $("#jg").val(),
+								"aihao" : $("#ah").val(),
+								"name" : $("#name").val(),
+								"szd" : $("#szd").val(),
+								"rowid" : token,
+								"parame2" : $("#parame2").val()
+							}
+						}
+						doAjax(upUserInfo, "post", parame, function(data) {
+							api.alert({
+								msg : "更新成功"
+							}, function(ret, err) {
+								api.closeWin({
+								});
+							});
+						}, function(data) {
+						}, 1)
+					});
+				}
+				
+								
+			</script>
+		</article>
+	</body>
+</html>

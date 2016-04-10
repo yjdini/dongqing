@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>window</title>
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+	</head>
+	<body>
+		<header id="topbar">
+			<a class="fl backaaaa"><span class="back-icon m-r5"></span>返回</a><span class="fr"></span>
+		</header>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+        // 完成首页初始化
+        var rowid = "";
+        var userToken = "";
+        apiready = function() {
+            var thridHeader = $api.byId('topbar');
+            $api.fixIos7Bar(thridHeader);
+            var thridHeader = $api.offset(thridHeader);
+            // 清除右部class
+            var pageParam = api.pageParam;
+            rowid = pageParam.activeId;
+            api.getPrefs({
+                key : 'token'
+            }, function(ret, err) {
+                var v = ret.value;
+                userToken = v;
+            });
+            api.openFrame({
+                name : 'grrenyaoyue_content',
+                url : 'grrenyaoyue_content.html',
+                rect : {
+                    x : 0,
+                    y : thridHeader.h,
+                    w : 'auto',
+                    h : 'auto'
+                },
+                pageParam : {
+                    activeId : pageParam.activeId
+                },
+                bounces : false,
+                delay : 200
+            });
+        };
+        $(document).ready(function() {
+            $(".backaaaa").click(function() {
+            	                api.stopPlay();
+                api.closeWin();
+            });
+        });
+        function changeName(name, isOwn, joinA) {
+            $("#title").html(name);
+            if (isOwn == "true") {
+                $("#delete").append('删除<span class="r-icon m-l5 fr m-t12"></span>');
+                $("#delete").click(function() {
+                    api.confirm({
+                        title : '提示',
+                        msg : '确认删除你要发布的活动吗',
+                        buttons : ['确定', '取消']
+                    }, function(ret, err) {
+                        if (ret.buttonIndex == 1) {
+                            //删除活动
+                            api.ajax({
+                                url : ACTIVEDELETE,
+                                timeout : 30,
+                                dataType : 'json',
+                                method : 'post',
+                                returnAll : false,
+                                data : {
+                                    values : {
+                                        "rowid" : rowid
+                                    }
+                                }
+                            }, function(ret, err) {
+                                if (ret.data == "true") {
+                                    api.alert({
+                                        "title" : "提示",
+                                        "msg" : "删除成功"
+                                    }, function(ret, err) {
+                                        api.closeWin({
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            if (joinA == "true" && isOwn == "false") {
+                $("#delete").append('退出活动<span class="r-icon m-l5 fr m-t12"></span>');
+                $("#delete").click(function() {
+                    api.confirm({
+                        title : '提示',
+                        msg : '确认退出活动吗',
+                        buttons : ['确定', '取消']
+                    }, function(ret, err) {
+                        if (ret.buttonIndex == 1) {
+                            api.ajax({
+                                url : ACTIVEQUIT,
+                                timeout : 30,
+                                dataType : 'json',
+                                method : 'post',
+                                returnAll : false,
+                                data : {
+                                    values : {
+                                        "rowid" : rowid,
+                                        "userId" : userToken
+                                    }
+                                }
+                            }, function(ret, err) {
+                                api.alert({
+                                    "title" : "提示",
+                                    "msg" : "退出成功"
+                                }, function(ret, err) {
+                                    api.closeWin({
+                                    });
+                                });
+                            });
+                        }
+                    });
+                });
+            }
+        }
+	</script>
+</html>

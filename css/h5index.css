@@ -1,0 +1,103 @@
+body{
+  background-color: #f1f1f1;
+}
+a:link,a:hover,a:visited{
+  color: #999;
+}
+/*logo*/
+.section-logo {
+  padding: 10px;
+}
+.section-logo img{
+  width: 69px;
+  height: 23px;
+}
+
+/*banner*/
+.section-banner{
+  width: 100%;
+}
+.section-banner .m-scooch-inner{
+    height: 100%;
+}
+.section-product{
+}
+
+/*展示的产品*/
+ul.product-wrap li {
+  background-color: #fff;
+  float: left;
+  width: 33%;
+  text-align: center;
+  padding: 20px 0 10px 0;
+  margin:0 1px 1px 0;
+}
+ul.product-wrap li.hover {
+  background-color: #f7f5f5;
+}
+ul.product-wrap li span{
+  width: 100%;
+  display: inline-block;
+  line-height: 1.5rem;
+}
+
+ul.product-wrap li span:nth-child(1){
+  margin-bottom: 10px;
+}
+ul.product-wrap li span:nth-child(3){
+  color: #999;
+}
+
+/*解决方案*/
+.section-solution {
+  margin-top: 10px;
+  width: 100%;
+  }
+.section-solution.m-scooch.m-fluid  >  .m-scooch-inner  >  *  {
+  width:  85%;
+  margin-right: 10px;
+}
+
+/*服务保障*/
+.section-system{
+}
+.section-system h3{
+  font-size: 1.1rem;
+  line-height: 1.1rem;
+  padding: 15px 20px;
+}
+ul.serviceWrap{
+  padding: 10px 20px;
+  background-color: #fff;
+}
+.hours-unit {
+  font-style: normal;
+  font-size: 0.9rem;
+}
+ul.serviceWrap li {
+  float: left;
+  width: 33%;
+  text-align: left;
+  margin: 10px 0;
+  text-align: center;
+}
+ul.serviceWrap li a {
+  display: block;
+}
+ul.serviceWrap li span{
+  line-height: 1.5rem;
+  display: inline-block;
+  width: 100%;
+}
+ul.serviceWrap li span:nth-child(1){
+  font-size: 1.3rem;
+}
+
+/*底部说明*/
+.section-footer{
+  background-color: #f1f1f1;
+  text-align: center;
+  padding: 20px;
+}
+
+/*# sourceMappingURL=h5index.css.map */

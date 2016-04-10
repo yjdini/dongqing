@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			.qzs {
+				position: absolute;
+				width: 20px;
+				height: 20px;
+				background-image: url('../images/groupsss.png');
+				background-repeat: no-repeat;
+				background-size: 20px auto;
+				margin-left:  -5px
+			}
+		</style>
+	</head>
+	<body>
+		<article>
+			<ul class="newslist" id="list">
+			</ul>
+		</article>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			var userToken = "";
+			var rowid = "";
+			var isManager = "";
+			apiready = function() {
+				var pageParam = api.pageParam;
+				rowid = pageParam.targetId;
+				initData();
+			}
+			function initData() {
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					userToken = ret.value;
+					api.ajax({
+						url : GroupUserList,
+						timeout : 30,
+						dataType : 'json',
+						method : 'post',
+						returnAll : false,
+						data : {
+							values : {
+								"token" : userToken,
+								"rowid" : rowid
+							}
+						}
+					}, function(ret, err) {
+						var tabusers = ret.tabusers;
+						var html = "";
+						for (var i = 0; i < tabusers.length; i++) {
+							if (tabusers[i].rowid == ret.manGerId) {
+								html = html + "<li rowid='" + tabusers[i].rowid + "'  class='c userlist' isgroup='1'><dl><dt><a class='head-box' style='#style'></a> &nbsp;<span class='qzs'></span></dt><dd><P class='title' ><span class='fr'></span><span class='name'>" + tabusers[i].name + "</span> </P></dd></dl></li>";
+							} else {
+								html = html + "<li rowid='" + tabusers[i].rowid + "'  class='c userlist'><dl><dt><a class='head-box' style='#style'></a></dt><dd><P class='title'><span class='fr'></span><span class='name'>" + tabusers[i].name + "</span></P></dd></dl></li>";
+							}
+							html = html.replaceAll("#style", "background:url(" + SERVERURL + ret.tabusers[i].imgsrc + ") ;background-size:100% auto;background-repeat: no-repeat;")
+						}
+						isManager = ret.isManager;
+						$("#list").html(html);
+						$(".userlist").click(function() {
+							var Userrowid = $(this).attr("rowid");
+							var  isgroup = $(this).attr("isgroup") || "";
+							if (isManager == "true") {
+								api.confirm({
+									"title" : "提示",
+									"msg" : "选择你要的操作",
+									buttons : ['查看信息', '移除成员']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 1) {
+										api.openWin({
+											name : 'userCenter_window',
+											url : './userCenter_window.html',
+											pageParam : {
+												userid : Userrowid
+											},
+											bounces : false,
+											slidBackEnabled : false
+										});
+									} else {
+										if(isgroup == "1"){
+											api.alert({
+												msg : "无法删除群主"
+                                            },function(ret,err){
+                                            	//coding...
+                                            });
+											return ;
+										}
+										api.confirm({
+											"title" : "提示",
+											"msg" : "删除群成员",
+											buttons : ['确定', '取消']
+										}, function(ret, err) {
+											if (ret.buttonIndex == 1) {
+												var parames = {
+													values : {
+														token : userToken,
+														userId : Userrowid,
+														rowid : rowid
+													}
+												}
+												doAjax(GroupUserDelete, "post", parames, function(data) {
+													initData();
+												}, function(data) {
+												})
+											}
+										});
+									}
+								});
+							} else {
+								var userid = $(this).attr("rowid");
+								api.openWin({
+									name : 'userCenter_window',
+									url : './userCenter_window.html',
+									pageParam : {
+										userid : userid
+									},
+									bounces : false,
+									slidBackEnabled : false
+								});
+							}
+						})
+					});
+				});
+			}
+		</script>
+	</body>
+</html>

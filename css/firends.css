@@ -1,0 +1,100 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+*{margin:0px;padding:0px;outline: none;-webkit-tap-highlight-color: rgba(0,0,0,0);-webkit-touch-callout:none;}
+body{font-size:14px;color:#4f5257;min-width:320px;font-family:"Microsoft Yahei";background:#eeedf2;-webkit-text-size-adjust:none;}
+img{ height:auto; width:auto\9; width:100%; border:none;}
+html,body {height:100%;width:100%;}
+a{text-decoration:none;color:#000000;}
+li{list-style:none;}
+.c{zoom:1; clear:both;}
+.m-b10{ margin-bottom:10px;}
+.m-b15{ margin-bottom:15px;}
+.c:after{content:"."; display:block; height:0; clear:both; visibility:hidden;}
+.to {width: 100%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+.fwb{ font-weight:bold;}
+header{ height:44px; background:rgb(249,100,0); line-height:44px; color:#fff;}
+header h2{text-align:center; font-size:18px; font-weight:normal; }
+.h-icon1{ background-image:url(../images/qy-icon1.png); background-size:100% 100%;width:12px; height:20px; display:block; position:absolute; left:10px; top:12px;}
+.query-icon{background-image:url(../images/qy-icon6.png); background-size:100% 100%;width:16px; height:16px; margin-right:10px; vertical-align:middle; display:inline-block;}
+.search-box{ border:1px solid #e1e1e1; -webkit-border-radius:8px; height:34px; background:#fff; text-align:center; color:#999; font-size:16px;  line-height:34px; margin:10px; position:relative;}
+.group-box{ padding:10px; background:#fff;}
+.group-box li{width:25%; float:left; text-align:center;}
+.g-icon{width:34px; height:34px; display:block; margin:0 auto; background-size:100% 100%;}
+.g-icon1{background-image:url(../images/qy-icon2.png);}
+.g-icon2{background-image:url(../images/qy-icon3.png);}
+.friend-box ul { margin-bottom:15px; border-top:1px solid #cfcfcf; border-bottom:1px solid #cfcfcf;}
+.friend-box ul li{ border-bottom:1px solid #e5e5e5;background:#fff; padding:15px 10px; font-size:16px;}
+.friend-box ul li:last-child{ border-bottom:none;}
+.friend-box ul li .li-icon{width:20px; margin-right:10px; height:20px;background-image:url(../images/qy-icon4.png); display:block; float:left;background-size:100% 100%;}
+.friend-box ul li .li-icon.on{background-image:url(../images/qy-icon5.png);}
+.friend-box ul li ul li dl dt{width:45px; height:45px; float:left;}
+.friend-box ul li ul{ border:none; margin-bottom:0px; padding-top:15px; display:none;}
+.friend-box ul li ul li{ border-bottom:none; padding:5px 0;}
+.friend-box ul li ul li dl dt img{width:48px; height:48px; -webkit-border-radius:50%;}
+.friend-box ul li ul li dl dd{ border-bottom:1px solid #e5e5e5; margin-left:55px; padding-bottom:10px;}
+.friend-box ul li ul li dl dd h3{ font-size:16px; font-weight:normal;}
+.friend-box ul li ul li dl dd  p{ font-size:14px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+
+
+
+/*追加*/
+.search-tab ul{width:100%; border-bottom:1px solid #ddd; background:#ffffff;}
+.search-tab li{width:33.33%; float:left; height:15px; line-height:15px; text-align:center; border-right:1px solid #ccc; margin:10px 0; font-size:16px; -webkit-box-sizing:border-box;}
+.search-tab li:last-child{ border-right:none;}
+.search-tab li span.tips{ background-image:url(../images/qy-icon9.png); background-size:100% 100%;width:14px; height:9px; display:inline-block; vertical-align:middle; margin-left:5px;}
+.search-tab li.on{ color:#3590e9;}
+.search-tab li.on span.tips{ background-image:url(../images/qy-icon10.png);}
+.pro-box{ position:relative;}
+.tab1-left{width:50%; float:left; height:350px; overflow:hidden; position:relative;}
+.tab1-left-outdiv{ padding-right:10px;height:350px;overflow-x:hidden; overflow-y:scroll;margin:0 -20px 0 0; background:#fff;}
+.tab1-left-indiv{min-height:350px;width:100%;}
+.tab1-right{width:50%; float:right; padding-left:1px; -webkit-box-sizing:border-box;}
+.tab1-left ul li{ height:50px; line-height:50px; background:#f2f2f2; padding:0 10px 0 15px; text-align:left;border-bottom:1px solid #ddd;}
+.tab1-left ul li.on{ background:#fff;}
+.tab1-left ul li a.num{ background:#cfcfcf; -webkit-border-radius:8px; font-size:12px; padding:2px 5px; height:14px;width:20px; text-align:center; line-height:14px; display:block; float:right; margin-top:16px; font-family:Arial; color:#fff;}
+.s-icon{ background-size:100% 100%; width:20px; height:20px; float:left; margin-top:14px; margin-right:8px;}
+.s-icon1{ background-image:url(../images/1.png);}
+.s-icon2{ background-image:url(../images/2.png);}
+.s-icon3{ background-image:url(../images/3.png);}
+.s-icon4{ background-image:url(../images/4.png);}
+.s-icon5{ background-image:url(../images/5.png);}
+.a-icon{ background-size:100% 100%; width:8px; height:14px; margin-left:10px; float:right; margin-top:18px; margin-right:8px; background-image:url(../images/qy-icon12.png);}
+.a-icon-no{ background:none;}
+.tab-list{ display:none; position:absolute; top:36px; left:0;width:100%;z-index: 1111}
+.tab-list2 ul{ border-bottom:1px solid #ddd;}
+.tab-list2 ul li{ height:44px; background:#ffffff; line-height:44px; padding:0 10px; font-size:15px; font-family:黑体;}
+.tab-list2 ul li span.f-icon{ float:left; height:44px; display:block; margin-top:12px; margin-right:5px; background-size:100% 100%;width:20px; height:20px;}
+.tab-list2 ul li span.f-icon1{ background-image:url(../images/qy-icon13.png);}
+.tab-list2 ul li span.f-icon2{ background-image:url(../images/qy-icon14.png);}
+.tab-list2 ul li span.f-icon3{ background-image:url(../images/qy-icon15.png);}
+.tab-list2 ul li span.f-icon4{ background-image:url(../images/qy-icon16.png);}
+.tab-list2 ul li span.f-icon5{ background-image:url(../images/qy-icon17.png);}
+.tab-list2 ul li span.f-icon6{ background-image:url(../images/qy-icon18.png);}
+.tab-list2 ul li p{ border-bottom:1px solid #ddd; margin-left:20px;height:42px; line-height:42px;}
+.tab-list2 ul li:last-child p{ border-bottom:none;}
+.tab1-right li{ height:50px; line-height:50px; padding:0 10px; border-bottom:1px solid #ddd; font-size:14px; -webkit-box-sizing:border-box;}
+.tab1-right-outdiv{ padding-right:10px;height:350px;overflow-x:hidden; overflow-y:scroll; background:#fff;}
+.tab1-right-indiv{min-height:350px;width:100%;}
+
+/*add*/
+.search-tab li{ position:relative;}
+.search-tab li span.tips1{ background-image:url(../images/qy-icon19.png); background-size:100% 100%;width:14px; height:9px; display:inline-block; vertical-align:middle; margin-left:0px; position:absolute; bottom:-10px; left:45%; z-index:200; display:none;}
+
+.icon-checkbox1{width:20px;height:20px;background-image:url(../images/qy-icon20.png); display:block; float:left;background-size:100% 100%;}
+.icon-checkbox2{width:20px;height:20px;background-image:url(../images/qy-icon20.png); margin-top:16px; margin-right:8px; display:block; float:left;background-size:100% 100%;}
+.icon-checkbox1.on,.icon-checkbox2.on{background-image:url(../images/qy-icon21.png);}
+.friend-box ul li ul li dl dt{width:80px;}
+.friend-box ul li ul li dl dd{margin-left: 85px;}
+
+.h-tab{width: 160px; height:26px; position:absolute; left:45%; margin-left:-56px; top:8px;border:1px solid #d1f1fc;-webkit-border-radius:18px;}
+.h-tab a{ display:block;width: 80px; height:26px; float:left; background:rgb(249,100,0); text-align:center; line-height:26px; color:#fff; font-size:12px;}
+.h-tab a.tab1{ -webkit-border-radius:18px 0 0 18px;}
+.h-tab a.tab2{ -webkit-border-radius:0 18px 18px 0;}
+.h-tab a.on{ background:#d1f1fc; color:#14a2db;}
+.tab1-right-outdiv{ position:relative;}
+.g-box{ height:13px; background:#f2f2f2; text-align:center;display:none;}
+.g-icon3-on{background-size:100% 100%; display:none; width:19px; height:13px; display:inline-block;text-align:center;background-image:url(../images/guide-icon.png);}
+.g-icon3-down{ -webkit-transform:rotate(180deg);}
+.tab1-right-indiv{min-height:none!important;width:100%;}
+.tab1-right-outdiv{ height:325px!important;}

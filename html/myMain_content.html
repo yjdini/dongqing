@@ -1,0 +1,230 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../css/result.css">
+		<link href="../css/aui.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<style>
+			div.lines {
+				clear: both;
+				height: 3px;
+				background: #f96400;
+				-webkit-transition: all 300ms ease-in 100ms
+			}
+			.imgssss {
+				background-image: url("../images/header_userAdd_icon.png");
+				background-size: 30px 30px;
+				background-repeat: no-repeat;
+				padding-left: 30px;
+				background-position: left;
+			}
+			.colors {
+				color: #f96400
+			}
+		</style>
+		<body>
+			<section>
+			<div class="aui-content">
+					<div class="content" id="list"></div>
+					</div>
+			</section>
+			<div id="loading-content" style="height:50px;text-align: center;line-height:50px;position: fixed;bottom:0;width:100%;display:none;width:50px;margin-left:40%">
+				<img src="http://img.lanrentuku.com/img/allimg/1212/5-121204193R0-50.gif" width="40px" height="40px">
+			</div>
+		</body>
+		<script>
+			var longitude = "";
+			var latitude = "";
+			var token = "";
+			var NewToken = "";
+			var pageIndex = 0;
+			apiready = function() {
+				var map = api.require('bMap');
+				$("div.t-bla div.focus").hide();
+				api.addEventListener({
+					name : 'scrolltobottom',
+					extra : {
+						threshold : 0 //设置距离底部多少距离时触发，默认值为0，数字类型
+					}
+				}, function(ret, err) {
+					$("#loading-content").show();
+					pageIndex++;
+					initData();
+				});
+				api.setRefreshHeaderInfo({
+					visible : true,
+					bgColor : '#ccc',
+					textColor : '#fff',
+					textDown : '下拉刷新...',
+					textUp : '松开刷新...',
+					showTime : true
+				}, function(ret, err) {
+					api.refreshHeaderLoadDone();
+					api.toast({
+						msg : '刷新成功',
+						location : "top"
+					});
+					pageIndex = 0;
+					initData();
+				});
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					NewToken = ret.value;
+					map.getLocation({
+						accuracy : '100m',
+						filter : 1,
+						autoStop : true
+					}, function(ret, err) {
+						if (ret.status) {
+							longitude = ret.lon;
+							latitude = ret.lat;
+							initRongYun();
+							initData();
+						} else {
+							api.alert({
+								msg : err.msg
+							});
+						}
+					});
+				});
+			}
+			function initData() {
+				var parame = {
+					values : {
+						longitude : longitude,
+						latitude : latitude,
+						pageIndex : pageIndex,
+						token : token
+					}
+				}
+				doAjax(listMyActive, "post", parame, function(data) {
+					hidess();
+					var gryy = data.gryy;
+					var html = "";
+					for (var i = 0; i < gryy.length; i++) {
+						var img = gryy[i].usergroups.imgsrc;
+						var name = gryy[i].name || "&nbsp;";
+						gryy[i].xqxm = gryy[i].xqxm || "&nbsp;";
+						var files = gryy[i].activefiles;
+						var imgList = [];
+						html = html + "<div class='ht-block wz' rowid ='" + gryy[i].rowid + "'><div class='user c'><img class='user-img usersown fl' rowid='" + gryy[i].parame1 + "' src='" + img + "' /><font color='#f96400' style='font-size:25px'>" + name + "</font><span style='font-size:20px;float:right;color：#cacaca'>" + gryy[i].mics + "km</span></div><div class='user-op'><P class='user-tit' style='font-size:25px'> " + gryy[i].lbsname + "</p><P class='user-tit' style='margin-left:65px;font-size:25px;margin-button:10px'>" + convertDate(gryy[i].activestartdate) + " </P>";
+						for (var j = 0; j < files.length; j++) {
+							if (isImgFile(files[j].filepath)) {
+								imgList.push(SERVERURL + files[j].filepath)
+							}
+						}
+						if (files.length > 0) {
+								html = html + " <ul class='aui-list-view aui-grid-view' style='padding-left:50px;border:0px;border-top:0px'>";
+								for (var j = 0; j < files.length; j++) {
+									if (isImgFile(files[j].filepath)) {
+										html = html + " <li class='aui-list-view-cell aui-img aui-col-xs-4' style='border:0px'><img style='border:0px;height:100px;width:100px' class='aui-img-object imageBrower'  src='" + imgList[j] + "'  index='" + j + "' data='" + JSON.stringify(imgList) + "'></li>";
+									}
+								}
+								html = html + "</ul>";
+							}
+						html = html + "</div></div>";
+					}
+					if (pageIndex != 0) {
+						$("#list").append(html);
+					} else {
+						$("#list").html(html);
+					}
+					$(".usersown").click(function() {
+						var rowid = $(this).attr("rowid");
+						api.openWin({
+							name : 'groupInfo_window',
+							url : './groupInfo_window.html',
+							pageParam : {
+								targetId : rowid
+							},
+							bounces : false,
+							slidBackEnabled : false
+						});
+						event.stopPropagation();
+					});
+					$(".imageBrower").click(function() {
+						var index = $(this).attr("index");
+						var data = $(this).attr("data");
+						var obj = api.require('imageBrowser');
+						obj.openImages({
+							imageUrls : JSON.parse(data),
+							showList : false,
+							activeIndex : index
+						});
+						event.stopPropagation();
+					});
+					$(".wz").click(function() {
+						var rowid = $(this).attr("rowid");
+						var mics = $(this).attr("mics");
+						var parame = {
+							activeId : rowid,
+							mics : mics
+						}
+						openWindow("content_window", "content_window.html", parame);
+						event.stopPropagation();
+					});
+					$(".z1-icon").click(function() {
+						var rowid = $(this).attr("rowid");
+						//点赞
+						var thia = $(this);
+						var token = $api.getStorage("token") || "";
+						if (token == "") {
+							api.alert({
+								"title" : "提示",
+								msg : "请先登录"
+							}, function(ret, err) {
+								openWindow("login_window.htnl", "login_window.html", {});
+							});
+						} else {
+							var parame = {
+								values : {
+									rowid : rowid,
+									token : token
+								}
+							}
+							doAjax(dz, "post", parame, function(data) {
+								var flag = data.flag;
+								if (flag == "false") {
+									api.alert({
+										"msg" : data.msg
+									}, function(ret, err) {
+									});
+								} else {
+									initData();
+									api.toast({
+										msg : '点赞成功'
+									});
+								}
+							}, function(data) {
+							})
+						}
+						event.stopPropagation();
+					});
+					//评论
+					$(".z2-icon").click(function() {
+						var rowid = $(this).attr("rowid");
+						var mics = $(this).attr("mics");
+						var parame = {
+							activeId : rowid,
+							mics : mics
+						}
+						openWindow("grrenyaoyuePl_window", "grrenyaoyuePl_window.html", parame);
+						event.stopPropagation();
+					});
+				});
+			}
+
+			function hidess() {
+				$("#loading-content").hide();
+			}
+		</script>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/styale.css" rel="stylesheet" type="text/css" />
+		<link href="../css/style3.css" rel="stylesheet" type="text/css" />
+		<style>
+			.fx-icon {
+				width: 30px;
+				height: 30px;
+				padding-top: 1px;
+			}
+			.fx-box ul li span.m-icon {
+				margin-top: 10px
+			}
+		</style>
+	</head>
+	<body class="bg1">
+		<section class="p-b60" >
+			<div class="topfixed"></div>
+			<div class="fx-box">
+				<ul>
+					<li id="edits" class="head c">
+						<dl class="c">
+							<dt><img  id="userImgurl"/>
+							</dt>
+							<dd>
+								<span class="fr m-t20 m-icon"></span>
+								<P class="m-b10" id="nickName" style="font-size:26px"></P>
+							</dd>
+						</dl>
+					</li>
+				</ul>
+				<ul>
+					<li class="c " id="myMain_window">
+						<span class="fx-icon fx-icon9" style="background-image:url('../images/ycjhd.png')"></span>已参加的活动<span class="fr m-icon"></span>
+					</li>
+					<li class="c " id="editps">
+						<span class="fx-icon fx-icon10" style="background-image:url('../images/xgmm.png')"></span>修改密码<span class="fr m-icon"></span>
+					</li>
+					<li class="c " id="clearDa">
+						<span class="fx-icon fx-icon11" style="background-image:url('../images/qlhc.png')"></span>清理缓存<span class="fr m-icon"></span>
+					</li>
+					<li class="c url" id="yjfk">
+						<span class="fx-icon fx-icon11" style="background-image:url('../images/yjfk.png')"></span>意见反馈<span class="fr m-icon"></span>
+					</li>
+					<li class="c url" id="hmd">
+						<span class="fx-icon fx-icon11" style="background-image:url('../images/hmd.png')"></span>黑名单管理<span class="fr m-icon"></span>
+					</li>
+					<li class="c " id="about">
+						<span class="fx-icon fx-icon12" style="background-image:url('../images/gywm.png')"></span>关于我们<span class="fr m-icon"></span>
+					</li>
+				</ul>
+				<ul>
+					<li class="c " style="text-align:center;color:red" onclick="exit()">
+						退出登录
+					</li>
+				</ul>
+			</div>
+		</section>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			function exit() {
+				//退出登录
+				api.confirm({
+					"title" : "提示",
+					"msg" : "是否确定退出",
+					buttons : ['确定', '取消']
+				}, function(ret, err) {
+					if (ret.buttonIndex == 1) {
+						var sql = "DELETE FROM message ";
+						upDataSql(sql, function() {
+							removePrefs("token");
+							removePrefs("rongtoken");
+							$api.rmStorage("token");
+							$api.rmStorage("rongtoken");
+							
+							api.execScript({
+	                            script: 'clearData();',
+	                            name : "root"
+                            });
+							
+							openWindow("login_window", "login_window.html", {});
+						});
+					}
+				});
+			}
+
+			apiready = function() {
+				$("#edits").click(function() {
+					openWindow("edit_window.html", "edit_window.html", {});
+				});
+				$("#about").click(function() {
+					openWindow("about.html", "about.html", {});
+				});
+				$("#myMain_window").click(function() {
+					openWindow("myMain_window.html", "myMain_window.html", {});
+				});
+				$("#hmd").click(function() {
+					openWindow("hmd_window.html", "hmd_window.html", {});
+				});
+				$("#clearDa").click(function() {
+					api.getCacheSize(function(ret, err) {
+						var size = parseInt(ret.size / 10240);
+						api.confirm({
+							"title" : "确认清空缓存吗",
+							msg : "当前缓存为" + size + "KB",
+							buttons : ['确定', '取消']
+						}, function(ret, err) {
+							if (ret.buttonIndex == 1) {
+								api.clearCache();
+								api.toast({
+									msg : '清除成功'
+								});
+							}
+						});
+					});
+				});
+				$("#editps").click(function() {
+					openWindow("forgetPassword_window.html", "forgetPassword_window.html", {});
+				});
+				$("#yjfk").click(function() {
+					openWindow("yjfk_window.html", "yjfk_window.html", {});
+				});
+				api.setRefreshHeaderInfo({
+					visible : true,
+					loadingImg : 'widget://image/refresh.png',
+					bgColor : '#ccc',
+					textColor : '#fff',
+					textDown : '下拉刷新...',
+					textUp : '松开刷新...',
+					showTime : true
+				}, function(ret, err) {
+					initData();
+					api.refreshHeaderLoadDone();
+				});
+				api.addEventListener({
+					name : 'scrolltobottom',
+					extra : {
+						threshold : 0 //设置距离底部多少距离时触发，默认值为0，数字类型
+					}
+				}, function(ret, err) {
+					initData();
+				});
+				initData();
+			}
+			function initData() {
+				var parame = {
+					values : {
+						rowid : $api.getStorage("token")
+					}
+				}
+				doAjax(USERLISTID, "post", parame, function(data) {
+					var data = data.data;
+					if (data.imgsrc != null && data.imgsrc.length > 0) {
+						$("#userImgurl").attr("src", SERVERURL + data.imgsrc)
+					}
+					$("#nickName").html(data.name);
+				}, function(data) {
+				},'1')
+			}
+		</script>
+	</body>
+</html>

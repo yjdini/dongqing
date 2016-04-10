@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<body class="bg4">
+		<article>
+			<div class="grzl-head change" >
+				<a class="grzl-img-box tac" id="imgs"> </span> </a>
+			</div>
+			<div class="grzl-info">
+				<ul>
+					<li class="c">
+						<P class="y">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">活动名称:</span>
+							<span id="name" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="y">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">时间:</span>
+							<span id="time" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">内容:</span>
+							<span id="content" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c"></li>
+				</ul>
+			</div>
+			<div class="perlist m-t10">
+				<p class="per-tit">
+					<span class="per-icon m-r10"></span><span>0人</span>
+				</p>
+			</div>
+			<div class="hd-detail m-t20"></div>
+			<div class="hd-detail m-t20" id="activefiles"></div>
+			<div>
+				&nbsp;
+			</div>
+			<ul class="yl-list" id="voices">
+				<li class="c">
+					<dl>
+						<dt>
+							<p class="c1">
+								<a class="th-tips" id=""><span class="th-icon"></span><span class="fr c1" id="vioceLength">11</span></a>
+							</p>
+						</dt>
+					</dl>
+				</li>
+			</ul>
+			<p class="tac m-t30">
+				<a class="next-button" id="next-button" style="margin-bottom:30px">参加去看看</a>
+			</p>
+		</article>
+		<script type="text/javascript">
+			// 完成首页初始化
+			var activeId = "";
+			var targetId = "";
+			var name = "";
+			var htmla = "";
+			var isChild = "";
+			var isPlay = "1";
+			var imgArray = [];
+			apiready = function() {
+				var token = "";
+				var pageParam = api.pageParam;
+				activeId = pageParam.activeId;
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					var v = ret.value;
+					if (v != null && v.length > 0) {
+					} else {
+						v = "11aaa1";
+					}
+					api.ajax({
+						url : ACTIVELISTById,
+						timeout : 30,
+						dataType : 'json',
+						method : 'post',
+						returnAll : false,
+						data : {
+							values : {
+								"rowid" : activeId,
+								"token" : v
+							}
+						}
+					}, function(ret, err) {
+						if (ret) {
+							isChild = ret.isChild;
+							var data = ret.data;
+							$("#name").html(data.name);
+							var users = ret.users;
+							api.execScript({
+								name : 'grrenyaoyue_window',
+								script : 'changeName("' + data.name + '","' + ret.isOwn + '","' + ret.joinA + '");'
+							});
+							$("#time").html("" + convertDate(data.activestartdate).split(" ")[0] + " " + convertDate(data.activestartdate).split(" ")[1]);
+							$("#lbsname").html("" + data.lbsname + "");
+							$("#imgs").attr("style", "background:url(" + SERVERURL + users.imgsrc + ");background-size :100% ")
+							targetId = data.userid;
+							if (data.xqxm) {
+								$("#content").html(data.xqxm + "");
+							}
+							name = ret.users.name;
+							if (ret.joinA == "true") {
+								$("#add-button").html("已经加入活动");
+							}
+							var newH = "";
+							var activefiles = ret.activefiles;
+							for (var i = 0; i < activefiles.length; i++) {
+								imgArray.push(SERVERURL + activefiles[i].filepath);
+								newH = newH + "<img src='" + SERVERURL + activefiles[i].filepath + "' class='imaaagArray' width='33%' height='90'>";
+							}
+							if (!data.voicesrc) {
+								$("#voices").hide();
+							} else {
+								$("#voices").attr("url", data.voicesrc);
+								$("#vioceLength").html("" + data.voicelength + "秒");
+							}
+							$("#voices").click(function() {
+								if (isPlay == "1") {
+									htmla = $(this).html();
+									var url = $(this).attr("url");
+									getDownLoadFile(url, this);
+									isPlay = "2";
+								} else {
+									isPlay = "1";
+									$(this).html(htmla);
+									api.stopPlay();
+								}
+							});
+							$("#activefiles").html(newH);
+							$(".imaaagArray").click(function() {
+								var obj = api.require('imageBrowser');
+								obj.openImages({
+									imageUrls : imgArray,
+									showList : false,
+									activeIndex : 0
+								});
+							});
+							if (ret.isFired == "true") {
+								$("#add-button").append(",已经是好友");
+							}
+						}
+					});
+				});
+				$("#micUrl").click(function() {
+					var url = $(this).attr("url");
+					getDownLoadFile(url, this);
+				});
+				$("#add-button").click(function() {
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						var v = ret.value;
+						if (v != null && v.length > 0) {
+							var html = $("#add-button").html();
+							if (html == "加入聊聊") {
+								api.ajax({
+									url : JOINACTIVE,
+									timeout : 30,
+									dataType : 'json',
+									method : 'get',
+									data : {
+										values : {
+											"activeId" : activeId,
+											"token" : v
+										}
+									}
+								}, function(ret, err) {
+									if (ret) {
+										if (ret.flag == "success") {
+											$("#add-button").html("已经加入活动");
+										}
+									}
+								});
+							} else {
+								api.openWin({
+									name : 'chat_window',
+									url : './chat_window.html',
+									pageParam : {
+										targetId : targetId,
+										"conversationType" : "PRIVATE",
+										"name" : name,
+										"isChild" : isChild
+									},
+									bounces : false,
+									slidBackEnabled : false
+								});
+							}
+						} else {
+							token = "11aaa1";
+							api.alert({
+								title : "提示",
+								msg : '请登录后进行操作',
+								buttons : ['确定']
+							}, function(ret, err) {
+								api.openWin({
+									name : "login_window",
+									url : "./login_window.html",
+									slidBackEnabled : false
+								});
+							});
+						}
+					});
+				})
+			}
+		</script>
+	</body>
+</html>

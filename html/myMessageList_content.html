@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>frame</title>
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			html, body {
+				width: 100%;
+				min-height: 100%;
+				background: #f0f0f0;
+			}
+			.h10 {
+				height: 10px;
+				background: #f0f0f0;
+			}
+			.h1 {
+				height: 1px;
+				margin-left: 15px;
+				background: #f0f0f0;
+			}
+			.fr {
+				float: right;
+			}
+			.hint {
+				color: #666;
+				font-size: 12px;
+				margin-right: 5px;
+			}
+			.firstblock, .secondblock, .thirdblock {
+				background-color: #fff;
+			}
+			/* 头部登陆 */
+			.loginbg {
+				width: 100%;
+			}
+			.login .personal_logo {
+				position: absolute;
+				left: 0;
+				top: 55px;
+				width: 70px;
+				margin-left: 20px;
+			}
+			.person_arrow {
+				position: absolute;
+				height: 20px;
+				right: 10px;
+				top: 90px;
+			}
+			.login .userinfo {
+				position: absolute;
+				top: 60px;
+				margin-left: 100px;
+			}
+			.login .userinfo .title {
+				font-size: 20px;
+				color: #fff;
+			}
+			.login .userinfo .subtitle {
+				font-size: 14px;
+				color: #fff;
+				border: 1px solid #fff;
+				display: inline-block;
+				padding: 3px;
+				border-radius: 4px;
+				margin-top: 5px;
+			}
+			/* 设置条目 */
+			.item {
+				height: 50px;
+				line-height: 50px;
+				padding-left: 15px;
+				background-color: #fff;
+			}
+			.item_ico {
+				float: left;
+				width: 30px;
+				padding: 10px 10px 10px 0;
+			}
+			.item_arrow {
+				float: right;
+				width: 16px;
+				padding: 17px 15px 15px 0;
+			}
+			.presshover {
+				background-color: #FAFAFA;
+			}
+			#back {
+				border-radius: 50%;
+			}
+		</style>
+	</head>
+	<body>
+		<section>
+			<div class="content">
+				<div class="xm-box" id="">
+					<div id="lastProj"></div>
+				</div>
+			</div>
+		</section>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		var token = "";
+		var roleID = "";
+		//主要包含
+		//1 项目情况
+		//2项目申请 情况
+		//3 问题情况
+		//4 论坛情况
+		//5 系统情况
+		apiready = function() {
+			setTimeout("initSql()", 2000);
+		}
+		function initSql() {
+			readSQL("SELECT *  from message  where  messafeState = 0", function(data) {
+				var html = "";
+				for (var i = 0; i < data.length; i++) {
+					html = html + "<dl messageKeyID ='" + data[i].messageKeyID + "' class='c xm-list lastProj' messageType='" + data[i].messageType + "' rowid='" + data[i].title + "'><dd><P class='tit fub'>" + data[i].title + "</P><P class='c1 '></P><P class='c2'>" + data[i].content + "</P></dd></dl>";
+				}
+				$("#lastProj").html(html);
+				//messageType
+				$(".lastProj").click(function() {
+					var messageType = $(this).attr("messageType");
+					var messageKeyID = $(this).attr("messageKeyID");
+					//
+					upDataSql("update message set messafeState = 1 where messageKeyID ='" + messageKeyID + "'", function() {
+						updateMessage();
+						initSql();
+					});
+					var param = {
+						"rowid" : messageKeyID
+					}
+					if ("TabProj" == messageType) {
+						//到达项目详情
+						var param = {
+							"rowid" : messageKeyID
+						}
+						openWindow("projectDetail_window", "projectDetail_window.html", param);
+					} else if ("TabProjApply1" == messageType) {
+						//表示项目申请
+					} else if ("TabProjApply2" == messageType) {
+						openWindow("inviteUsersDetail_window", "inviteUsersDetail_window.html", param);
+					} else if ("TabQuestion" == messageType) {
+						var param = {
+							"rowid" : messageKeyID
+						}
+						openWindow("questionDetail_window.html", "questionDetail_window.html", param);
+					} else if ("addFirends" == messageType) {
+						//查看联系人 点击同意或是不同意
+						var param = {
+							"rowid" : messageKeyID,
+							"command" : "addFirends"
+						}
+						var parames = {
+							values : {
+								"rowid" : messageKeyID,
+								"command" : "addFirends"
+							}
+						}
+						doAjax(getUserGroupByRowid, "post", parames, function(data) {
+							var charGroupUsers = data.charGroupUsers;
+							var userId  = charGroupUsers.userid;
+							var param = {
+							"userId" : userId,
+							"command" : "addFirends",
+							"tabgroupId" : messageKeyID
+						}
+							//根据好友的数据 查看用户的详细信息
+						openWindow("userCenter_window", "userCenter_window.html", param)
+							
+						}, function(data) {
+						});
+						
+					}
+				});
+			})
+			setTimeout("initSql()", 2000);
+		}
+	</script>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/firends.css" rel="stylesheet" type="text/css">
+		<body>
+			<div class="content">
+				<div class="search-box m-b15">
+					<span class="query-icon"></span>搜索
+				</div>
+				<ul class="group-box m-b15 c">
+					<li>
+						<span class="g-icon g-icon1"></span>
+						项目群组
+					</li>
+					<li>
+						<span class="g-icon g-icon2"></span>
+						我的用户群
+					</li>
+					<li  class="url" url="bbs_window.html">
+						<span class="g-icon g-icon2"></span>
+						社区
+					</li>
+				</ul>
+				<div class="friend-box" id="">
+					<ul id="firend_box"></ul>
+				</div>
+			</div>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script type="text/javascript">
+				apiready = function() {
+					//获取的我聊天组信息
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						var token = ret.value;
+						var parame = {
+							values : {
+								token : token
+							}
+						}
+						var html = "";
+						doAjax(myChatGroup, "post", parame, function(data) {
+							//获取我的群组信息
+							var tabChatGroups = data.tabChatGroups;
+							for (var i = 0; i < tabChatGroups.length; i++) {
+								html = html + "<li><span class='li-icon'></span>" + tabChatGroups[i].groupname + "<ul>";
+								for (var j = 0; j < tabChatGroups[i].tabUser01s.length; j++) {
+									html = html + "<li class='users' nickName='"+tabChatGroups[i].tabUser01s[j].nickName +"' imgUrl='"+tabChatGroups[i].tabUser01s[j].userImgurl+"' rowid='"+tabChatGroups[i].tabUser01s[j].userId+"' ><dl class='c'><dt><img src='" + tabChatGroups[i].tabUser01s[j].userImgurl + "'></dt><dd><h3>" + tabChatGroups[i].tabUser01s[j].nickName + "</h3><P class=''>" + tabChatGroups[i].tabUser01s[j].userNote + "</P></dd></dl></li>";
+								}
+								html = html + "</ul></li>";
+							}
+							$("#firend_box").html(html);
+							$('.friend-box ul li').click(function() {
+								$(this).children('ul').toggle();
+								$(this).children('span.li-icon').toggleClass('on');
+							})
+							$('.friend-box ul li ul li.users').click(function(event) {
+								
+								var rowid  =  $(this).attr("rowid");
+								var imgUrl  =  $(this).attr("imgUrl");
+								
+								var targetId = $(this).attr("targetId");
+								var nickName = $(this).attr("nickName");
+								var conversationType = $(this).attr("conversationType");
+								var parame = {
+									"rowid" : rowid,
+									"type" : "PRIVATE",
+									"nickName" : nickName
+								}
+								openWindow("chat_window", "chat_window.html", parame);
+								
+								
+								event.stopPropagation();
+							})
+							 
+						}, function(data) {
+						});
+					});
+				}
+			</script>
+		</body>
+</html>

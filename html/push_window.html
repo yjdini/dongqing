@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>window</title>
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<header id="header">
+			<a class="fl aa"><span class="back-icon m-r5"></span>返回</a>
+		</header>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+        // 完成首页初始化
+        apiready = function() {
+            var thridHeader = $api.byId('header');
+            $api.fixIos7Bar(thridHeader);
+            var thridHeader = $api.offset(thridHeader);
+            // 清除右部class
+              $(".aa").click(function() {
+				api.closeWin({
+				});
+			});
+            api.openFrame({
+                name : 'push',
+                url : 'push.html',
+                rect : {
+                    x : 0,
+                    y : thridHeader.h,
+                    w : 'auto',
+                    h : 'auto'
+                },
+                bounces : false,
+                delay : 200
+            });
+        };
+        
+	</script>
+</html>

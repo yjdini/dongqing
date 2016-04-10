@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>frame</title>
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<style>
+			html, body {
+				width: 100%;
+				min-height: 100%;
+				background: #f0f0f0;
+			}
+			.h10 {
+				height: 10px;
+				background: #f0f0f0;
+			}
+			.h1 {
+				height: 1px;
+				margin-left: 15px;
+				background: #f0f0f0;
+			}
+			.fr {
+				float: right;
+			}
+			.hint {
+				color: #666;
+				font-size: 12px;
+				margin-right: 5px;
+			}
+			.firstblock, .secondblock, .thirdblock {
+				background-color: #fff;
+			}
+			/* 头部登陆 */
+			.loginbg {
+				width: 100%;
+			}
+			.login .personal_logo {
+				position: absolute;
+				left: 0;
+				top: 55px;
+				width: 70px;
+				margin-left: 20px;
+			}
+			.person_arrow {
+				position: absolute;
+				height: 20px;
+				right: 10px;
+				top: 90px;
+			}
+			.login .userinfo {
+				position: absolute;
+				top: 60px;
+				margin-left: 100px;
+			}
+			.login .userinfo .title {
+				font-size: 20px;
+				color: #fff;
+			}
+			.login .userinfo .subtitle {
+				font-size: 14px;
+				color: #fff;
+				border: 1px solid #fff;
+				display: inline-block;
+				padding: 3px;
+				border-radius: 4px;
+				margin-top: 5px;
+			}
+			/* 设置条目 */
+			.item {
+				height: 50px;
+				line-height: 50px;
+				padding-left: 15px;
+				background-color: #fff;
+			}
+			.item_ico {
+				float: left;
+				width: 30px;
+				padding: 10px 10px 10px 0;
+			}
+			.item_arrow {
+				float: right;
+				width: 16px;
+				padding: 17px 15px 15px 0;
+			}
+			.presshover {
+				background-color: #FAFAFA;
+			}
+			#back {
+				border-radius: 50%;
+			}
+		</style>
+	</head>
+	<body>
+		<section>
+			<div class="content">
+				<div class="xm-box" id="">
+					<div class="xm-tit c"></div>
+					<div id="lastProj"></div>
+				</div>
+			</div>
+		</section>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/app.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		var pageIndex = 1;
+		var token = "";
+		apiready = function() {
+			api.getPrefs({
+				key : 'token'
+			}, function(ret, err) {
+				token = ret.value;
+				initData(token);
+				api.addEventListener({
+					name : 'scrolltobottom',
+					extra : {
+						threshold : 40 //设置距离底部多少距离时触发，默认值为0，数字类型
+					}
+				}, function(ret, err) {
+					pageIndex++;
+					api.toast({
+						msg : '正在加载下一页',
+						location : "middle"
+					});
+					initData(token);
+				});
+			});
+		}
+		function initData(token) {
+			var parame = {
+				values : {
+					pageIndex : pageIndex,
+					token : token,
+					"type": "1"
+				}
+			}
+			doAjax(listMyCollect, "post", parame, function(data) {
+				var lastProjs = data.data;
+				var html = "";
+				for (var i = 0; i < lastProjs.length; i++) {
+					var string = "";
+					var tabProjRequires = lastProjs[i].tabProjRequires;
+					for (var j = 0; j < tabProjRequires.length; j++) {
+						string = string + tabProjRequires[j].userNumber + "个" + tabProjRequires[j].skillId + "&nbsp;&nbsp;";
+					}
+					if (string == "") {
+						string = "暂无";
+					}
+					html = html + "<dl  class='c xm-list lastProj' rowid='" + lastProjs[i].projId + "'><dd><P class='tit fub'>" + lastProjs[i].projName + "</P><P class='c1 '>" + string + "</P><P class='c2'>" + lastProjs[i].projDesc + "</P></dd></dl>";
+				}
+				$("#lastProj").append(html);
+				$(".lastProj").click(function() {
+					var rowid = $(this).attr("rowid");
+					var param = {
+						"rowid" : rowid
+					}
+					openWindow("projectDetail_window", "projectDetail_window.html", param);
+				});
+			}, function() {
+			});
+		}
+	</script>
+</html>

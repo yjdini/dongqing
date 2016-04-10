@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			article {
+				margin-bottom: 70px
+			}
+			.bor-b-s1 {
+				border: 0px !important
+			}
+			.aui-btn-info {
+				border: 0px !important;
+				color: #fff;
+			}
+			.aui-btn, button {
+				border-radius: 0px
+			}
+			p {
+				color: #000
+			}
+		</style>
+	</head>
+	<body class="bg4" style="background-color:#fff" >
+		<article style="display:none">
+			<div class="grzl-head change" >
+				<a class="grzl-img-box tac" id="imgs"> </span> </a>
+			</div>
+			<div class="grzl-info">
+				<ul>
+					<li class="c">
+						<P class="y">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">姓名:</span>
+							<span id="name" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd- ">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">年龄:</span>
+							<span id="age" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd- ">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">性别:</span>
+							<span id="sex" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">婚姻:</span>
+							<span id="hy" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">职业:</span>
+							<span id="address" style="font-size:25px"></span>
+						</p>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">所在地:</span>
+							<span id="szd" style="font-size:25px;color:#000"></span>
+						</p>
+					</li>
+					<li class="c">
+						<span class="" style="color:rgb(228,108,10);font-size:25px">爱好:</span>
+						<span id="aihao" style="font-size:25px;color:#000"></span>
+					</li>
+					<li class="c">
+						<span class="" style="color:rgb(228,108,10);font-size:25px">个人介绍:</span>
+						<span id="parame2" style="font-size:25px;color:#000"></span>
+					</li>
+					<li class="c"></li>
+				</ul>
+			</div>
+			<div class="perlist bor-b-s1">
+				<p class="hd-tit m-b10">
+					查看<span id="hh"></span>的发布 <span class="c3 m-r10" id="activesLe">0</span><span class="jt-icon1"></span>
+				</p>
+				<div class="per-lb" style="height">
+					<ul class="c" id="list" style="height:180px"></ul>
+				</div>
+			</div>
+		</article>
+		<div style="text-align:center;position: fixed;bottom: 0;width: 100%;height: 50px;display:none" >
+			<p>
+				<button class="aui-btn aui-btn-info" style="width:100%;background:rgb(249,100,0);width: 100%;height: 50px;font-size: 24px;" id="add-button">
+					加为好友
+				</button>
+			</p>
+		</div>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			var token = "";
+			var userid = "";
+			var rowid = "";
+			apiready = function() {
+				var pageParam = api.pageParam;
+				userid = pageParam.userid;
+				rowid = pageParam.rowid;
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					if (token == null || token.length == 0) {
+						token = "-----0000";
+					}
+					api.ajax({
+						url : getUserInfoById,
+						timeout : 30,
+						dataType : 'json',
+						returnAll : false,
+						method : 'POST',
+						data : {
+							values : {
+								"token" : "",
+								"rowid" : userid
+							}
+						}
+					}, function(ret, err) {
+						var isFirend = ret.isFirend;
+						$("#add-button").html("操作/审核");
+						var tabusers = ret.tabusers;
+						$("#name").html(tabusers.name || "");
+						$("#hy").html(convertHy(tabusers.hy) || "");
+						$("#age").html(tabusers.age || "" + "岁");
+						$("#aihao").html(tabusers.aihao || "");
+						$("#parame2").html(tabusers.parame2 || "");
+						$("#imgs").attr("style", "background:url(" + SERVERURL + tabusers.imgsrc + ");background-size :100% ")
+						var html = "";
+						var activeLength = ret.actives.length;
+						if (activeLength > 3) {
+							activeLength = 3;
+						}
+						for (var i = 0; i < activeLength; i++) {
+							html = html + "<li  type='" + ret.actives[i].activetype + "' class='list' rowid='" + ret.actives[i].rowid + "' ><a class='head-box' style='background:url(#url) no-repeat; background-size:100%  auto'></a><P class='head-detail'><span class='f11'>" + ret.actives[i].name + "</span></P></li>";
+							html = html.replace("#url", ret.actives[i].activeimg);
+						}
+						$("#activesLe").html(ret.actives.length + "条");
+						$("#list").html(html);
+						$(".jt-icon1").click(function() {
+							$("#list").toggle();
+						});
+						$("#address").html(tabusers.jg);
+						$("#sex").html(convertSex(tabusers.sex));
+						if (tabusers.sex == "1") {
+							$("#hh").html("他");
+						} else {
+							$("#hh").html("她");
+						}
+						$("#js").html((tabusers.parame2));
+						$("#szd").html(tabusers.szd);
+						$(".per-lb").click(function() {
+							var param = {
+								rowid : userid
+							}
+							var url = "viewMylistPush_window.html";
+							openWindow(url, url, param);
+						});
+						$("article").show();
+						$("div").show();
+						$("#add-button").click(function() {
+							actionSheet("审核", ['同意', '拒绝'], function(ret) {
+								var parame = {}
+								if (ret.buttonIndex == "1") {
+									parame = {
+										values : {
+											rowid : rowid,
+											type : "3"
+										}
+									}
+								} else if (ret.buttonIndex == "2") {
+									parame = {
+										values : {
+											rowid : rowid,
+											type : "2"
+										}
+									}
+								}
+								doAjax(submitOrder1, "post", parame, function(data) {
+									api.alert({
+										msg : "操作成功"
+									}, function(ret, err) {
+										api.closeWin({
+										});
+									});
+								}, function(data) {
+								});
+							}, function(data) {
+							});
+						});
+					});
+				});
+			}
+		</script>
+	</body>
+</html>

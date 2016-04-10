@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<script src="../script/api.js"></script>
+			<script src="../script/jquery-1.9.1.min.js"></script>
+			<script src="../script/app.js"></script>
+			<script>
+				var datas = [];
+				var realValue = {};
+				apiready = function() {
+					//选择技能
+					doAjax(LISTBYTYPESKILLANDDE, "post", {}, function(data) {
+						var skills = data.skills;
+						for (var i = 0; i < skills.length; i++) {
+							var array = [];
+							for (var j = 0; j < skills[i].dictionaries.length; j++) {
+								array.push(skills[i].dictionaries[j].dictionaryName);
+								realValue[skills[i].dictionaries[j].dictionaryName] = skills[i].dictionaries[j].dictionaryId;
+							}
+							var obj = {
+								title : skills[i].dictionaryName,
+								contents : array
+							}
+							datas.push(obj);
+						}
+						var obj = api.require('UISelector');
+						obj.open({
+							rect : {
+								x : 0,
+								y : 0,
+								w : 320,
+								h : 480
+							},
+							styles : {
+								bg : 'rgba(0,0,0,0)',
+								text : {
+									size : 14,
+									selected : '#fff',
+									normal : '#000'
+								},
+								item : {
+									w : 80,
+									h : 45,
+									normal : '#87ceeb',
+									selected : '#218868',
+									zoomIn : 1.2
+								}
+							},
+							rows : 5,
+							bounce : false,
+							fixedOn : api.frameName,
+							fixed : false,
+							data : datas
+						}, function(ret) {
+							if(ret.eventType == "selected"){
+								alert(JSON.stringify(ret.selects));
+								
+							}
+						});
+					}, function(data) {
+					})
+				}
+			</script>
+</html>

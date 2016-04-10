@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<style>
+            .size {
+                font-size: .9em;
+            }
+            .txtcolor {
+                color: #6f6f6f;
+            }
+            .txtcolor1 {
+                color: #d10000;
+            }
+            .txtcolor2 {
+                color: #6ec00e;
+            }
+            .c-gra1 {
+                background-color: #f6f6f6;
+            }
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart id="list">
+		<div class="ub ub-hor ub-f1 ulev-1 uinn ub-ac c-gra1 txtcolor">
+			<div class="ub-f1 ub-con ub-ac ub-pc ub">
+				技能名称
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub">
+				技能描述
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub">
+				技能年限
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub">
+				技能等级
+			</div>
+			<div class="umw1"></div>
+		</div>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script>
+            apiready = function() {
+                api.getPrefs({
+                    key : 'token'
+                }, function(ret, err) {
+                    var value = ret.value;
+                    var parame = {
+                        values : {
+                            token : value
+                        }
+                    }
+                    doAjax(LISTSKILL, "post", parame, function(data) {
+                        var tabUserSkills = data.data;
+                        var html = "";
+                        for (var i = 0; i < tabUserSkills.length; i++) {
+                            html = html + "<div class='ub ub-hor ub-f1 ulev-1 uinn ub-ac bc-border ubt ubb c-gra1 umh4 list' rowid='" + tabUserSkills[i].rowid + "'><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + tabUserSkills[i].skillId + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + tabUserSkills[i].userSkillDesc + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + tabUserSkills[i].userSkillAge + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + tabUserSkills[i].parame1 + "</div></div>"
+                        }
+                        $("#list").append(html);
+                        $(".list").click(function() {
+                            var rowid = $(this).attr("rowid");
+                            var parame = {
+                                "rowid" : rowid
+                            }
+                            openWindow("userSkillMan_window.html", "userSkillMan_window.html", parame);
+                        });
+                    }, function() {
+                    })
+                });
+            }
+		</script>
+	</body>
+</html>

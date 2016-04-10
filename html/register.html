@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>frame</title>
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<title></title>
+	</head>
+	<body >
+		<article>
+			<ul class="input-box">
+				<li class="f16" style="font-size:25px">
+					手机注册
+				</li>
+				<li class="bg3">
+					<a class="hq-button fr m-t3 " style="width: 37%;text-align: center;padding:0">获取验证码</a>
+					<input type="number" style="width:60%;font-size:25px" placeholder="请输入手机号码" class="input1" id="phone"  >
+				</li>
+				<li class="bg3">
+					<input placeholder="请输入验证码" type="text" class="input1" id="code" style="font-size:25px">
+				</li>
+			</ul>
+			<P class="tac m-t30">
+				<a class="next-button">下一步</a>
+			</P>
+		</article>
+		<script type="text/javascript">
+			// 完成首页初始化
+			var Interva;
+			var lock = 1;
+			var num = 60;
+			function doSum() {
+				if (num > 0) {
+					num--;
+					$($(".hq-button")[0]).html("" + num + "秒");
+				} else {
+					window.clearInterval(Interva);
+					$($(".hq-button")[0]).html("获取验证码");
+				}
+			}
+
+			apiready = function() {
+			}
+			$(".next-button").click(function() {
+				var phone = $("#phone").val() || "";
+				var code = $("#code").val() || "";
+				if (phone == "") {
+					api.toast({
+						msg : '请输入号码'
+					});
+					return;
+				}
+				if (code == "") {
+					api.toast({
+						msg : '请输入验证码'
+					});
+					return;
+				}
+				//判断手机号码
+				var reg = /^0?1[3|4|5|8][0-9]\d{8}$/;
+				if (!reg.test(phone)) {
+					api.toast({
+						msg : '请输入正确的号码'
+					});
+					return;
+				}
+				var parame = {
+					values : {
+						phone : phone,
+						code : code
+					}
+				}
+				console.debug("check code");
+				api.ajax({
+					url : checkCode,
+					method : 'POST',
+					timeout : 30,
+					dataType : 'json',
+					returnAll : false,
+					data : parame
+				}, function(ret, err) {
+				console.debug("ret"+JSON.stringify(ret));
+				console.debug("err"+JSON.stringify(err));
+					if (ret.flag == "true") {
+						api.openWin({
+							name : "register2_window",
+							url : "./register2_window.html",
+							pageParam : {
+								"phone" : phone
+							},
+							slidBackEnabled : false
+						});
+					} else {
+						api.alert({
+							"title" : "提示",
+							"msg" : ret.msg
+						}, function(ret, err) {
+						});
+					}
+				});
+			});
+			$(".hq-button").click(function() {
+				if (lock == "0") {
+					return;
+				}
+				lock = "0"
+				if ($(this).html() == "获取验证码") {
+					num = 60;
+					var phone = $("#phone").val() || "";
+					if (phone == "") {
+						api.toast({
+							msg : '请输入号码'
+						});
+						lock = "1";
+						return;
+					}
+					var reg = /^0?1[3|4|5|8][0-9]\d{8}$/;
+					if (!reg.test(phone)) {
+						api.toast({
+							msg : '请输入正确的号码'
+						});
+						lock = "1";
+						return;
+					}
+					Interva = self.setInterval("doSum()", 1000);
+					api.ajax({
+						url : SENDCODE,
+						method : 'POST',
+						timeout : 30,
+						dataType : 'json',
+						returnAll : false,
+						data : {
+							values : {
+								"phone" : phone,
+								"check" : "true"
+							}
+						}
+					}, function(ret, err) {
+						if (ret) {
+							if (ret.flag == "success") {
+							} else {
+								window.clearInterval(Interva);
+								$($(".hq-button")[0]).html("获取验证码");
+								api.alert({
+									"title" : "提示",
+									"msg" : "手机号已注册"
+								}, function(ret, err) {
+								lock = "1";
+								});
+							}
+						}
+					});
+				}
+					lock = "1";
+			});
+		</script>
+	</body>
+</html>

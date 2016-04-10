@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			article {
+				margin-bottom: 70px
+			}
+			.bor-b-s1 {
+				border: 0px !important
+			}
+			.aui-btn-info {
+				border: 0px !important;
+				color: #fff;
+			}
+			.aui-btn, button {
+				border-radius: 0px
+			}
+			p {
+				color: #000
+			}
+		</style>
+	</head>
+	<body class="bg4" style="background-color:#fff" >
+		<article style="display:none">
+			<div class="grzl-head change" >
+				<a class="grzl-img-box tac" id="imgs"> </span> </a>
+			</div>
+			<div class="grzl-info">
+				<ul>
+					<li class="c">
+						<P class="y">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">姓名:</span>
+							<span id="name" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd- ">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">年龄:</span>
+							<span id="age" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd- ">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">性别:</span>
+							<span id="sex" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">婚姻:</span>
+							<span id="hy" style="font-size:25px"></span>
+						</P>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">职业:</span>
+							<span id="address" style="font-size:25px"></span>
+						</p>
+					</li>
+					<li class="c">
+						<P class="jd-">
+							<span class="" style="color:rgb(228,108,10);font-size:25px">所在地:</span>
+							<span id="szd" style="font-size:25px;color:#000"></span>
+						</p>
+					</li>
+					<li class="c">
+						<span class="" style="color:rgb(228,108,10);font-size:25px">爱好:</span>
+						<span id="aihao" style="font-size:25px;color:#000"></span>
+					</li>
+					<li class="c">
+						<span class="" style="color:rgb(228,108,10);font-size:25px">个人介绍:</span>
+						<span id="parame2" style="font-size:25px;color:#000"></span>
+					</li>
+					<li class="c"></li>
+				</ul>
+			</div>
+			<div class="perlist bor-b-s1">
+				<p class="hd-tit m-b10">
+					查看<span id="hh"></span>的发布 <span class="c3 m-r10" id="activesLe">0</span><span class="jt-icon1"></span>
+				</p>
+				<div class="per-lb" style="height">
+					<ul class="c" id="list" style="height:180px"></ul>
+				</div>
+			</div>
+		</article>
+		<div style="text-align:center;position: fixed;bottom: 0;width: 100%;height: 50px;display:none" >
+			<p>
+				<button class="aui-btn aui-btn-info" style="width:100%;background:rgb(249,100,0);width: 100%;height: 50px;font-size: 24px;" id="add-button">
+					加为好友
+				</button>
+			</p>
+		</div>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			var token = "";
+			var userid = "";
+			apiready = function() {
+				var pageParam = api.pageParam;
+				userid = pageParam.userid;
+				var command = pageParam.command || "";
+				api.getPrefs({
+					key : 'token'
+				}, function(ret, err) {
+					token = ret.value;
+					if (token == null || token.length == 0) {
+						token = "-----0000";
+					}
+					api.ajax({
+						url : getUserInfoById,
+						timeout : 30,
+						dataType : 'json',
+						returnAll : false,
+						method : 'POST',
+						data : {
+							values : {
+								"token" : token,
+								"rowid" : userid
+							}
+						}
+					}, function(ret, err) {
+						var isFirend = ret.isFirend;
+						if (isFirend == "true") {
+							$("#add-button").html("已经是好友");
+						} else {
+							if (command != "") {
+								$("#add-button").html("操作/审核");
+							}
+						}
+						var tabusers = ret.tabusers;
+						$("#name").html(tabusers.name || "");
+						$("#hy").html(convertHy(tabusers.hy) || "");
+						$("#age").html(tabusers.age || "" + "岁");
+						$("#aihao").html(tabusers.aihao || "");
+						$("#parame2").html(tabusers.parame2 || "");
+						$("#imgs").attr("style", "background:url(" + SERVERURL + tabusers.imgsrc + ");background-size :100% ")
+						var html = "";
+						var activeLength = ret.actives.length;
+						if (activeLength > 3) {
+							activeLength = 3;
+						}
+						for (var i = 0; i < activeLength; i++) {
+							html = html + "<li  type='" + ret.actives[i].activetype + "' class='list' rowid='" + ret.actives[i].rowid + "' ><a class='head-box' style='background:url(#url) no-repeat; background-size:100%  auto'></a><P class='head-detail'><span class='f11'>" + ret.actives[i].name + "</span></P></li>";
+							html = html.replace("#url", ret.actives[i].activeimg);
+						}
+						$("#activesLe").html(ret.actives.length + "条");
+						$("#list").html(html);
+						$(".jt-icon1").click(function() {
+							$("#list").toggle();
+						});
+						$("#address").html(tabusers.jg);
+						$("#sex").html(convertSex(tabusers.sex));
+						if (tabusers.sex == "1") {
+							$("#hh").html("他");
+						} else {
+							$("#hh").html("她");
+						}
+						$("#js").html((tabusers.parame2));
+						$("#szd").html(tabusers.szd);
+						$(".per-lb").click(function() {
+							var param = {
+								rowid : userid
+							}
+							var url = "viewMylistPush_window.html";
+							openWindow(url, url, param);
+						});
+						$("article").show();
+						$("div").show();
+						$("#add-button").click(function() {
+							//token
+							if (token == "-----0000") {
+								api.alert({
+									title : "提示",
+									msg : '请登录后进行操作',
+									buttons : ['确定']
+								}, function(ret, err) {
+									api.openWin({
+										name : "login_window",
+										url : "./login_window.html",
+										slidBackEnabled : false
+									});
+								});
+								return;
+							}
+							var html = $("#add-button").html();
+							html = $.trim(html);
+							if (html == "已经是好友") {
+								//
+								api.openWin({
+									name : 'chat_window',
+									url : './chat_window.html',
+									pageParam : {
+										targetId : userid,
+										"conversationType" : "PRIVATE"
+									},
+									bounces : false,
+									slidBackEnabled : false
+								});
+							} else if ("加为好友" == html) {
+								api.getPrefs({
+									key : 'token'
+								}, function(ret, err) {
+									var value = ret.value;
+									if (value == null || value == "" || value.length == 0) {
+										api.openWin({
+											name : "login_window",
+											url : "./html/login_window.html",
+											slidBackEnabled : false
+										});
+									} else {
+										api.ajax({
+											url : addFirends,
+											timeout : 30,
+											dataType : 'json',
+											returnAll : false,
+											method : 'POST',
+											data : {
+												values : {
+													"rowid" : userid,
+													"token" : value
+												}
+											}
+										}, function(ret, err) {
+											var flag = ret.data;
+											if (flag == "false") {
+												api.alert({
+													msg : ret.msg
+												}, function(ret, err) {
+													api.closeWin({
+													});
+												});
+											} else {
+												api.alert({
+													msg : "添加成功,等待审核"
+												}, function(ret, err) {
+													api.closeWin({
+													});
+												});
+											}
+										});
+									}
+								});
+							} else {
+								actionSheet("审核用户", ['通过', '拒绝'], function(ret) {
+									var type = "";
+									if (ret.buttonIndex == 1) {
+										//通过
+										type = 3;
+									} else if (ret.buttonIndex == 2) {
+										//拒绝
+										type = 2;
+									}
+									var parame = {
+										values : {
+											userid : userid,
+											token : $api.getStorage("token"),
+											type : type
+										}
+									}
+									//开始执行
+									doAjax(submitOrder, "post", parame, function(data) {
+										var flag = data.flag;
+										if (flag == "true") {
+											api.alert({
+												msg : "操作成功"
+											}, function(ret, err) {
+												api.execScript({
+													script : 'init();',
+													"name" : "root",
+													frameName : "firendList"
+												});
+												api.execScript({
+													script : 'initData();',
+													"name" : "root",
+													frameName : "messageList"
+												});
+												api.closeToWin({
+													name : 'root'
+												});
+											});
+										}
+									}, function(data) {
+									}, 1)
+								})
+							}
+						});
+					});
+				});
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style1.css" rel="stylesheet" type="text/css">
+		<body>
+			<section class="regist">
+				<div class="regist-box">
+					<ul>
+						<li class="c">
+							<P>
+								手机号码
+							</P>
+							<P>
+								<input class="input1 input2" type="text" id="u_phone" />
+								&nbsp;<span class="yzm-tips" id="sendCode">获取验证码</span>
+							</P>
+						</li>
+						<li class="c">
+							<P>
+								验&nbsp;证&nbsp;码
+							</P>
+							<P>
+								<input class="input1" type="text" id="code" />
+							</P>
+						</li>
+						<li class="c">
+							<P>
+								密&nbsp;&nbsp;&nbsp;&nbsp;码
+							</P>
+							<P>
+								<input class="input1" type="password"  id="password"/>
+							</P>
+						</li>
+						<li class="c">
+							<P>
+								确认密码
+							</P>
+							<P>
+								<input class="input1" type="text" id="u_password" />
+							</P>
+						</li>
+					</ul>
+					<P class="agree">
+						<span class="agree-icon"><i></i></span><span>我已接受并同意*****协议</span>
+					</P>
+					<P class="regist-confirm-box" id="submit">
+						<a class="regist-confirm">确定</a>
+					</P>
+				</div>
+			</section>
+			<script src="../script/api.js"></script>
+			<script src="../script/jquery-1.9.1.min.js"></script>
+			<script src="../script/app.js"></script>
+			<script>
+				var time = 60;
+				var clearData;
+				var token = "";
+				apiready = function() {
+					$("#sendCode").click(function() {
+						if ($.trim($("#sendCode").html()) == "获取验证码") {
+							var u_phone = $("#u_phone").val();
+							var reg = /^(1[3|5|8])[\d]{9}$/;
+							if (reg.test(u_phone)) {
+								var parame = {
+									values : {
+										"phone" : u_phone,
+										"exists" : "false"
+									}
+								}
+								doAjax(SENDCODE, "POST", parame, function(data) {
+									if (data.flag == "true") {
+										showtime();
+									} else {
+										api.alert({
+											"title" : "提示",
+											"msg" : data.msg
+										}, function(ret, err) {
+											//coding...
+										});
+									}
+								}, function() {
+								})
+							} else {
+								api.alert({
+									"title" : "提示",
+									"msg" : "您输入的号码不对"
+								}, function(ret, err) {
+									//coding...
+								});
+							}
+						}
+						return false;
+					});
+					$("#submit").click(function() {
+						var u_phone = $("#u_phone").val();
+						var u_password = $("#u_password").val();
+						var vali_code = $("#code").val();
+						var password = $("#password").val();
+						if (password != u_password || u_password == "") {
+							api.alert({
+								"title" : "提示",
+								"msg" : "您输入的密码不对，请输入密码"
+							}, function(ret, err) {
+							});
+							return;
+						}
+						var reg = /^(1[3|5|8])[\d]{9}$/;
+						if (reg.test(u_phone)) {
+							var parame = {
+								values : {
+									phone : u_phone,
+									code : vali_code,
+									password : password
+								}
+							}
+							doAjax(REGISTER, "POST", parame, function(data) {
+								var token = "";
+								if (data.flag == "true") {
+									api.alert({
+										"title" : "提示",
+										"msg" : "注册成功aa" + data.token
+									}, function(ret, err) {
+										//进入权限选择界面
+										token = data.token;
+										setPrefs("token", token)
+										setPrefs("nickName", data.nickName);
+										api.execScript({
+											name : "root",
+											frameName : "main",
+											script : 'initData("' + data.token + '");'
+										});
+										var result = JSON.parse(data.rongyun.result);
+										setPrefs("rongtoken", result.token);
+										openWindow("selectRole_content", "selectRole_content.html", {});
+									});
+								} else {
+									api.alert({
+										"title" : "提示",
+										"msg" : data.msg
+									}, function(ret, err) {
+									});
+								}
+							}, function() {
+							})
+						} else {
+							api.alert({
+								"title" : "提示",
+								"msg" : "您输入的号码不对"
+							}, function(ret, err) {
+								//coding...
+							});
+						}
+					});
+				}
+				function showtime() {
+					if (time <= 0) {
+						$("#sendCode").html("获取验证码");
+						clearTimeout(clearData);
+						$("#sendCode").removeClass("sending");
+						time = 60;
+					} else {
+						time--;
+						$("#sendCode").addClass("sending");
+						$("#sendCode").html(time + "秒重新发送");
+						setTimeout("showtime()", "1000");
+					}
+				}
+			</script>
+</html>

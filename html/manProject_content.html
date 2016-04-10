@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<section>
+				<div class="content">
+					<div id="dataList"></div>
+				</div>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script>
+                var token = "";
+                var projId = "";
+                apiready = function() {
+                    var param = api.pageParam;
+                    projId = param.rowid;
+                    var parame = {
+                        values : {
+                            "rowid" : projId
+                        }
+                    }
+                    doAjax(MYLISTPROBYID, "post", parame, function(data) {
+                        var proj = data.proj;
+                        $("#projName").html(proj.projName);
+                        $("#projCity").html(proj.projCity);
+                        $("#projDesc").html(proj.projDesc);
+                        $("#projStatus").html(proj.projStatus);
+                        var html = "";
+                        var tabProjRequires = data.tabProjRequires;
+                        //需求数据
+                        for (var i = 0; i < tabProjRequires.length; i++) {
+                            html = html + "<div class='design-user'><ul><li class='design-info  c'><span class='fc fl' id='userLeval'>需求:" + tabProjRequires[i].skillId + "</span><span class='fl'>需求描述：<span class='f16' >" + tabProjRequires[i].skillDesc + "</span><span class='f16'></span></span></li><li class='design-pj c'>技能需要经验：<span class='c-red f16 m_r20' id='userEmail'>" + tabProjRequires[i].expericeYear + "</span> 需要人数：<span class='c-red f16' id='userGrade'>" + tabProjRequires[i].userNumber + "&nbsp;&nbsp;当前申请人数" + tabProjRequires[i].applys.length + "</span></li></ul></div>";
+                            html = html + "<div class='user-list'><ul id='skillList'></ul>";
+                            var tempHtml = "";
+                            var applys = tabProjRequires[i].applys;
+                            for (var j = 0; j < applys.length; j++) {
+                                if (applys[j].userApplyStatus == "2") {
+                                    tempHtml = tempHtml + "<li><h3><span class='fr'>操作</span>" + tabProjRequires[i].skillId + "</h3><div class='user-detail'><a class='state state1 ' state='0'  userId='" + applys[j].applyUserId + "' rowid='" + applys[j].projApplyId + "'>通过</a><P></P><P><span class='m_r20'>" + applys[j].parame2 + "&nbsp;&nbsp;</P><P><span class='m_r20 jianli' rowid='" + applys[j].parame1 + "'>预计到岗时间: " + convertDate(applys[j].userCheckinDate) + "</span>简历：" + applys[j].parame3 + "</P></div></li>";
+                                } else if (applys[j].userApplyStatus == "3") {
+                                    tempHtml = tempHtml + "<li><h3><span class='fr'>操作</span>" + tabProjRequires[i].skillId + "</h3><div class='user-detail'><a class='state state2 ' state='0'  userId='" + applys[j].applyUserId + "' rowid='" + applys[j].projApplyId + "'>已拒绝</a><P></P><P><span class='m_r20'>" + applys[j].parame2 + "&nbsp;&nbsp;</P><P><span class='m_r20 jianli' rowid='" + applys[j].parame1 + "'>预计到岗时间: " + convertDate(applys[j].userCheckinDate) + "</span>简历：" + applys[j].parame3 + "</P></div></li>";
+                                }else {
+                                	tempHtml = tempHtml + "<li><h3><span class='fr'>操作</span>" + tabProjRequires[i].skillId + "</h3><div class='user-detail'><a class='state state3 rowList ' state='0'  userId='" + applys[j].applyUserId + "' rowid='" + applys[j].projApplyId + "'>操作</a><P></P><P><span class='m_r20'>" + applys[j].parame2 + "&nbsp;&nbsp;</P><P><span class='m_r20 jianli' rowid='" + applys[j].parame1 + "'>预计到岗时间: " + convertDate(applys[j].userCheckinDate) + "</span>简历：" + applys[j].parame3 + "</P></div></li>";
+                                }
+                            }
+                            tempHtml = tempHtml + "</ul></div>";
+                            html = html + tempHtml;
+                        }
+                        $("#dataList").html(html);
+                        $(".rowList").click(function() {
+                            var rowid = $(this).attr("rowid");
+                            var userId = $(this).attr("userId");
+                            api.confirm({
+                                title : '提示',
+                                msg : '请选择您要操作的选项',
+                                buttons : ['同意', '拒绝']
+                            }, function(ret, err) {
+                                //更新状态
+                                var operCode = ret.buttonIndex + 1;
+                                var parame = {
+                                    values : {
+                                        userId : userId,
+                                        projApplyId : rowid,
+                                        operCode : operCode
+                                    }
+                                }
+                                doAjax(OPERATORREQUIREDUSERS, "post", parame, function(data) {
+                                }, function(data) {
+                                })
+                            });
+                        });
+                    }, function(data) {
+                    })
+                }
+			</script>
+</html>

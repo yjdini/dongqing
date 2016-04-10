@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="../css/ui-box.css">
+		<link rel="stylesheet" href="../css/ui-base.css">
+		<link rel="stylesheet" href="../css/ui-color.css">
+		<style>
+            .size {
+                font-size: .9em;
+            }
+            .txtcolor {
+                color: #6f6f6f;
+            }
+            .txtcolor1 {
+                color: #d10000;
+            }
+            .txtcolor2 {
+                color: #6ec00e;
+            }
+            .c-gra1 {
+                background-color: #f6f6f6;
+            }
+            .bc-text {
+                font-size: 1.3em;
+                text-align : center;
+            }
+            .sc-text1 {
+                font-size: 1.1em !important;
+            }
+		</style>
+	</head>
+	<body class="um-vp bc-bg" ontouchstart id="list">
+		<div class="ub ub-hor ub-f1 ulev-1 uinn ub-ac c-gra1 txtcolor">
+			<div class="ub-f1 ub-con ub-ac ub-pc ub bc-text">
+				赠送者
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub bc-text">
+				积分来源
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub bc-text">
+				积分类型
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub bc-text">
+				积分值
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub bc-text">
+				当前值
+			</div>
+			<div class="umw1"></div>
+			<div class="ub-f1 ub-con ub-ac ub-pc ub bc-text">
+				获取时间
+			</div>
+			<div class="umw1"></div>
+		</div>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script>
+            apiready = function() {
+                api.getPrefs({
+                    key : 'token'
+                }, function(ret, err) {
+                    var value = ret.value;
+                    var parame = {
+                        values : {
+                            token : value
+                        }
+                    }
+                    doAjax(LISTUSERSCOREHISTORY, "post", parame, function(data) {
+                        var histories = data.data;
+                        var html = "";
+                        for (var i = 0; i < histories.length; i++) {
+                            html = html + "<div class=' sc-text1 ub ub-hor ub-f1 ulev-1 uinn ub-ac bc-border ubt ubb c-gra1 umh4'><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + histories[i].userScoreSourceUserRowid + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + histories[i].userScoreApiscoreRowid + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + scoreGetType(histories[i].userScoreType) + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + histories[i].userScoreValue + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + histories[i].userScoreCurrentvalue + "</div><div class='umw1'></div><div class='ub-f1 ub-con ub-ac ub-pc ub'>" + convertDate(histories[i].createTime) + "</div></div>"
+                        }
+                        $("#list").append(html);
+                    }, function() {
+                    })
+                });
+            }
+		</script>
+	</body>
+</html>

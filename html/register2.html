@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body class="bg1">
+		<!--
+		<article>
+		<ul class="input-box">
+		<li class="f14">
+		填写姓名、性别与使用身份
+		</li>
+		<li class="bg3">
+		<span class="fl tit">姓名</span>
+		<P class="input-div">
+		<input type="text" placeholder="" class="input1" id="name">
+		</P>
+		</li>
+		<li class="bg3 bor-t-s "  >
+		<span class="fl tit">性别</span>
+		<P class="input-div ">
+		<input placeholder="" type="text" class="input1"  readonly="readonly"  id="sex">
+		</P>
+		</li>
+		<li class="bg3 bor-t-s m-t15 ">
+		<span class="fl tit1">设置密码</span>
+		<P class="input-div">
+		<input placeholder="" type="text" class="input1" id="pass">
+		</P>
+		</li>
+		<li>
+		<span class="fl">显示密码</span><span class="select-w fl m-t10 m-l10"><i class="select-n" id="showPass"></i></span>
+		</li>
+		<li class="tac">
+		请确认您使用本软件的身份
+		</li>
+		<li class="bg3 lnr">
+		<span class="fl f16 tit1">中老年人</span><span class="select-w fr m-t10 m-r10"><i class="selecat-n"></i></span>
+		</li>
+		<li class="bg3 bor-t-s zn">
+		<span class="fl f16 tit1">子女</span><span class="select-w fr m-t10 m-r10"></span>
+		</li>
+		</ul>
+		<P class="tac m-t20 c3">
+		请谨慎选择真实身份，不同的身份对应不同的功能
+		</P>
+		<P class="tac m-t30">
+		<a class="next-button">完成</a>
+		</P>
+		</article>
+		-->
+		<article>
+			<ul class="input-box">
+				<li class="" style="font-size:25px">
+					填写姓名、性别与密码
+				</li>
+			</ul>
+			<div class="grzl-info">
+				<ul>
+					<label for="name">
+						<li class="c"  style="background-color:#fff">
+							<P class="y">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">姓名:</span>
+								<input class="sr-input" type="text" id="name" maxlength="5" style="font-size:25px;width:70%" >
+							</P>
+						</li> </label>
+					<label for="sex">
+						<li class="c"  style="background-color:#fff">
+							<P class="y">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">性别:</span>
+								<input class="sr-input" type="text" id="sex" readonly="" style="font-size:25px;width:70%" >
+							</P>
+						</li> </label>
+					<label for="age">
+						<li class="c"  style="background-color:#fff">
+							<P class="y">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">年龄:</span>
+								<input class="sr-input" type="number" id="age" style="font-size:25px;width:50%" placeholder="年龄" oninput="tt()">
+							</P>
+						</li> </label><label for="pass">
+						<li class="c"  style="background-color:#fff">
+							<P class="y">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">设置密码:</span>
+								<input class="sr-input" type="password" id="pass"  maxlength="15" style="font-size:25px;width:50%" placeholder="密码至少4位">
+							</P>
+						</li> </label><label for="aihao">
+						<li class="c"  style="background-color:#fff">
+							<P class="y">
+								<span class="" style="color:rgb(228,108,10);font-size:25px">兴趣爱好:</span>
+								<input class="sr-input" type="text" id="aihao" maxlength="10"  style="font-size:25px;width:50%" placeholder="兴趣爱好">
+							</P>
+						</li> </label>
+				</ul>
+			</div>
+			<P class="tac m-t10 c3" id="cao" style="font-size:25px">
+				点击注册表示同意
+				<br>
+				<font color="blue">《冬晴用户使用协议》</font>
+			</P>
+			<P class="tac m-t30">
+				<a class="next-button">注册</a>
+			</P>
+		</article>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript" src="../script/app.js"></script>
+		<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+		<script>
+			var type = "1";
+			var bangding = "";
+			function tt() {
+				var val = $("#age").val();
+				if ($("#age").val().length > 2) {
+					val = val.slice(0, 2);
+					$("#age").val(val)
+				}
+			}
+
+			var sex = "";
+			apiready = function() {
+				var pageParam = api.pageParam;
+				var url = REGISTERUSER;
+				$("#cao").click(function() {
+					api.openWin({
+						name : 'cao',
+						url : 'cao.html',
+						bounces : false,
+						slidBackEnabled : false
+					});
+				});
+				$(".next-button").click(function() {
+					var name = $("#name").val() || "";
+					var pass = $("#pass").val() || "";
+					var aihao = $("#name").val() || "";
+					if (name == "") {
+						api.alert({
+							msg : "请输入姓名"
+						}, function(ret, err) {
+							//coding...
+						});
+						return;
+					}
+					var age = $("#age").val() || "";
+					if (age == "") {
+						api.alert({
+							msg : "请输入牛年龄"
+						}, function(ret, err) {
+						});
+						return;
+					}
+					if (sex == "") {
+						api.alert({
+							msg : "请选择性别"
+						}, function(ret, err) {
+							//coding...
+						});
+						return;
+					}
+					if (pass == "") {
+						api.alert({
+							msg : "请输入密码"
+						}, function(ret, err) {
+							//coding...
+						});
+						return;
+					}
+					if (pass.length < 4) {
+						api.alert({
+							msg : "密码长度至少4位"
+						}, function(ret, err) {
+						});
+						return;
+					}
+					if (aihao == "") {
+						api.alert({
+							msg : "请输入爱好"
+						}, function(ret, err) {
+							//coding...
+						});
+						return;
+					}
+					var parame = {
+						"phone" : pageParam.phone,
+						"name" : $("#name").val(),
+						"sex" : sex,
+						"password" : $("#pass").val(),
+						"userid" : bangding,
+						age : $("#age").val(),
+						aihao : $("#aihao").val()
+					}
+					api.ajax({
+						url : REGISTERUSER,
+						timeout : 30,
+						dataType : 'json',
+						method : 'post',
+						returnAll : false,
+						data : {
+							values : parame
+						}
+					}, function(ret, err) {
+						if (ret.flag == "error") {
+							api.alert({
+								msg : ret.msg
+							});
+						} else {
+							//融云加载
+							api.alert({
+								msg : "登录成功"
+							});
+							setPrefs("token", ret.data.rowid);
+							var result = JSON.parse(ret.rongyun.result);
+							setPrefs("rongtoken", result.token);
+							api.openWin({
+								name : 'index',
+								url : '../index.html',
+								bounces : false,
+								slidBackEnabled : false
+							});
+						}
+					});
+				});
+				$("#sex").click(function() {
+					api.actionSheet({
+						title : '选择性别',
+						cancelTitle : '取消',
+						buttons : ['男', '女']
+					}, function(ret, err) {
+						if (ret.buttonIndex == 1) {
+							$("#sex").val("男");
+							sex = 1;
+						} else if (ret.buttonIndex == 2) {
+							$("#sex").val("女");
+							sex = 2;
+						}
+					});
+				});
+			}
+		</script>
+	</body>
+</html>

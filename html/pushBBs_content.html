@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<body>
+			<section>
+				<div class="fb-box">
+					<ul class="fb-list">
+						<li ></li>
+						<input class="fb-input fb-input1" type="text" id="title" placeholder="添加标题" />
+						<li class="select">
+							<span class="fr i-licon m-l10"></span>行业
+						</li>
+						<li>
+							<textarea  class="fb-input fb-input2" id="content" placeholder="请输入帖子描述" ></textarea>
+						</li>
+					</ul>
+					<ul class="fb-pic c" id="imgLists">
+						<li class="last"><img src="../images/fb-add-icon.png" />
+						</li>
+					</ul>
+					<div class="fb-yy">
+						<span class="fb-yy-icon fl"></span>
+						<p class="date fl">
+							<span>语言</span>
+							<span class="f14" id="voiceLength"></span>
+						</p>
+					</div>
+					<div class="map-box">
+						<span class="fb-map-icon fl"></span>
+						<span class="fl add" id="lbaName">中山陵中山陵中山陵</span>
+						<span class="fl fb-map-delete"></span>
+					</div>
+				</div>
+				<ul class="fb-nav c">
+					<li>
+						<span class="fb-nav-icon fb-nav-icon1"></span>
+					</li>
+					<li>
+						<span class="fb-nav-icon fb-nav-icon2"></span>
+					</li>
+					<li>
+						<span class="fb-nav-icon fb-nav-icon3"></span>
+					</li>
+					<li>
+						<span class="fb-nav-icon fb-nav-icon4"></span>
+					</li>
+				</ul>
+			</section>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script>
+                var token = "";
+                var imgList = [];
+                var UIMediaScanner;
+                apiready = function() {
+                    UIMediaScanner = api.require('UIMediaScanner');
+                    api.getPrefs({
+                        key : 'token'
+                    }, function(ret, err) {
+                        token = ret.value;
+                    });
+                    $(".last").click(function() {
+                        initClick();
+                    });
+                }
+                function initClick() {
+                    UIMediaScanner.open({
+                        column : 4,
+                        classify : true,
+                        max : 4,
+                        type : "picture",
+                        count : 6,
+                        sort : {
+                            key : 'time',
+                            order : 'desc'
+                        },
+                        texts : {
+                            stateText : '已选择*项',
+                            cancelText : '取消',
+                            finishText : '完成'
+                        },
+                        styles : {
+                            bg : '#fff',
+                            mark : {
+                                icon : '',
+                                position : 'bottom_left',
+                                size : 20
+                            },
+                            nav : {
+                                bg : '#eee',
+                                stateColor : '#000',
+                                stateSize : 18,
+                                cancelBg : 'rgba(0,0,0,0)',
+                                cancelColor : '#000',
+                                cancelSize : 18,
+                                finishBg : 'rgba(0,0,0,0)',
+                                finishColor : '#000',
+                                finishSize : 18
+                            }
+                        }
+                    }, function(ret) {
+                        if (ret) {
+                            var html = "";
+                            imgList = [];
+                            for (var i = 0; i < ret.list.length; i++) {
+                                imgList.push(ret.list[i].thumbPath);
+                                html = html + " <li class='select'><img src='" + ret.list[i].thumbPath + "' /><span class='delete-icon' index='" + ret.list[i].thumbPath + "'></span></li>";
+                            }
+                            html = html + "<li class='last'><img src='../images/fb-add-icon.png' /></li>";
+                            $("#imgLists").html(html);
+                            $(".last").click(function() {
+                                initClick();
+                            });
+                            $(".delete-icon").click(function() {
+                                $(this).parent().hide();
+                                var index = $(this).attr("index");
+                                imgList = delArray(imgList, index);
+                            });
+                        }
+                    });
+                }
+
+                function save() {
+                    var parame = {
+                        values : {
+                            token : token,
+                            title : $("#title").val(),
+                            content : $("#content").val()
+                        },
+                        files : {
+                            img1 : imgList
+                        }
+                    }
+                    doAjax(ADDBBS, "post", parame, function(data) {
+                        if (data.data == "true") {
+                            api.alert({
+                                "title" : "提示",
+                                "msg" : "发表成功"
+                            }, function(ret, err) {
+                                api.closeWin({
+                                });
+                            });
+                        }
+                    }, function(data) {
+                    });
+                }
+			</script>
+</html>

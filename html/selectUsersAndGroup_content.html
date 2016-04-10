@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<meta content="yes" name="apple-mobile-web-app-capable" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="false" id="twcClient" name="twcClient">
+		<link href="../css/firends.css" rel="stylesheet" type="text/css">
+		<body>
+			<div class="content">
+				<div class="friend-box" id="groupList">
+					<ul>
+						<li>
+							<span class="icon-checkbox1 on"></span><span class="li-icon"></span>我的好友
+							<ul>
+								<li>
+									<dl class="c">
+										<dt>
+											<span class="icon-checkbox2 on"></span><img src="images/0.jpg">
+										</dt>
+										<dd>
+											<h3>郭磊</h3>
+											<P class="">
+												随着时代的变迁，新生代八零九零后渐渐长大
+											</P>
+										</dd>
+									</dl>
+								</li>
+								<li>
+									<dl class="c">
+										<dt>
+											<span class="icon-checkbox2"></span><img src="images/0.jpg">
+										</dt>
+										<dd>
+											<h3>郭磊</h3>
+											<P class="">
+												随着时代的变迁，新生代八零九零后渐渐长大
+											</P>
+										</dd>
+									</dl>
+								</li>
+								<li>
+									<dl class="c">
+										<dt>
+											<span class="icon-checkbox2"></span><img src="images/0.jpg">
+										</dt>
+										<dd>
+											<h3>霓漫天</h3>
+											<P class="">
+												随着时代的变迁，新生代八零九零后渐渐长大
+											</P>
+										</dd>
+									</dl>
+								</li>
+								<li>
+									<dl class="c">
+										<dt>
+											<span class="icon-checkbox2"></span><img src="images/0.jpg">
+										</dt>
+										<dd>
+											<h3>花花</h3>
+											<P class="">
+												随着时代的变迁，新生代八零九零后渐渐长大
+											</P>
+										</dd>
+									</dl>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<script type="text/javascript" src="../script/api.js"></script>
+			<script type="text/javascript" src="../script/app.js"></script>
+			<script type="text/javascript" src="../script/jquery-1.9.1.min.js"></script>
+			<script type="text/javascript">
+				apiready = function() {
+					initData();
+				}
+				function initData() {
+					//获取我的群组
+					api.getPrefs({
+						key : 'token'
+					}, function(ret, err) {
+						var value = ret.value;
+						//	token = value;
+						var parame = {
+							values : {
+								token : value
+							}
+						};
+						doAjax(listMyUserGroupWithOutScan, "post", parame, function(data) {
+							var groups = data.groups;
+							var html = "";
+							for (var i = 0; i < groups.length; i++) {
+								var groupUsers = groups[i].tabUser01s;
+								groupUsers = groupUsers || [];
+								html = html + "<ul><li class='grouplist'  parent='" + groups[i].userGroupId + "'><span parent='" + groups[i].userGroupId + "' groupUsers='" + groupUsers.length + "'  class='lock icon-checkbox1' rowid='" + groups[i].userGroupId + "' type='1' ></span> <span class='li-icon'></span>" + groups[i].userGroupName + "  <ul>";
+								for (var j = 0; j < groupUsers.length; j++) {
+									html = html + "<li><dl class='c'><dt><span parent='" + groups[i].userGroupId + "'   class='icon-checkbox2' parent='" + groups[i].userGroupId + "' rowid='" + groupUsers[j].userId + "' type='2'></span><img src='" + groupUsers[j].userImgurl + "'></dt><dd><h3>" + groupUsers[j].nickName + "</h3><P class=\"\">" + groupUsers[j].userNote + "</P></dd></dl></li>";
+								}
+								html = html + "</ul></li></ul>";
+							}
+							$("#groupList").html(html);
+							$('.friend-box ul li span.li-icon').click(function() {
+								$(this).parent().children('ul').toggle();
+								$(this).toggleClass('on');
+								event.stopPropagation();
+							})
+							$('.friend-box ul li ul li').click(function(event) {
+								event.stopPropagation();
+							})
+							$('.icon-checkbox2').click(function(event) {
+								var rowid = $(this).attr("rowid");
+								var type = $(this).attr("id");
+								$(this).toggleClass('on');
+								$(this).removeClass('lock');
+								if (!$(this).hasClass("on")) {
+									$(this).parents("li.grouplist").children("span.icon-checkbox1").removeClass('on');
+									$(this).parents("li.grouplist").children(".icon-checkbox2").removeClass('lock');
+									//$('.icon-checkbox1').removeClass('on');
+								}
+								event.stopPropagation();
+							})
+							//全选
+							$('.icon-checkbox1').click(function(event) {
+								event.stopPropagation();
+								$(this).toggleClass('on');
+								$(this).toggleClass('lock');
+								if ($(this).hasClass("on")) {
+									$(this).parent().find('.icon-checkbox2').addClass('on');
+									$(this).parent().find('.icon-checkbox2').addClass('lock');
+								} else {
+									$(this).parent().find('.icon-checkbox2').removeClass('on');
+									$(this).parent().find('.icon-checkbox2').removeClass('lock');
+								}
+							})
+						}, function() {
+						});
+					});
+				}
+
+				function saveData() {
+					var selectOn = $(".on");
+					var array = [];
+					for (var i = 0; i < selectOn.length; i++) {
+						var rowid = $(".on:eq(" + i + ")").attr("rowid");
+						var type = $(".on:eq(" + i + ")").attr("type");
+						var groupUsers = $(this).attr("groupUsers") || 0;
+						var parent = $(this).attr("groupUsers");
+						if (!$(this).hasClass("lock")) {
+							if (rowid != null && rowid != "") {
+								var obj = {
+									rowid : rowid,
+									type : type,
+									groupUsers : groupUsers,
+									parent : parent,
+									"isFull" : "2"
+								}
+								array.push(obj);
+							}
+						}
+					}
+					//过滤
+					for (var i = 0; i < array.length; i++) {
+						var type = array[i].type;
+						if (type == 1) {
+							var length = 0;
+							for (var j = 0; j < array.length; j++) {
+								if (array[j].parent = array[i].parent) {
+									length++;
+								}
+							}
+							if (array[i].groupUsers = (length - 1)) {
+								array[i].isFull = "1";
+							}
+						}
+					}
+					
+					api.execScript({
+	                    name  : "groupJoinEnt_window",
+	                    frameName : "groupJoinEnt_content",
+	                    script: "savaUsers('"+JSON.stringify(array)+"');"
+                    });
+                    
+                    api.closeWin({
+                    });
+				}
+			</script>
+		</body>
+</html>

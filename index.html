@@ -1,0 +1,406 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>底部导航</title>
+		<link rel="stylesheet" type="text/css" href="css/selectUser.css"/>
+		<link rel="stylesheet" type="text/css" href="css/aui-win.min.css"/>
+		<style>
+			#footers  p.heights {
+				height: 18px;
+				line-height: 18px;
+				margin-top: 3px
+			}
+			.aui-bar .aui-title {
+				font-size: 25px;
+				font-family: "kaiti"
+			}
+		</style>
+		<script>
+			console.debug("asdf");
+		</script>
+	</head>
+	<body>
+		<div id="wrap">
+			<header class="aui-bar aui-bar-nav "  id="chat">
+				<a class="aui-pull-left" id="scan"> <span class="aui-iconfont aui-icon-left " id="scanH">筛选 </span> </a>
+				<div class="aui-title" >
+					冬晴
+				</div>
+				<a class="aui-pull-right" id="form" style="padding-right:0px" onclick="create()"><span class="aui-iconfont aui-icon-">创建<span class="aui-iconfont aui-icon-add" style="padding-right:10px"></span></span> </a>
+			</header>
+			<header class="aui-bar aui-bar-nav "  id="userList" style="display:none">
+				<div class="aui-title" >
+					通讯录a
+				</div>
+				<a class="aui-pull-right" id="form" style="padding-right:0px" onclick="adds()"><span class="aui-iconfont aui-icon-">添加<span class="aui-iconfont aui-icon-add" style="padding-right:10px"></span></span> </a>
+			</header>
+			<header class="aui-bar aui-bar-nav "  id="create" style="display:none">
+				<div class="aui-title" >
+					联系人
+				</div>
+			</header>
+			<header class="aui-bar aui-bar-nav "  id="finds" style="display:none">
+				<div class="aui-title" >
+					消息
+				</div>
+			</header>
+			<header class="aui-bar aui-bar-nav "  id="my" style="display:none">
+				<div class="aui-title" >
+					我的
+				</div>
+			</header>
+			<div id="main"></div>
+			<nav >
+				<ul class="c" id="footers" style="margin-top:4px">
+					<li class="cur " id="indexes" onclick="randomSwitchBtn(this,'chat',0)">
+						<p class="nav-icon nav-icon1"></p>
+						<p class="heights">
+							首页
+						</p>
+					</li>
+					<li onclick="randomSwitchBtn(this,'userList',1)">
+						<p class="nav-icon nav-icon2"></p>
+						<p class="heights">
+							通讯录
+						</p>
+					</li>
+					<li onclick="randomSwitchBtn(this,'finds',3)" class="mywx">
+						<p class="nav-icon nav-icon5"></p>
+						<p class="heights">
+							消息
+						</p>
+						<span class="tips" id="tips"  style="display:none"></span>
+					</li>
+					<li class="wx" id="wx" onclick="randomSwitchBtn(this,'my',4)">
+						<p class="nav-icon nav-icon4"></p>
+						<p class="heights">
+							我的
+						</p>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</body>
+	<script type="text/javascript" src="script/api.js"></script>
+	<script type="text/javascript" src="script/app.js"></script>
+	<script type="text/javascript" src="script/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+		var open = 1;
+		var openFirends = 1;
+		var openMessage = 1;
+		var openMyInfo = 1;
+		function initData() {
+			open = 2;
+		}
+		
+		function clearData(){
+		 open = 1;
+		 openFirends = 1;
+		 openMessage = 1;
+		 openMyInfo = 1;
+		}
+
+		function changeTip() {
+			readSQL("SELECT count(1)cc  from message  where  status = 1", function(data) {
+				var count = data[0].cc
+				if (count > 0) {
+					$("#tips").html(count);
+					$("#tips").show();
+					api.setAppIconBadge({
+						badge : count
+					});
+				} else {
+					$("#tips").hide();
+				}
+				if (openFirends == 2) {
+					api.execScript({
+						script : 'init();',
+						name : "root",
+						"frameName" : "firendList"
+					});
+				}
+				if (openMessage == 2) {
+					api.execScript({
+						script : 'initData();',
+						name : "root",
+						"frameName" : "messageList"
+					});
+				}
+			})
+		}
+
+		function initMy() {
+			if (openMyInfo == 2) {
+				api.execScript({
+					script : 'initData();',
+					name : "root",
+					"frameName" : "userInfo"
+				});
+			}
+		}
+
+		apiready = function() {
+			var $header = $api.dom('header');
+			$api.fixIos7Bar($header);
+			isFirst();
+			$("#scan").click(function() {
+				actionSheet("菜单", ['查看全部', '只看男', '只看女'], function(ret) {
+					if (ret.buttonIndex == 1) {
+						api.execScript({
+							script : 'initData2();',
+							name : "root",
+							"frameName" : "main"
+						});
+					} else if (ret.buttonIndex == 2) {
+						api.execScript({
+							script : 'initData2(1);',
+							name : "root",
+							"frameName" : "main"
+						});
+					} else if (ret.buttonIndex == 3) {
+						api.execScript({
+							script : 'initData2(2);',
+							name : "root",
+							"frameName" : "main"
+						});
+					}
+				});
+			});
+			var $body = $api.dom('body');
+			var header_h = $api.offset($header).h;
+			var token = $api.getStorage("token");
+			var $foot = $api.dom('nav');
+			var $foot_h = $api.offset($foot).h;
+			initRongYun();
+			console.debug("initrongyun over");
+			if (api.systemType == "android") {
+				$("#chat").css("padding-top", "20px");
+				$("#userList").css("padding-top", "20px");
+				$("#create").css("padding-top", "20px");
+				$("#finds").css("padding-top", "20px");
+				$("#my").css("padding-top", "20px");
+				header_h = header_h + 20;
+			}
+			$("#myList").click(function() {
+				api.actionSheet({
+					title : '菜单',
+					cancelTitle : '取消',
+					buttons : ['修改密码', '我的二维码', "退出"]
+				}, function(ret) {
+					if (ret.buttonIndex == 1) {
+						api.stopPlay();
+						openWindow("editPassword", "./html/editPassword.html", {});
+					} else if (ret.buttonIndex == 2) {
+						api.getPrefs({
+							key : 'token'
+						}, function(ret, err) {
+							var value = ret.value;
+							var parame = {
+								values : {
+									"token" : value
+								}
+							}
+							doAjax(GETMYQRCODE, "post", parame, function(data) {
+								var path = data.path;
+								var array = [];
+								array.push(path);
+								var obj = api.require('imageBrowser');
+								obj.openImages({
+									imageUrls : array,
+									showList : false,
+									activeIndex : 0
+								});
+							}, function() {
+							});
+						});
+					} else if (ret.buttonIndex == 3) {
+						//退出 需要清除APP数据
+						api.confirm({
+							title : '提示',
+							msg : '确定退出吗',
+							buttons : ['确定', '取消']
+						}, function(ret, err) {
+							if (ret.buttonIndex == 1) {
+								api.removePrefs({
+									key : 'token'
+								});
+								//刷新 主页数据
+								$("#chat").hide();
+								$("#userList").hide();
+								$("#index").hide();
+								$("#finds").hide();
+								$("#my").hide();
+								$("#chat").show();
+								$("#indexes").addClass("cur");
+								$("#wx").removeClass("cur");
+								api.setFrameGroupIndex({
+									name : 'group',
+									index : 0
+								});
+								api.execScript({
+									script : 'initData("");',
+									name : "root",
+									frameName : "main"
+								});
+							}
+						});
+					}
+				});
+			});
+			$("#chatMenu").click(function() {
+				//发布我的服务
+				//	openWindow("pushServer_window", "./html/pushServer_window.html", {});
+			});
+			$("#firends").click(function() {
+			});
+			$("#form").click(function() {
+			});
+			api.openFrameGroup({
+				name : 'group',
+				scrollEnabled : false,
+				rect : {
+					x : 0,
+					y : header_h,
+					w : 'auto',
+					h : api.winHeight - $foot_h - header_h
+				},
+				index : 0,
+				frames : [{
+					name : 'main',
+					url : 'html/main.html'
+				}, {
+					name : 'firendList',
+					url : 'html/firendList.html'
+				}, {
+					name : 'messageList',
+					url : 'html/messageList.html'
+				}, {
+					name : 'messageList',
+					url : 'html/messageList.html'
+				}, {
+					name : 'userInfo',
+					url : 'html/userInfo.html'
+				}]
+			}, function(ret, err) {
+			});
+			//	openWindow("myQuestion_window","./html/myQuestion_window.html",{})
+		}
+		// 随意切换按钮
+		function randomSwitchBtn(obj, name, index) {
+			var token = $api.getStorage("token") || "";
+			if (token == "") {
+				openWindow("login_window.html", "./html/login_window.html", {})
+				return;
+			}
+			$("#chat").hide();
+			$("#userList").hide();
+			$("#index").hide();
+			$("#finds").hide();
+			$("#create").hide();
+			$("#my").hide();
+			$("#" + name).show();
+			var $header = $api.byId(name);
+			$api.fixIos7Bar($header);
+			var $footer = $api.byId('footers');
+			var $footerBar = $api.domAll($footer, 'li');
+			for (var j = 0; j < $footerBar.length; j++) {
+				$api.removeCls($footerBar[j], 'cur');
+			}
+			$api.addCls(obj, 'cur');
+			api.stopPlay();
+			var reload = false;
+			if (index == "1") {
+				if (openFirends == 1) {
+					openFirends = 2;
+					reload = true;
+				}
+			} else if (index == "3") {
+				if (openMessage == 1) {
+					openMessage = 2;
+					reload = true;
+				}
+			} else if (index == "4") {
+				if (openMyInfo == 1) {
+					openMyInfo = 2;
+					reload = true;
+				}
+			}
+			api.setFrameGroupIndex({
+				name : 'group',
+				index : index,
+				reload : reload
+			});
+			/**
+			 *
+			 * name : '',
+			 url : 'html/main.html'
+			 }, {
+			 name : 'firendList',
+			 url : 'html/firendList.html'
+			 }, {
+			 name : 'messageList',
+			 url : 'html/messageList.html'
+			 }, {
+			 name : 'messageList',
+			 url : 'html/messageList.html'
+			 }, {
+			 name : 'userInfo',
+			 url : 'html/userInfo.html'
+			 */
+		}
+
+		function create() {
+			var token = $api.getStorage("token") || "";
+			if (token == "") {
+				api.alert({
+					msg : "请先登录"
+				}, function(ret, err) {
+				});
+			} else {
+				actionSheet("创建菜单", ['创建群组', '创建群组活动', '发布个人分享', '查看我的发布'], function(ret) {
+					if (ret.buttonIndex == 1) {
+						var url = "./html/createGroup_window.html";
+						api.stopPlay();
+						openWindow("createGroup_window.html", url, {});
+					} else if (ret.buttonIndex == 2) {
+						api.stopPlay();
+						var url = "./html/createActive_window.html";
+						api.stopPlay();
+						openWindow("createActive_window.html", url, {});
+					} else if (ret.buttonIndex == 3) {
+						var url = "./html/createPerson_window.html";
+						api.stopPlay();
+						openWindow("createPerson_window.html", url, {});
+					} else if (ret.buttonIndex == 4) {
+						var url = "./html/viewMylistPush_window.html";
+						api.stopPlay();
+						var parame = {
+							rowid : token
+						}
+						openWindow(url, url, parame);
+					}
+				});
+			}
+		}
+
+		function change(type) {
+			if (type == "0") {
+				$("#scan").show();
+			} else {
+				$("#scan").hide();
+			}
+		}
+
+		function adds() {
+			searchUtil(function(data) {
+				var text = data.text;
+				var parame = {
+					text : text
+				}
+				openWindow("searchUser_window", "./html/searchUser_window.html", parame);
+			});
+		}
+	</script>
+</html>
